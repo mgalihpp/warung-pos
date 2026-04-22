@@ -45,3 +45,8 @@ next-env.d.ts
 .swc/
 
 /generated/prisma
+
+#agent
+.agents
+skills
+skills-lock.json
