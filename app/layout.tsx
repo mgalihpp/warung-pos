@@ -13,8 +13,13 @@ const fontMono = Geist_Mono({
 })
 
 export const metadata: Metadata = {
-  title: "Warung Sembako Pos",
-  description: "Aplikasi web Warung Sembako Pos untuk pengelolaan toko sembako.",
+  title: "Warung Mama Nia",
+  description: "Sistem kasir Warung Mama Nia untuk mengelola transaksi dan operasional toko.",
+  icons: {
+    icon: "/logo warung.png",
+    shortcut: "/logo warung.png",
+    apple: "/logo warung.png",
+  },
 }
 
 export default function RootLayout({
