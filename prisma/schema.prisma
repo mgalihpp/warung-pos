@@ -11,6 +11,10 @@ datasource db {
   provider = "postgresql"
 }
 
+// ============================================================================
+// Better Auth Models
+// ============================================================================
+
 model User {
   id            String    @id
   name          String
@@ -25,6 +29,10 @@ model User {
   banExpires    DateTime? @db.Timestamptz(6)
   accounts      Account[]
   sessions      Session[]
+
+  // Business relations
+  transactions     Transaction[]
+  stockAdjustments StockAdjustment[]
 
   @@map("user")
 }
@@ -75,4 +83,115 @@ model Verification {
 
   @@index([identifier])
   @@map("verification")
+}
+
+// ============================================================================
+// Business Models — Inventori & Transaksi
+// ============================================================================
+
+/// Kategori barang (Sembako, Rokok, Minuman, Snack, dll)
+model Category {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  slug        String   @unique
+  description String?
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  products Product[]
+
+  @@map("category")
+}
+
+/// Data barang lengkap dengan harga beli, harga jual, stok, dan satuan.
+/// Margin keuntungan dihitung di aplikasi: margin = sellPrice - buyPrice
+model Product {
+  id          String   @id @default(cuid())
+  name        String
+  categoryId  String
+  unit        String // pcs, bungkus, botol, sachet, dus
+  stock       Int      @default(0)
+  minStock    Int      @default(5)
+  buyPrice    Float // Harga beli (modal)
+  sellPrice   Float // Harga jual
+  description String?
+  isActive    Boolean  @default(true) // Soft-delete flag
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+  updatedAt   DateTime @updatedAt @db.Timestamptz(6)
+
+  category         Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  transactionItems TransactionItem[]
+  stockAdjustments StockAdjustment[]
+
+  @@index([categoryId])
+  @@index([name])
+  @@index([isActive])
+  @@map("product")
+}
+
+/// Transaksi penjualan. cashierName di-denormalize agar laporan tetap
+/// akurat meskipun data user berubah di masa depan.
+model Transaction {
+  id            String   @id @default(cuid())
+  invoiceNumber String   @unique // Format: INV-YYYYMMDD-XXXX
+  cashierId     String
+  cashierName   String // Denormalized
+  paymentMethod String   @default("cash") // cash | qris | transfer
+  subtotal      Float
+  total         Float
+  amountPaid    Float
+  change        Float // amountPaid - total
+  notes         String?
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  cashier User              @relation(fields: [cashierId], references: [id], onDelete: Restrict)
+  items   TransactionItem[]
+
+  @@index([cashierId])
+  @@index([createdAt])
+  @@index([invoiceNumber])
+  @@map("transaction")
+}
+
+/// Detail item per transaksi. productName dan unitPrice di-denormalize
+/// karena harga barang bisa berubah seiring waktu.
+model TransactionItem {
+  id            String   @id @default(cuid())
+  transactionId String
+  productId     String
+  productName   String // Denormalized — nama produk saat transaksi
+  unitPrice     Float // Denormalized — harga jual saat transaksi
+  quantity      Int
+  subtotal      Float // unitPrice × quantity
+  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+
+  transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)
+  product     Product     @relation(fields: [productId], references: [id], onDelete: Restrict)
+
+  @@index([transactionId])
+  @@index([productId])
+  @@map("transaction_item")
+}
+
+/// Audit trail perubahan stok.
+/// Type: IN (restok), OUT (penjualan), CORRECTION (koreksi manual)
+model StockAdjustment {
+  id          String   @id @default(cuid())
+  productId   String
+  userId      String
+  type        String // IN | OUT | CORRECTION
+  quantity    Int // Jumlah perubahan (positif)
+  stockBefore Int
+  stockAfter  Int
+  reason      String?
+  referenceId String? // ID referensi (misal: Transaction ID)
+  createdAt   DateTime @default(now()) @db.Timestamptz(6)
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Restrict)
+  user    User    @relation(fields: [userId], references: [id], onDelete: Restrict)
+
+  @@index([productId])
+  @@index([userId])
+  @@index([createdAt])
+  @@map("stock_adjustment")
 }
