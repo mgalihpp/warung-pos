@@ -4,7 +4,7 @@ import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowDown01Icon, PlusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 
-import { createProduct } from "@/app/admin/produk/actions"
+import { useCreateProduct } from "./use-produk-actions"
 import { ImageUpload } from "./produk-image-upload"
 import { Button } from "@/components/ui/button"
 import {
@@ -17,25 +17,30 @@ import {
 } from "@/components/ui/command"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog"
+import { Input } from "@/components/ui/input"
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 import {
   Drawer,
+  DrawerClose,
   DrawerContent,
   DrawerDescription,
   DrawerHeader,
   DrawerTitle,
   DrawerTrigger,
-  DrawerClose,
 } from "@/components/ui/drawer"
-import { Input } from "@/components/ui/input"
-import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover"
+import { Textarea } from "@/components/ui/textarea"
 import {
   Select,
   SelectContent,
@@ -43,7 +48,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { cn } from "@/lib/utils"
 import type { ProdukCategory } from "./types"
 
@@ -51,11 +55,12 @@ type ProdukHeaderProps = {
   categories: ProdukCategory[]
 }
 
-function Field({ label, children }: { label: string; children: React.ReactNode }) {
+function Field({ label, children, error }: { label: string; children: React.ReactNode; error?: string[] }) {
   return (
     <label className="grid gap-1.5 text-xs font-medium">
       <span>{label}</span>
       {children}
+      {error && error[0] && <span className="text-[10px] text-destructive font-normal">{error[0]}</span>}
     </label>
   )
 }
@@ -226,7 +231,20 @@ export function UnitCombobox({ defaultValue = "" }: { defaultValue?: string }) {
   )
 }
 
-function ProductCreateForm({ categories, stickyFooter = false, closeButton }: ProdukHeaderProps & { stickyFooter?: boolean, closeButton?: React.ReactNode }) {
+function ProductCreateForm({
+  categories,
+  stickyFooter = false,
+  closeButton,
+  onSubmit,
+  isPending,
+  errors,
+}: ProdukHeaderProps & {
+  stickyFooter?: boolean
+  closeButton?: React.ReactNode
+  onSubmit: (data: Record<string, unknown>) => void
+  isPending: boolean
+  errors: Record<string, string[]> | null
+}) {
   const [imageUrl, setImageUrl] = React.useState<string | null>(null)
 
   const fields = (
@@ -239,16 +257,16 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
 
           <div className="flex flex-col items-start gap-3">
             <ImageUpload value={imageUrl} onChange={setImageUrl} />
-            <Field label="Nama produk">
+            <Field label="Nama produk" error={errors?.name}>
               <Input name="name" required autoComplete="off" placeholder="Contoh: Beras Premium 5kg" className="bg-muted/50" />
             </Field>
           </div>
           <input type="hidden" name="image" value={imageUrl ?? ""} />
-          <Field label="Kategori">
+          <Field label="Kategori" error={errors?.categoryId}>
             <CategoryCombobox categories={categories} />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Satuan">
+            <Field label="Satuan" error={errors?.unit}>
               <UnitCombobox />
             </Field>
             <Field label="Status">
@@ -271,13 +289,13 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Harga Beli">
+            <Field label="Harga Beli" error={errors?.buyPrice}>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">Rp</span>
                 <Input name="buyPrice" type="number" min="0" required placeholder="0" className="bg-muted/50 pl-8" />
               </div>
             </Field>
-            <Field label="Harga Jual">
+            <Field label="Harga Jual" error={errors?.sellPrice}>
               <div className="relative">
                 <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">Rp</span>
                 <Input name="sellPrice" type="number" min="0" required placeholder="0" className="bg-muted/50 pl-8 font-medium text-primary" />
@@ -285,10 +303,10 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Stok Awal">
+            <Field label="Stok Awal" error={errors?.stock}>
               <Input name="stock" type="number" min="0" required defaultValue={0} className="bg-muted/50" />
             </Field>
-            <Field label="Stok Minimum">
+            <Field label="Stok Minimum" error={errors?.minStock}>
               <Input name="minStock" type="number" min="0" required defaultValue={5} className="bg-muted/50" />
             </Field>
           </div>
@@ -296,31 +314,55 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
       </div>
 
       <div className="pt-2">
-        <Field label="Deskripsi Produk">
+        <Field label="Deskripsi Produk" error={errors?.description}>
           <Textarea name="description" className="min-h-[80px] bg-muted/50" placeholder="Opsional: Tambahkan deskripsi produk di sini..." />
         </Field>
       </div>
     </>
   )
 
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    onSubmit({
+      name: String(fd.get("name") ?? "").trim(),
+      categoryName: String(fd.get("categoryName") ?? "").trim(),
+      unit: String(fd.get("unit") ?? "").trim(),
+      stock: Number(fd.get("stock") ?? 0),
+      minStock: Number(fd.get("minStock") ?? 0),
+      buyPrice: Number(fd.get("buyPrice") ?? 0),
+      sellPrice: Number(fd.get("sellPrice") ?? 0),
+      description: String(fd.get("description") ?? "").trim(),
+      isActive: fd.get("isActive") as string,
+      image: imageUrl,
+    })
+  }
+
   return (
-    <form action={createProduct} className={cn("flex flex-col gap-0 pt-2", stickyFooter && "min-h-0 flex-1")} autoComplete="off">
+    <form onSubmit={handleSubmit} className={cn("flex flex-col gap-0 pt-2", stickyFooter && "min-h-0 flex-1")} autoComplete="off">
       <div className={cn("min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-2", !stickyFooter && "max-h-[55vh] sm:max-h-[60vh]")}>
         {fields}
       </div>
 
-      <DialogFooter className={cn("pt-2 gap-2 shrink-0", stickyFooter ? "shrink-0 border-t bg-popover px-4 pb-4 pt-3 -mx-2 -mb-2 rounded-b-3xl" : "border-t bg-popover/50 px-0 pt-3")}>
+      <DialogFooter className={cn("pt-2 gap-2 shrink-0", stickyFooter ? "shrink-0 bg-popover px-4 pb-4 pt-3 -mx-2 -mb-2 rounded-b-3xl" : "bg-popover/50 px-0 pt-3")}>
         {closeButton}
-        <Button type="submit" className="w-full sm:w-auto">Simpan Produk</Button>
+        <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
+          {isPending ? "Menyimpan..." : "Simpan Produk"}
+        </Button>
       </DialogFooter>
     </form>
   )
 }
 
 function ProductCreateDialog({ categories }: ProdukHeaderProps) {
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const createMutation = useCreateProduct()
+  const errors = createMutation.errors ?? null
+
   return (
     <>
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <Button className="hidden gap-2 lg:inline-flex">
             <HugeiconsIcon icon={PlusSignIcon} size={16} />
@@ -332,31 +374,56 @@ function ProductCreateDialog({ categories }: ProdukHeaderProps) {
             <DialogTitle className="text-xl">Tambah Produk</DialogTitle>
             <DialogDescription>Produk baru langsung tersimpan setelah disimpan.</DialogDescription>
           </DialogHeader>
-          <ProductCreateForm categories={categories} closeButton={
-            <DialogClose asChild>
-              <Button type="button" variant="outline" className="w-full sm:w-auto mt-2 sm:mt-0">Batal</Button>
-            </DialogClose>
-          } />
+          <ProductCreateForm
+            categories={categories}
+            errors={errors}
+            isPending={createMutation.isPending}
+            onSubmit={(data) =>
+              createMutation.mutate(data, {
+                onSuccess: (result) => {
+                  if (result.success) setDialogOpen(false)
+                },
+              })
+            }
+            closeButton={
+              <DialogClose asChild>
+                <Button type="button" variant="outline" className="w-full sm:w-auto mt-2 sm:mt-0">Batal</Button>
+              </DialogClose>
+            }
+          />
         </DialogContent>
       </Dialog>
 
-      <Drawer>
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerTrigger asChild>
           <Button className="gap-2 lg:hidden">
             <HugeiconsIcon icon={PlusSignIcon} size={16} />
             Tambah Produk
           </Button>
         </DrawerTrigger>
-        <DrawerContent className="max-h-[92vh] overflow-hidden">
+        <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
           <DrawerHeader>
             <DrawerTitle>Tambah Produk</DrawerTitle>
             <DrawerDescription>Produk baru langsung tersimpan setelah disimpan.</DrawerDescription>
           </DrawerHeader>
-          <ProductCreateForm categories={categories} stickyFooter closeButton={
-            <DrawerClose asChild>
-              <Button type="button" variant="outline" className="w-full sm:w-auto mt-2 sm:mt-0">Batal</Button>
-            </DrawerClose>
-          } />
+          <ProductCreateForm
+            categories={categories}
+            stickyFooter
+            errors={errors}
+            isPending={createMutation.isPending}
+            onSubmit={(data) =>
+              createMutation.mutate(data, {
+                onSuccess: (result) => {
+                  if (result.success) setDrawerOpen(false)
+                },
+              })
+            }
+            closeButton={
+              <DrawerClose asChild>
+                <Button type="button" variant="outline" className="w-full sm:w-auto mt-2 sm:mt-0">Batal</Button>
+              </DrawerClose>
+            }
+          />
         </DrawerContent>
       </Drawer>
     </>
@@ -376,7 +443,7 @@ export function ProdukHeader({ categories }: ProdukHeaderProps) {
 
         <div className="hidden items-center gap-2 lg:flex">
           <ProductCreateDialog categories={categories} />
-         </div>
+        </div>
       </div>
 
       <div className="lg:hidden">
@@ -384,7 +451,7 @@ export function ProdukHeader({ categories }: ProdukHeaderProps) {
           <div className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm" onClick={() => setIsMobileMenuOpen(false)} />
         )}
         <div className="fixed bottom-6 right-6 z-50 flex flex-col items-end gap-3">
-          <div 
+          <div
             className={`flex flex-col items-end gap-3 transition-all duration-200 ${isMobileMenuOpen ? "translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
             onClick={() => setIsMobileMenuOpen(false)}
           >

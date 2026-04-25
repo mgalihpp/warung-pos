@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
+import { QueryProvider } from "./query-provider"
 
 function ThemeProvider({
   children,
@@ -15,8 +16,10 @@ function ThemeProvider({
       disableTransitionOnChange
       {...props}
     >
-      <ThemeHotkey />
-      {children}
+      <QueryProvider>
+        <ThemeHotkey />
+        {children}
+      </QueryProvider>
     </NextThemesProvider>
   )
 }

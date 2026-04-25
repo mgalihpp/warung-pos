@@ -5,7 +5,7 @@ import { extractRouterConfig } from "uploadthing/server"
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { cn } from "@/lib/utils";
-import type { Metadata } from "next"
+import type { Metadata, Viewport } from "next"
 import { uploadRouter } from "@/app/api/uploadthing/core"
 
 const geist = Geist({subsets:['latin'],variable:'--font-sans'})
@@ -23,6 +23,10 @@ export const metadata: Metadata = {
     shortcut: "/logo warung.png",
     apple: "/logo warung.png",
   },
+}
+
+export const viewport: Viewport = {
+  maximumScale: 1,
 }
 
 export default function RootLayout({

@@ -40,7 +40,7 @@ export function PosPageClient() {
         <PosCart />
       </div>
 
-      <div className="flex xl:hidden flex-col h-[calc(100vh-3.5rem)] bg-muted/40 overflow-hidden">
+      <div className="flex xl:hidden flex-col h-[calc(100dvh-3.5rem)] bg-muted/40 overflow-hidden">
 
         {/* Mobile Top Bar */}
         <div className="bg-card border-b px-3 py-2 shrink-0">
@@ -70,7 +70,7 @@ export function PosPageClient() {
             </div>
 
             {/* Product grid */}
-            <div className="flex-1 overflow-y-auto px-3 pb-24 scrollbar-hide">
+            <div className="flex-1 overflow-y-auto px-3 pb-28 scrollbar-hide">
               <div className="grid grid-cols-2 gap-3">
                 {/* Inline mini product cards optimized for mobile touch */}
                 {[
@@ -109,7 +109,7 @@ export function PosPageClient() {
             </div>
 
             {/* Sticky Cart Peek Bar */}
-            <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
+            <div className="absolute bottom-0 left-0 right-0 px-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]">
               <button
                 onClick={() => setMobileTab("keranjang")}
                 className="w-full bg-primary text-primary-foreground rounded-xl px-4 py-3.5 flex items-center justify-between shadow-lg active:bg-primary/90 transition-colors"
@@ -195,7 +195,7 @@ export function PosPageClient() {
             </div>
 
             {/* Payment Footer */}
-            <div className="bg-card border-t px-4 pt-3 pb-4 shrink-0">
+            <div className="bg-card border-t px-4 pt-3 pb-[calc(1rem+env(safe-area-inset-bottom))] shrink-0">
               {/* Summary */}
               <div className="bg-card border rounded-xl p-3.5 flex flex-col gap-1.5 text-sm mb-3 shadow-sm">
                 <div className="flex justify-between items-center">

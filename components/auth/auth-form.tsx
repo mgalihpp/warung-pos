@@ -116,7 +116,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       <div className="pointer-events-none absolute top-[-12%] left-[-18%] size-72 rounded-full bg-primary/15 blur-3xl sm:top-[-10%] sm:left-[-10%] sm:size-80 sm:bg-primary/20" />
       <div className="pointer-events-none absolute right-[-18%] bottom-[-12%] size-72 rounded-full bg-chart-2/15 blur-3xl sm:right-[-10%] sm:bottom-[-10%] sm:size-80 sm:bg-chart-2/20" />
 
-      <Card className="z-10 w-full max-w-md rounded-none border-0 bg-transparent py-6 shadow-none ring-0 sm:rounded-2xl sm:border sm:border-border/50 sm:bg-card/95 sm:py-6 sm:shadow-xl sm:ring-1 sm:ring-foreground/10 sm:backdrop-blur-sm">
+      <Card className="z-10 w-full max-w-md overflow-visible rounded-none border-0 bg-transparent py-6 shadow-none ring-0 sm:overflow-hidden sm:rounded-2xl sm:border sm:border-border/50 sm:bg-card/95 sm:py-6 sm:shadow-xl sm:ring-1 sm:ring-foreground/10 sm:backdrop-blur-sm">
         <CardHeader className="space-y-2 px-0 pb-6 text-center sm:space-y-3 sm:px-6 sm:pb-6">
           <div className="mx-auto flex h-20 w-24 items-center justify-center rounded-xl bg-primary/10 p-1.5 sm:h-18 sm:w-22">
             <Image

@@ -18,11 +18,13 @@ import {
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
-  adjustStock,
-  deleteProduct,
-  setProductActive,
-  updateProduct,
-} from "@/app/admin/produk/actions"
+  useUpdateProduct,
+  useDeleteProduct,
+  useToggleProductActive,
+  useAdjustStock,
+} from "./use-produk-actions"
+import { ImageUpload } from "./produk-image-upload"
+import { CategoryCombobox, UnitCombobox } from "./produk-header"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -35,13 +37,13 @@ import {
 import { Button } from "@/components/ui/button"
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-  DialogClose,
 } from "@/components/ui/dialog"
 import {
   Drawer,
@@ -71,8 +73,6 @@ import {
 import { Textarea } from "@/components/ui/textarea"
 import { formatRupiah } from "@/lib/format"
 import { cn } from "@/lib/utils"
-import { CategoryCombobox, UnitCombobox } from "./produk-header"
-import { ImageUpload } from "./produk-image-upload"
 import type { ProdukCategory, ProdukItem } from "./types"
 
 const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Nonaktif"]
@@ -94,14 +94,21 @@ type ProdukTableProps = {
 function Field({
   label,
   children,
+  error,
 }: {
   label: string
   children: React.ReactNode
+  error?: string[]
 }) {
   return (
     <label className="grid gap-1.5 text-xs font-medium">
       <span>{label}</span>
       {children}
+      {error && error[0] && (
+        <span className="text-[10px] font-normal text-destructive">
+          {error[0]}
+        </span>
+      )}
     </label>
   )
 }
@@ -117,13 +124,37 @@ function ProductEditForm({
   categories,
   stickyFooter = false,
   closeButton,
+  onSubmit,
+  isPending,
+  errors,
 }: {
   product: ProdukItem
   categories: ProdukCategory[]
   stickyFooter?: boolean
   closeButton?: React.ReactNode
+  onSubmit: (data: Record<string, unknown> & { id: string }) => void
+  isPending: boolean
+  errors: Record<string, string[]> | null
 }) {
   const [imageUrl, setImageUrl] = React.useState<string | null>(product.image)
+
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const fd = new FormData(e.currentTarget)
+    onSubmit({
+      id: product.id,
+      name: String(fd.get("name") ?? "").trim(),
+      categoryName: String(fd.get("categoryName") ?? "").trim(),
+      unit: String(fd.get("unit") ?? "").trim(),
+      stock: Number(fd.get("stock") ?? 0),
+      minStock: Number(fd.get("minStock") ?? 0),
+      buyPrice: Number(fd.get("buyPrice") ?? 0),
+      sellPrice: Number(fd.get("sellPrice") ?? 0),
+      description: String(fd.get("description") ?? "").trim(),
+      isActive: fd.get("isActive") as string,
+      image: imageUrl,
+    })
+  }
 
   const fields = (
     <>
@@ -135,7 +166,7 @@ function ProductEditForm({
 
           <div className="flex flex-col items-start gap-3">
             <ImageUpload value={imageUrl} onChange={setImageUrl} />
-            <Field label="Nama produk">
+            <Field label="Nama produk" error={errors?.name}>
               <Input
                 name="name"
                 required
@@ -146,14 +177,14 @@ function ProductEditForm({
             </Field>
           </div>
           <input type="hidden" name="image" value={imageUrl ?? ""} />
-          <Field label="Kategori">
+          <Field label="Kategori" error={errors?.categoryId}>
             <CategoryCombobox
               categories={categories}
               defaultValue={product.category}
             />
           </Field>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Satuan">
+            <Field label="Satuan" error={errors?.unit}>
               <UnitCombobox defaultValue={product.unit} />
             </Field>
             <Field label="Status">
@@ -179,7 +210,7 @@ function ProductEditForm({
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Harga Beli">
+            <Field label="Harga Beli" error={errors?.buyPrice}>
               <div className="relative">
                 <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
                   Rp
@@ -194,7 +225,7 @@ function ProductEditForm({
                 />
               </div>
             </Field>
-            <Field label="Harga Jual">
+            <Field label="Harga Jual" error={errors?.sellPrice}>
               <div className="relative">
                 <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
                   Rp
@@ -211,7 +242,7 @@ function ProductEditForm({
             </Field>
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <Field label="Stok Saat Ini">
+            <Field label="Stok Saat Ini" error={errors?.stock}>
               <Input
                 name="stock"
                 type="number"
@@ -221,7 +252,7 @@ function ProductEditForm({
                 className="bg-muted/50"
               />
             </Field>
-            <Field label="Stok Minimum">
+            <Field label="Stok Minimum" error={errors?.minStock}>
               <Input
                 name="minStock"
                 type="number"
@@ -236,7 +267,7 @@ function ProductEditForm({
       </div>
 
       <div className="pt-2">
-        <Field label="Deskripsi Produk">
+        <Field label="Deskripsi Produk" error={errors?.description}>
           <Textarea
             name="description"
             defaultValue={product.description ?? ""}
@@ -250,7 +281,7 @@ function ProductEditForm({
 
   return (
     <form
-      action={updateProduct}
+      onSubmit={handleSubmit}
       className={cn(
         "flex flex-col gap-0 pt-2",
         stickyFooter && "min-h-0 flex-1"
@@ -260,7 +291,7 @@ function ProductEditForm({
       <input type="hidden" name="id" value={product.id} />
       <div
         className={cn(
-          "min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-2",
+          "scrollbar-thin min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-2",
           !stickyFooter && "max-h-[55vh] sm:max-h-[60vh]"
         )}
       >
@@ -271,13 +302,17 @@ function ProductEditForm({
         className={cn(
           "shrink-0 gap-2 pt-2",
           stickyFooter
-            ? "-mx-2 -mb-2 shrink-0 rounded-b-3xl border-t bg-popover px-4 pt-3 pb-4"
-            : "border-t bg-popover/50 px-0 pt-3"
+            ? "-mx-2 -mb-2 shrink-0 rounded-b-3xl bg-popover px-4 pt-3 pb-4"
+            : "bg-popover/50 px-0 pt-3"
         )}
       >
         {closeButton}
-        <Button type="submit" className="w-full sm:w-auto">
-          Simpan Perubahan
+        <Button
+          type="submit"
+          className="w-full sm:w-auto"
+          disabled={isPending}
+        >
+          {isPending ? "Menyimpan..." : "Simpan Perubahan"}
         </Button>
       </DialogFooter>
     </form>
@@ -291,9 +326,14 @@ function ProductEditDialog({
   product: ProdukItem
   categories: ProdukCategory[]
 }) {
+  const [dialogOpen, setDialogOpen] = React.useState(false)
+  const [drawerOpen, setDrawerOpen] = React.useState(false)
+  const updateMutation = useUpdateProduct()
+  const errors = updateMutation.errors ?? null
+
   return (
     <>
-      <Dialog>
+      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
         <DialogTrigger asChild>
           <button
             className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
@@ -302,7 +342,7 @@ function ProductEditDialog({
             <HugeiconsIcon icon={Edit02Icon} size={15} />
           </button>
         </DialogTrigger>
-        <DialogContent className="max-h-[90vh] overflow-y-auto sm:max-w-2xl">
+        <DialogContent className="scrollbar-thin max-h-[90vh] overflow-y-auto sm:max-w-2xl">
           <DialogHeader>
             <DialogTitle className="text-xl">Edit Produk</DialogTitle>
             <DialogDescription>
@@ -312,6 +352,15 @@ function ProductEditDialog({
           <ProductEditForm
             product={product}
             categories={categories}
+            errors={errors}
+            isPending={updateMutation.isPending}
+            onSubmit={(data) =>
+              updateMutation.mutate(data, {
+                onSuccess: (result) => {
+                  if (result.success) setDialogOpen(false)
+                },
+              })
+            }
             closeButton={
               <DialogClose asChild>
                 <Button
@@ -327,7 +376,7 @@ function ProductEditDialog({
         </DialogContent>
       </Dialog>
 
-      <Drawer>
+      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
         <DrawerTrigger asChild>
           <button
             className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
@@ -336,7 +385,7 @@ function ProductEditDialog({
             <HugeiconsIcon icon={Edit02Icon} size={15} />
           </button>
         </DrawerTrigger>
-        <DrawerContent className="max-h-[92vh] overflow-hidden">
+        <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
           <DrawerHeader>
             <DrawerTitle>Edit Produk</DrawerTitle>
             <DrawerDescription>
@@ -347,6 +396,15 @@ function ProductEditDialog({
             product={product}
             categories={categories}
             stickyFooter
+            errors={errors}
+            isPending={updateMutation.isPending}
+            onSubmit={(data) =>
+              updateMutation.mutate(data, {
+                onSuccess: (result) => {
+                  if (result.success) setDrawerOpen(false)
+                },
+              })
+            }
             closeButton={
               <DrawerClose asChild>
                 <Button
@@ -482,7 +540,7 @@ function ProductDetailDialog({ product }: { product: ProdukItem }) {
             <HugeiconsIcon icon={ViewIcon} size={15} />
           </button>
         </DrawerTrigger>
-        <DrawerContent className="max-h-[92vh] overflow-hidden">
+        <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
           <DrawerHeader>
             <DrawerTitle className="flex items-center gap-3 font-heading text-xl font-medium text-foreground">
               <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -494,7 +552,7 @@ function ProductDetailDialog({ product }: { product: ProdukItem }) {
               Detail lengkap informasi produk.
             </DrawerDescription>
           </DrawerHeader>
-          <div className="min-h-0 flex-1 overflow-y-auto px-4 pb-4">
+          <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-4">
             <ProductDetailContent product={product} />
           </div>
         </DrawerContent>
@@ -506,10 +564,27 @@ function ProductDetailDialog({ product }: { product: ProdukItem }) {
 function StockForm({
   product,
   isMobile,
+  onSubmit,
+  isPending,
 }: {
   product: ProdukItem
   isMobile?: boolean
+  onSubmit: (payload: { productId: string; mode: string; quantity: number; reason?: string }) => void
+  isPending: boolean
 }) {
+  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    const quantity = Number(formData.get("quantity"))
+    if (!quantity || isNaN(quantity) || quantity < 0) return
+    onSubmit({
+      productId: product.id,
+      mode: formData.get("mode") as string,
+      quantity,
+      reason: formData.get("reason") as string | undefined,
+    })
+  }
+
   const fields = (
     <div className="space-y-4">
       <Field label="Jenis Penyesuaian">
@@ -530,7 +605,7 @@ function StockForm({
           min="0"
           required
           placeholder="Masukkan angka..."
-          className="bg-background text-lg font-semibold"
+          className="bg-background text-lg font-semibold placeholder:text-sm placeholder:font-normal"
         />
       </Field>
       <Field label="Keterangan (Opsional)">
@@ -545,7 +620,7 @@ function StockForm({
 
   return (
     <form
-      action={adjustStock}
+      onSubmit={handleSubmit}
       className={cn(
         "grid gap-4 pt-2",
         isMobile && "flex min-h-0 flex-1 flex-col gap-0 pt-0"
@@ -553,7 +628,7 @@ function StockForm({
     >
       <input type="hidden" name="productId" value={product.id} />
       {isMobile ? (
-        <div className="min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-6">
+        <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-6">
           {fields}
         </div>
       ) : (
@@ -561,7 +636,7 @@ function StockForm({
       )}
 
       {isMobile ? (
-        <DialogFooter className="-mx-2 -mb-2 shrink-0 gap-2 rounded-b-3xl border-t bg-popover px-4 pt-2 pb-4">
+        <DialogFooter className="-mx-2 -mb-2 shrink-0 gap-2 rounded-b-3xl bg-popover px-4 pt-2 pb-4">
           <DrawerClose asChild>
             <Button
               type="button"
@@ -571,8 +646,12 @@ function StockForm({
               Batal
             </Button>
           </DrawerClose>
-          <Button type="submit" className="w-full sm:w-auto">
-            Simpan Stok
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? "Menyimpan..." : "Simpan Stok"}
           </Button>
         </DialogFooter>
       ) : (
@@ -586,8 +665,12 @@ function StockForm({
               Batal
             </Button>
           </DialogClose>
-          <Button type="submit" className="w-full sm:w-auto">
-            Simpan Stok
+          <Button
+            type="submit"
+            className="w-full sm:w-auto"
+            disabled={isPending}
+          >
+            {isPending ? "Menyimpan..." : "Simpan Stok"}
           </Button>
         </DialogFooter>
       )}
@@ -598,6 +681,9 @@ function StockForm({
 function ProductActionMenu({ product }: { product: ProdukItem }) {
   const [stockOpen, setStockOpen] = React.useState(false)
   const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const adjustMutation = useAdjustStock()
+  const toggleMutation = useToggleProductActive()
+  const deleteMutation = useDeleteProduct()
   const isMobile = useIsMobile()
 
   return (
@@ -624,35 +710,33 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
             Update Stok
           </DropdownMenuItem>
           <DropdownMenuSeparator className="my-1" />
-          <form action={setProductActive}>
-            <input type="hidden" name="id" value={product.id} />
-            <input
-              type="hidden"
-              name="isActive"
-              value={product.isActive ? "false" : "true"}
-            />
-            <button
-              type="submit"
-              className={`flex w-full cursor-pointer items-center gap-2 rounded-lg px-2 py-2 text-sm transition-colors outline-none hover:bg-accent ${product.isActive ? "text-amber-600 hover:text-amber-600" : "text-primary hover:text-primary"}`}
+          <DropdownMenuItem
+            onSelect={() =>
+              toggleMutation.mutate({
+                id: product.id,
+                isActive: product.isActive,
+              })
+            }
+            disabled={toggleMutation.isPending}
+            className={`cursor-pointer gap-2 rounded-lg px-2 py-2 text-sm transition-colors outline-none hover:bg-accent ${product.isActive ? "text-amber-600 hover:text-amber-600" : "text-primary hover:text-primary"}`}
+          >
+            <div
+              className={cn(
+                "flex size-4 items-center justify-center rounded-full border",
+                product.isActive
+                  ? "border-amber-600 text-amber-600"
+                  : "border-primary text-primary"
+              )}
             >
               <div
                 className={cn(
-                  "flex size-4 items-center justify-center rounded-full border",
-                  product.isActive
-                    ? "border-amber-600 text-amber-600"
-                    : "border-primary text-primary"
+                  "size-2 rounded-full",
+                  product.isActive ? "bg-amber-600" : "bg-primary"
                 )}
-              >
-                <div
-                  className={cn(
-                    "size-2 rounded-full",
-                    product.isActive ? "bg-amber-600" : "bg-primary"
-                  )}
-                />
-              </div>
-              {product.isActive ? "Nonaktifkan" : "Aktifkan"}
-            </button>
-          </form>
+              />
+            </div>
+            {product.isActive ? "Nonaktifkan" : "Aktifkan"}
+          </DropdownMenuItem>
           <DropdownMenuSeparator className="my-1" />
           <DropdownMenuItem
             variant="destructive"
@@ -667,7 +751,7 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
 
       {isMobile ? (
         <Drawer open={stockOpen} onOpenChange={setStockOpen}>
-          <DrawerContent className="max-h-[92vh] overflow-hidden">
+          <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
             <DrawerHeader>
               <DrawerTitle>Kelola Stok</DrawerTitle>
               <DrawerDescription>
@@ -681,7 +765,18 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
                 </span>
               </DrawerDescription>
             </DrawerHeader>
-            <StockForm product={product} isMobile />
+            <StockForm
+              product={product}
+              isMobile
+              isPending={adjustMutation.isPending}
+              onSubmit={(payload) =>
+                adjustMutation.mutate(payload, {
+                  onSuccess: (data) => {
+                    if (data.success) setStockOpen(false)
+                  },
+                })
+              }
+            />
           </DrawerContent>
         </Drawer>
       ) : (
@@ -700,7 +795,17 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
                 </span>
               </DialogDescription>
             </DialogHeader>
-            <StockForm product={product} />
+            <StockForm
+              product={product}
+              isPending={adjustMutation.isPending}
+              onSubmit={(payload) =>
+                adjustMutation.mutate(payload, {
+                  onSuccess: (data) => {
+                    if (data.success) setStockOpen(false)
+                  },
+                })
+              }
+            />
           </DialogContent>
         </Dialog>
       )}
@@ -724,19 +829,25 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
             </AlertDialogDescription>
           </AlertDialogHeader>
 
-          <AlertDialogFooter className="pt-4">
+          <AlertDialogFooter className="gap-2 pt-4">
             <AlertDialogCancel
               onClick={() => setDeleteOpen(false)}
               className="mt-0 w-full sm:w-auto"
             >
               Batal
             </AlertDialogCancel>
-            <form action={deleteProduct} className="w-full sm:w-auto">
-              <input type="hidden" name="id" value={product.id} />
-              <Button type="submit" variant="destructive" className="w-full">
-                Hapus
-              </Button>
-            </form>
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                deleteMutation.mutate(product.id)
+                setDeleteOpen(false)
+              }}
+            >
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+            </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -807,18 +918,18 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
       </div>
 
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-        <div className="relative flex-1">
+        <div className="relative flex-1 p-[3px]">
           <HugeiconsIcon
             icon={SearchIcon}
             size={16}
-            className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
+            className="absolute top-1/2 left-[15px] -translate-y-1/2 text-muted-foreground"
           />
-          <input
+          <Input
             type="text"
             placeholder="Cari nama produk..."
             value={searchQuery}
             onChange={(event) => setSearchQuery(event.target.value)}
-            className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm ring-ring transition-colors outline-none placeholder:text-muted-foreground focus:ring-1"
+            className="h-9 rounded-lg bg-background pr-3 pl-9 text-sm"
           />
         </div>
 
