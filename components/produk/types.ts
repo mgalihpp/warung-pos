@@ -11,6 +11,7 @@ export type ProdukItem = {
   name: string
   categoryId: string
   category: string
+  image: string | null
   unit: string
   stock: number
   minStock: number

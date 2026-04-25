@@ -44,6 +44,7 @@ export default async function ProdukPage() {
     name: product.name,
     categoryId: product.categoryId,
     category: product.category.name,
+    image: product.image,
     unit: product.unit,
     stock: product.stock,
     minStock: product.minStock,

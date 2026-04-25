@@ -5,6 +5,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowDown01Icon, PlusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 
 import { createProduct } from "@/app/admin/produk/actions"
+import { ImageUpload } from "./produk-image-upload"
 import { Button } from "@/components/ui/button"
 import {
   Command,
@@ -145,7 +146,89 @@ export function CategoryCombobox({
   )
 }
 
+const COMMON_UNITS = ["kg", "gram", "liter", "ml", "pcs", "zak", "ikat", "butir", "ons", "pak", "bal", "box", "botol", "sachet"]
+
+export function UnitCombobox({ defaultValue = "" }: { defaultValue?: string }) {
+  const [open, setOpen] = React.useState(false)
+  const [value, setValue] = React.useState(defaultValue)
+  const [search, setSearch] = React.useState("")
+  const normalizedSearch = search.trim().toLowerCase()
+  const filteredUnits = COMMON_UNITS.filter((unit) => unit.toLowerCase().includes(normalizedSearch))
+  const hasExactMatch = COMMON_UNITS.some((unit) => unit.toLowerCase() === normalizedSearch)
+  const suggestedUnit = search.trim()
+
+  return (
+    <div className="grid gap-1.5">
+      <input type="hidden" name="unit" value={value} />
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            type="button"
+            variant="outline"
+            role="combobox"
+            aria-expanded={open}
+            className={cn(
+              "h-9 w-full justify-between rounded-4xl bg-input/30 px-3 font-normal",
+              !value && "text-muted-foreground"
+            )}
+          >
+            <span className="truncate">{value || "Pilih satuan"}</span>
+            <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="opacity-60" />
+          </Button>
+        </PopoverTrigger>
+        <PopoverContent align="start" className="w-64 p-0">
+          <Command shouldFilter={false}>
+            <CommandInput value={search} onValueChange={setSearch} placeholder="Cari atau ketik satuan baru..." />
+            <CommandList>
+              <CommandEmpty>
+                {suggestedUnit ? "Tekan untuk buat satuan baru." : "Satuan belum ada."}
+              </CommandEmpty>
+              <CommandGroup heading="Satuan">
+                {filteredUnits.map((unit) => (
+                  <CommandItem
+                    key={unit}
+                    value={unit}
+                    onSelect={() => {
+                      setValue(unit)
+                      setSearch("")
+                      setOpen(false)
+                    }}
+                  >
+                    {unit}
+                    <HugeiconsIcon
+                      icon={Tick02Icon}
+                      size={16}
+                      className={cn("ml-auto", value === unit ? "opacity-100" : "opacity-0")}
+                    />
+                  </CommandItem>
+                ))}
+              </CommandGroup>
+              {suggestedUnit && !hasExactMatch && (
+                <CommandGroup heading="Satuan Baru">
+                  <CommandItem
+                    value={suggestedUnit}
+                    onSelect={() => {
+                      setValue(suggestedUnit)
+                      setSearch("")
+                      setOpen(false)
+                    }}
+                  >
+                    <HugeiconsIcon icon={PlusSignIcon} size={16} />
+                    Buat &quot;{suggestedUnit}&quot;
+                  </CommandItem>
+                </CommandGroup>
+              )}
+            </CommandList>
+          </Command>
+        </PopoverContent>
+      </Popover>
+    </div>
+  )
+}
+
 function ProductCreateForm({ categories, stickyFooter = false, closeButton }: ProdukHeaderProps & { stickyFooter?: boolean, closeButton?: React.ReactNode }) {
+  const [imageUrl, setImageUrl] = React.useState<string | null>(null)
+
   const fields = (
     <>
       <div className="grid gap-6 sm:grid-cols-2">
@@ -154,15 +237,19 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
             <h4 className="text-sm font-semibold">Informasi Dasar</h4>
           </div>
 
-          <Field label="Nama produk">
-            <Input name="name" required autoComplete="off" placeholder="Contoh: Beras Premium 5kg" className="bg-muted/50" />
-          </Field>
+          <div className="flex flex-col items-start gap-3">
+            <ImageUpload value={imageUrl} onChange={setImageUrl} />
+            <Field label="Nama produk">
+              <Input name="name" required autoComplete="off" placeholder="Contoh: Beras Premium 5kg" className="bg-muted/50" />
+            </Field>
+          </div>
+          <input type="hidden" name="image" value={imageUrl ?? ""} />
           <Field label="Kategori">
             <CategoryCombobox categories={categories} />
           </Field>
           <div className="grid grid-cols-2 gap-4">
             <Field label="Satuan">
-              <Input name="unit" required placeholder="pcs, kg, dll" className="bg-muted/50" />
+              <UnitCombobox />
             </Field>
             <Field label="Status">
               <Select name="isActive" defaultValue="on">
@@ -217,10 +304,12 @@ function ProductCreateForm({ categories, stickyFooter = false, closeButton }: Pr
   )
 
   return (
-    <form action={createProduct} className={cn("grid gap-6 pt-2", stickyFooter && "flex min-h-0 flex-1 flex-col gap-0 pt-0")} autoComplete="off">
-      {stickyFooter ? <div className="min-h-0 flex-1 overflow-y-auto px-2 pb-6 pt-2">{fields}</div> : fields}
+    <form action={createProduct} className={cn("flex flex-col gap-0 pt-2", stickyFooter && "min-h-0 flex-1")} autoComplete="off">
+      <div className={cn("min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-2", !stickyFooter && "max-h-[55vh] sm:max-h-[60vh]")}>
+        {fields}
+      </div>
 
-      <DialogFooter className={cn("pt-2 gap-2", stickyFooter && "shrink-0 border-t bg-popover px-4 pb-4 pt-3 -mx-2 -mb-2 rounded-b-3xl")}>
+      <DialogFooter className={cn("pt-2 gap-2 shrink-0", stickyFooter ? "shrink-0 border-t bg-popover px-4 pb-4 pt-3 -mx-2 -mb-2 rounded-b-3xl" : "border-t bg-popover/50 px-0 pt-3")}>
         {closeButton}
         <Button type="submit" className="w-full sm:w-auto">Simpan Produk</Button>
       </DialogFooter>

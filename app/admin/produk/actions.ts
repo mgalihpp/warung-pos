@@ -143,6 +143,7 @@ function productData(formData: FormData, categoryIdOverride?: string) {
   const buyPrice = numberValue(formData, "buyPrice")
   const sellPrice = numberValue(formData, "sellPrice")
   const isActive = formData.get("isActive") !== "off"
+  const image = text(formData, "image") || null
 
   if (
     !name ||
@@ -163,6 +164,7 @@ function productData(formData: FormData, categoryIdOverride?: string) {
   return {
     name,
     categoryId,
+    image,
     unit,
     stock: Math.trunc(stock),
     minStock: Math.trunc(minStock),

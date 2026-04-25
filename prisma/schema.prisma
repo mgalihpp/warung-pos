@@ -122,6 +122,7 @@ model Product {
   id          String   @id @default(cuid())
   name        String
   categoryId  String
+  image       String?  // URL gambar dari UploadThing
   unit        String // pcs, bungkus, botol, sachet, dus
   stock       Int      @default(0)
   minStock    Int      @default(5)
