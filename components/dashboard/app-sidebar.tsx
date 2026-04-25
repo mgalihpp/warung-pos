@@ -10,20 +10,17 @@ import {
   InvoiceIcon,
   ChartHistogramIcon,
   Settings01Icon,
-  ArrowRight01Icon,
   CashierIcon,
 } from "@hugeicons/core-free-icons"
 import {
   Sidebar,
   SidebarContent,
-  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-  SidebarSeparator,
 } from "@/components/ui/sidebar"
 
 const menuItems = [
@@ -90,38 +87,7 @@ export function AppSidebar() {
           </SidebarGroupContent>
         </SidebarGroup>
 
-        <SidebarSeparator className="group-data-[collapsible=icon]:hidden" />
-
-
-
-        {/* Promo Card */}
-        <SidebarGroup className="mt-auto group-data-[collapsible=icon]:hidden">
-          <SidebarGroupContent>
-            <div className="rounded-xl bg-gradient-to-br from-primary/10 via-primary/5 to-transparent p-4">
-              <p className="text-xs font-medium leading-relaxed text-sidebar-foreground/70">
-                Kelola warung lebih mudah dengan Warung Mama Nia
-              </p>
-              <Link
-                href="#"
-                className="mt-2 inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
-              >
-                Pelajari Selengkapnya
-                <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
-              </Link>
-            </div>
-          </SidebarGroupContent>
-        </SidebarGroup>
       </SidebarContent>
-
-      <SidebarFooter className="group-data-[collapsible=icon]:hidden">
-        <div className="flex items-center gap-2 px-2 py-1">
-          <div className="size-2 rounded-full bg-green-500" />
-          <div className="flex flex-col">
-            <span className="text-xs font-medium text-sidebar-foreground/70">Warung Mama Nia</span>
-            <span className="text-[10px] text-sidebar-foreground/50">v1.0.0</span>
-          </div>
-        </div>
-      </SidebarFooter>
     </Sidebar>
   )
 }
