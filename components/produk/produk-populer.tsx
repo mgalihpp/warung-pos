@@ -1,15 +1,12 @@
 import Link from "next/link"
 import { formatRupiah } from "@/lib/format"
+import type { ProdukPopularItem } from "./types"
 
-const popularProducts = [
-  { rank: 1, name: "Beras Premium 5kg", sold: 124, unit: "pcs", revenue: 9300000, emoji: "🌾" },
-  { rank: 2, name: "Minyak Goreng 1L", sold: 98, unit: "pcs", revenue: 5486000, emoji: "🫗" },
-  { rank: 3, name: "Mie Instan Goreng", sold: 210, unit: "pcs", revenue: 735000, emoji: "🍜" },
-  { rank: 4, name: "Gula Pasir 1kg", sold: 76, unit: "pcs", revenue: 1216000, emoji: "🧂" },
-  { rank: 5, name: "Air Mineral 600ml", sold: 180, unit: "pcs", revenue: 720000, emoji: "💧" },
-]
+type ProdukPopulerProps = {
+  products: ProdukPopularItem[]
+}
 
-export function ProdukPopuler() {
+export function ProdukPopuler({ products }: ProdukPopulerProps) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
@@ -17,12 +14,17 @@ export function ProdukPopuler() {
         <Link href="/admin/produk" className="text-xs font-medium text-primary hover:underline">Lihat Semua</Link>
       </div>
       <div className="space-y-3">
-        {popularProducts.map((item) => (
+        {products.length === 0 && (
+          <div className="rounded-lg border border-dashed p-4 text-center text-xs text-muted-foreground">
+            Belum ada transaksi produk.
+          </div>
+        )}
+        {products.map((item) => (
           <div key={item.rank} className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40">
             <div className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${item.rank <= 3 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"}`}>
               {item.rank}
             </div>
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/5 text-lg">{item.emoji}</div>
+            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/5 text-sm font-bold text-primary">{item.name.charAt(0)}</div>
             <div className="flex-1 min-w-0">
               <p className="truncate text-xs font-medium">{item.name}</p>
               <p className="text-[11px] text-muted-foreground">Terjual {item.sold} {item.unit}</p>

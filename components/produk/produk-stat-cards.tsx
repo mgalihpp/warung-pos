@@ -8,48 +8,53 @@ import {
   Cancel01Icon,
   ArrowRight01Icon,
 } from "@hugeicons/core-free-icons"
+import type { ProdukStats } from "./types"
 
-const stats = [
-  {
-    title: "Total Produk",
-    value: 248,
-    description: "Semua produk terdaftar",
-    icon: PackageIcon,
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
-  },
-  {
-    title: "Kategori",
-    value: 12,
-    description: "Kategori produk aktif",
-    icon: Layers01Icon,
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-600",
-  },
-  {
-    title: "Stok Menipis",
-    value: 18,
-    description: "Produk perlu restock",
-    icon: Alert02Icon,
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-600",
-  },
-  {
-    title: "Produk Nonaktif",
-    value: 6,
-    description: "Produk tidak aktif",
-    icon: Cancel01Icon,
-    iconBg: "bg-slate-500/10",
-    iconColor: "text-slate-600",
-  },
-]
+type ProdukStatCardsProps = {
+  stats: ProdukStats
+}
 
-export function ProdukStatCards() {
+export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
+  const items = [
+    {
+      title: "Total Produk",
+      value: stats.totalProducts,
+      description: "Produk aktif terdaftar",
+      icon: PackageIcon,
+      iconBg: "bg-primary/10",
+      iconColor: "text-primary",
+    },
+    {
+      title: "Kategori",
+      value: stats.totalCategories,
+      description: "Kategori produk",
+      icon: Layers01Icon,
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
+    },
+    {
+      title: "Stok Menipis",
+      value: stats.lowStock,
+      description: "Produk perlu restock",
+      icon: Alert02Icon,
+      iconBg: "bg-amber-500/10",
+      iconColor: "text-amber-600",
+    },
+    {
+      title: "Produk Nonaktif",
+      value: stats.inactiveProducts,
+      description: "Produk disembunyikan",
+      icon: Cancel01Icon,
+      iconBg: "bg-slate-500/10",
+      iconColor: "text-slate-600",
+    },
+  ]
+
   return (
     <>
       {/* Mobile: horizontal scroll compact cards */}
       <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden -mx-4 px-4 scrollbar-none">
-        {stats.map((stat) => (
+        {items.map((stat) => (
           <div
             key={stat.title}
             className="group relative flex min-w-[160px] shrink-0 cursor-pointer items-center gap-3 rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
@@ -80,7 +85,7 @@ export function ProdukStatCards() {
 
       {/* Desktop: full grid */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 2xl:grid-cols-4">
-        {stats.map((stat) => (
+        {items.map((stat) => (
           <div
             key={stat.title}
             className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
