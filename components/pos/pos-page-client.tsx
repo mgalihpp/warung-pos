@@ -200,7 +200,7 @@ export function PosPageClient() {
               <div className="bg-card border rounded-xl p-3.5 flex flex-col gap-1.5 text-sm mb-3 shadow-sm">
                 <div className="flex justify-between items-center">
                   <span className="font-bold text-foreground text-base">Total Pembayaran</span>
-                  <span className="text-lg font-bold text-emerald-600 dark:text-emerald-500">{formatCurrency(160000)}</span>
+                  <span className="text-lg font-bold text-primary">{formatCurrency(160000)}</span>
                 </div>
               </div>
 

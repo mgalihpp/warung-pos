@@ -100,7 +100,7 @@ export function PosCart() {
         <div className="bg-card border rounded-xl p-4 flex flex-col gap-2 text-sm mb-3 shadow-sm">
           <div className="flex justify-between items-center">
             <span className="font-bold text-foreground text-base">Total Pembayaran</span>
-            <span className="text-xl font-bold text-emerald-600 dark:text-emerald-500">{formatCurrency(total)}</span>
+            <span className="text-xl font-bold text-primary">{formatCurrency(total)}</span>
           </div>
         </div>
 
