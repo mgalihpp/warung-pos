@@ -89,6 +89,19 @@ model Verification {
 // Business Models — Inventori & Transaksi
 // ============================================================================
 
+/// Metode pembayaran dicatat manual, tanpa integrasi payment gateway pihak ketiga.
+enum PaymentMethod {
+  CASH
+  QRIS_MANUAL
+  MANUAL_TRANSFER
+}
+
+enum TransactionStatus {
+  COMPLETED
+  PENDING
+  CANCELLED
+}
+
 /// Kategori barang (Sembako, Rokok, Minuman, Snack, dll)
 model Category {
   id          String   @id @default(cuid())
@@ -132,17 +145,18 @@ model Product {
 /// Transaksi penjualan. cashierName di-denormalize agar laporan tetap
 /// akurat meskipun data user berubah di masa depan.
 model Transaction {
-  id            String   @id @default(cuid())
-  invoiceNumber String   @unique // Format: INV-YYYYMMDD-XXXX
+  id            String            @id @default(cuid())
+  invoiceNumber String            @unique // Format: INV-YYYYMMDD-XXXX
   cashierId     String
   cashierName   String // Denormalized
-  paymentMethod String   @default("cash") // cash | qris | transfer
+  paymentMethod PaymentMethod     @default(CASH)
+  status        TransactionStatus @default(COMPLETED)
   subtotal      Float
   total         Float
   amountPaid    Float
   change        Float // amountPaid - total
   notes         String?
-  createdAt     DateTime @default(now()) @db.Timestamptz(6)
+  createdAt     DateTime          @default(now()) @db.Timestamptz(6)
 
   cashier User              @relation(fields: [cashierId], references: [id], onDelete: Restrict)
   items   TransactionItem[]
@@ -161,8 +175,10 @@ model TransactionItem {
   productId     String
   productName   String // Denormalized — nama produk saat transaksi
   unitPrice     Float // Denormalized — harga jual saat transaksi
+  costPrice     Float // Denormalized — harga modal saat transaksi
   quantity      Int
   subtotal      Float // unitPrice × quantity
+  grossProfit   Float // (unitPrice - costPrice) × quantity
   createdAt     DateTime @default(now()) @db.Timestamptz(6)
 
   transaction Transaction @relation(fields: [transactionId], references: [id], onDelete: Cascade)

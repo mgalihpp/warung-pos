@@ -7,9 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   DashboardSquare01Icon,
   PackageIcon,
-  Layers01Icon,
   InvoiceIcon,
-  UserMultipleIcon,
   ChartHistogramIcon,
   Settings01Icon,
   ArrowRight01Icon,
@@ -32,9 +30,7 @@ const menuItems = [
   { title: "Dashboard", href: "/admin", icon: DashboardSquare01Icon },
   { title: "Kasir", href: "/admin/pos", icon: CashierIcon },
   { title: "Produk", href: "/admin/produk", icon: PackageIcon },
-  { title: "Stok", href: "/admin/stok", icon: Layers01Icon },
   { title: "Transaksi", href: "/admin/transaksi", icon: InvoiceIcon },
-  { title: "Pelanggan", href: "/admin/pelanggan", icon: UserMultipleIcon },
   { title: "Laporan", href: "/admin/laporan", icon: ChartHistogramIcon },
   { title: "Pengaturan", href: "/admin/pengaturan", icon: Settings01Icon },
 ]

@@ -185,6 +185,12 @@ export function ProdukTable() {
 
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
+
+      {/* Table Header */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-sm font-semibold">Daftar Produk</h3>
+      </div>
+
       {/* Search + Filters */}
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
         {/* Search */}
@@ -213,11 +219,10 @@ export function ProdukTable() {
           }
         }}>
           <DrawerTrigger asChild>
-            <button className={`relative inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-all lg:hidden ${
-              hasActiveFilters
-                ? "bg-primary text-primary-foreground shadow-sm"
-                : "border bg-background text-foreground hover:bg-muted"
-            }`}>
+            <button className={`relative inline-flex h-9 items-center gap-2 rounded-lg px-3 text-sm font-medium transition-all lg:hidden ${hasActiveFilters
+              ? "bg-primary text-primary-foreground shadow-sm"
+              : "border bg-background text-foreground hover:bg-muted"
+              }`}>
               <HugeiconsIcon icon={FilterIcon} size={16} />
               Filter & Urutkan
               {hasActiveFilters && (
@@ -398,11 +403,6 @@ export function ProdukTable() {
           </button>
         </div>
       )}
-
-      {/* Table Header */}
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Daftar Produk</h3>
-      </div>
 
       {/* Table */}
       <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
