@@ -70,7 +70,7 @@ export function DashboardHeader() {
   const today = format(new Date(), "EEEE, dd MMMM yyyy", { locale: id })
 
   return (
-    <header className="flex h-14 items-center gap-3 border-b bg-background px-4">
+    <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <SidebarTrigger className="-ml-1 md:hidden" />
       <Separator orientation="vertical" className="mr-1 h-4 md:hidden" />
 
@@ -78,11 +78,12 @@ export function DashboardHeader() {
       <div className="relative flex flex-1 items-center">
         <button
           onClick={() => setOpenCommand(true)}
-          className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 px-3 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
+          className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 sm:px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
         >
           <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
-          <span className="flex-1 truncate text-left">Cari produk, transaksi, pelanggan...</span>
-          <Kbd className="hidden sm:inline-flex">Ctrl + K</Kbd>
+          <span className="hidden flex-1 truncate text-left sm:block">Cari produk, transaksi, pelanggan...</span>
+          <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
+          <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
         </button>
       </div>
 
@@ -113,12 +114,12 @@ export function DashboardHeader() {
       </CommandDialog>
 
       {/* Date Picker via Popover */}
-      <div className="hidden items-center lg:flex">
+      <div className="flex items-center">
         <Popover>
           <PopoverTrigger asChild>
-            <button className="flex items-center gap-2 rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring">
-              <HugeiconsIcon icon={Calendar01Icon} size={16} />
-              <span className="capitalize">{today}</span>
+            <button className="flex items-center gap-2 rounded-lg p-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring xl:px-2.5 xl:py-1.5">
+              <HugeiconsIcon icon={Calendar01Icon} size={18} />
+              <span className="hidden capitalize xl:block">{today}</span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">
@@ -132,7 +133,7 @@ export function DashboardHeader() {
         </Popover>
       </div>
 
-      <Separator orientation="vertical" className="hidden h-4 lg:block" />
+      <Separator orientation="vertical" className="h-4" />
 
       {/* Notifications via Dropdown */}
       <DropdownMenu>
@@ -184,11 +185,11 @@ export function DashboardHeader() {
                 BW
               </AvatarFallback>
             </Avatar>
-            <div className="hidden flex-col items-start md:flex">
+            <div className="hidden flex-col items-start xl:flex">
               <span className="text-sm font-medium leading-tight text-foreground">Budi Warung</span>
               <span className="text-[11px] text-muted-foreground">Pemilik</span>
             </div>
-            <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="hidden text-muted-foreground md:block" />
+            <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="hidden text-muted-foreground xl:block" />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">

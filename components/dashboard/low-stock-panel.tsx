@@ -66,8 +66,8 @@ export function LowStockPanel() {
                 {item.name.includes("Telur") && "🥚"}
                 {item.name.includes("Mie") && "🍜"}
               </div>
-              <div>
-                <p className="text-xs font-medium">{item.name}</p>
+              <div className="flex-1 min-w-0">
+                <p className="truncate text-xs font-medium">{item.name}</p>
                 <p className="text-[11px] text-muted-foreground">Stok: {item.stock}</p>
               </div>
             </div>

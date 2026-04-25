@@ -44,7 +44,7 @@ export function AppSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      <SidebarHeader className="p-4">
+      <SidebarHeader className="h-14 px-4 flex items-center border-b">
         <Link href="/admin" className="flex items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
           <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
             <Image
@@ -78,7 +78,7 @@ export function AppSidebar() {
                       tooltip={item.title}
                       className={
                         isActive
-                          ? "bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground"
+                          ? "data-[active=true]:bg-primary data-[active=true]:text-primary-foreground data-[active=true]:hover:bg-primary/90 data-[active=true]:hover:text-primary-foreground"
                           : ""
                       }
                     >

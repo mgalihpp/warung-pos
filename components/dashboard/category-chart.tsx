@@ -26,9 +26,9 @@ const chartConfig = {
 
 export function CategoryChart() {
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
+    <div className="rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
       <h3 className="mb-4 text-sm font-semibold">Kategori Terlaris</h3>
-      <div className="flex flex-col items-center gap-4 sm:flex-row">
+      <div className="flex flex-col items-center justify-center gap-6 sm:flex-row xl:flex-col 2xl:flex-row">
         {/* Donut Chart */}
         <ChartContainer config={chartConfig} className="aspect-square h-[200px]">
           <PieChart>
@@ -81,7 +81,7 @@ export function CategoryChart() {
         </ChartContainer>
 
         {/* Legend */}
-        <div className="flex flex-col gap-2.5">
+        <div className="flex w-full flex-col gap-2.5 sm:w-auto xl:w-full 2xl:w-auto">
           {categoryData.map((item) => (
             <div key={item.name} className="flex items-center gap-2">
               <div

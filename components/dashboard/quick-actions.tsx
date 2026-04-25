@@ -4,7 +4,7 @@ import { AddInvoiceIcon, PackageIcon, ArrowRight01Icon, PrinterIcon } from "@hug
 
 export function QuickActions() {
   return (
-    <div className="grid grid-cols-1 gap-2 md:grid-cols-3 lg:grid-cols-1">
+    <div className="grid grid-cols-1 gap-2 md:grid-cols-3 2xl:grid-cols-1">
       <Link
         href="/admin/pos"
         className="group flex items-center justify-between rounded-xl bg-primary px-4 py-3.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"

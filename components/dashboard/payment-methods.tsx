@@ -37,20 +37,22 @@ export function PaymentMethods() {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h3 className="mb-3 text-sm font-semibold">Metode Pembayaran</h3>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3 2xl:grid-cols-1">
         {paymentMethods.map((method) => (
           <div
             key={method.name}
-            className="flex flex-col items-center gap-1.5 rounded-lg border bg-muted/30 p-2 text-center transition-colors hover:bg-muted/50"
+            className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
           >
-            <div className={`flex size-8 items-center justify-center rounded-lg ${method.bg}`}>
-              <HugeiconsIcon icon={method.icon} size={18} className={method.color} />
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${method.bg}`}>
+                <HugeiconsIcon icon={method.icon} size={18} className={method.color} />
+              </div>
+              <div className="flex flex-col items-start min-w-0">
+                <span className="truncate text-xs font-medium">{method.name}</span>
+                <span className="text-[10px] text-muted-foreground">{method.percentage}% total</span>
+              </div>
             </div>
-            <span className="text-xs font-medium">{method.name}</span>
-            <div className="space-y-0.5">
-              <p className="text-[11px] font-semibold">{formatRupiah(method.amount)}</p>
-              <p className="text-[10px] text-muted-foreground">({method.percentage}%)</p>
-            </div>
+            <p className="shrink-0 text-right text-xs font-semibold">{formatRupiah(method.amount)}</p>
           </div>
         ))}
       </div>

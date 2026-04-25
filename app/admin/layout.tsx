@@ -12,9 +12,9 @@ export default function AdminLayout({
     <TooltipProvider>
       <SidebarProvider>
         <AppSidebar />
-        <SidebarInset>
+        <SidebarInset className="min-w-0">
           <DashboardHeader />
-          <div className="flex-1 overflow-auto">{children}</div>
+          <div className="flex-1 overflow-x-hidden">{children}</div>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

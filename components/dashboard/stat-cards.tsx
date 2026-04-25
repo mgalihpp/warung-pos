@@ -88,7 +88,7 @@ function Sparkline({ data, className }: { data: number[], className?: string }) 
 
 export function StatCards() {
   return (
-    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
+    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 2xl:grid-cols-4">
       {stats.map((stat) => (
         <div
           key={stat.title}
@@ -116,7 +116,7 @@ export function StatCards() {
                 <span className={`text-[11px] font-semibold ${stat.positive ? "text-emerald-600" : "text-destructive"}`}>
                   {stat.positive ? "▲" : "▼"} {stat.change}
                 </span>
-                <span className="text-[10px] text-muted-foreground sm:text-[11px]">{stat.changeLabel}</span>
+                <span className="text-[10px] text-muted-foreground sm:text-[11px] min-w-0 truncate">{stat.changeLabel}</span>
               </>
             ) : (
               <span className="text-[11px] font-medium text-destructive">{stat.changeLabel}</span>
