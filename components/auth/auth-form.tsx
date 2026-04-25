@@ -15,7 +15,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
-import { signIn, signUp } from "@/lib/auth-client"
+import { signIn, signUp, getSession } from "@/lib/auth-client"
+import { getDashboardPath } from "@/lib/auth-routes"
 
 type AuthMode = "login" | "register"
 
@@ -97,7 +98,15 @@ export function AuthForm({ mode }: AuthFormProps) {
         return
       }
 
-      router.push(nextPath)
+      // After login, determine redirect path based on user role
+      if (!isRegister) {
+        const session = await getSession()
+        const role = session.data?.user?.role
+        const redirectPath = nextQuery ? nextPath : getDashboardPath(role)
+        router.push(redirectPath)
+      } else {
+        router.push(nextPath)
+      }
       router.refresh()
     })
   }
@@ -112,7 +121,7 @@ export function AuthForm({ mode }: AuthFormProps) {
           <div className="mx-auto flex h-20 w-24 items-center justify-center rounded-xl bg-primary/10 p-1.5 sm:h-18 sm:w-22">
             <Image
               src="/logo warung.png"
-              alt="Logo Warung Sembako Pos"
+              alt="Logo Warung Mama Nia"
               width={120}
               height={120}
               className="h-full w-full scale-[1.7] object-contain sm:scale-150"
