@@ -25,13 +25,13 @@ export async function GET() {
 
   const [products, categories] = await Promise.all([
     prisma.product.findMany({
-      where: { isActive: true, stock: { gt: 0 } },
+      where: { isActive: true },
       include: { category: true },
       orderBy: { name: "asc" },
     }),
     prisma.category.findMany({
       where: {
-        products: { some: { isActive: true, stock: { gt: 0 } } },
+        products: { some: { isActive: true } },
       },
       orderBy: { name: "asc" },
     }),

@@ -5,7 +5,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   SearchIcon,
   ViewIcon,
-  PrinterIcon,
   MoreVerticalCircle01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
@@ -35,7 +34,7 @@ type PaymentMethod = "Tunai" | "QRIS" | "Transfer"
 
 type Transaction = {
   id: string
-  invoice: string
+  transactionNumber: string
   waktu: string
   pelanggan: string
   kasir: string
@@ -49,7 +48,7 @@ type Transaction = {
 const transactions: Transaction[] = [
   {
     id: "1",
-    invoice: "INV-240524-101",
+    transactionNumber: "TRX-240524-101",
     waktu: "24 Mei 2025 09:42",
     pelanggan: "Pelanggan Umum",
     kasir: "Siti",
@@ -60,7 +59,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "2",
-    invoice: "INV-240524-100",
+    transactionNumber: "TRX-240524-100",
     waktu: "24 Mei 2025 09:15",
     pelanggan: "Pelanggan Umum",
     kasir: "Siti",
@@ -71,7 +70,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "3",
-    invoice: "INV-240524-099",
+    transactionNumber: "TRX-240524-099",
     waktu: "24 Mei 2025 08:50",
     pelanggan: "Ibu Rina",
     kasir: "Siti",
@@ -82,7 +81,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "4",
-    invoice: "INV-240524-098",
+    transactionNumber: "TRX-240524-098",
     waktu: "24 Mei 2025 08:23",
     pelanggan: "Pak Andi",
     kasir: "Doni",
@@ -93,7 +92,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "5",
-    invoice: "INV-240524-097",
+    transactionNumber: "TRX-240524-097",
     waktu: "24 Mei 2025 07:58",
     pelanggan: "Pelanggan Umum",
     kasir: "Siti",
@@ -104,7 +103,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "6",
-    invoice: "INV-240524-096",
+    transactionNumber: "TRX-240524-096",
     waktu: "24 Mei 2025 07:33",
     pelanggan: "Bu Sari",
     kasir: "Doni",
@@ -115,7 +114,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "7",
-    invoice: "INV-240524-095",
+    transactionNumber: "TRX-240524-095",
     waktu: "24 Mei 2025 07:10",
     pelanggan: "Pelanggan Umum",
     kasir: "Siti",
@@ -126,7 +125,7 @@ const transactions: Transaction[] = [
   },
   {
     id: "8",
-    invoice: "INV-240524-094",
+    transactionNumber: "TRX-240524-094",
     waktu: "24 Mei 2025 06:48",
     pelanggan: "Pak Joko",
     kasir: "Doni",
@@ -196,7 +195,7 @@ export function TransaksiTable() {
       !activeMetodeFilter || t.metode === activeMetodeFilter
     // Search filter
     const matchSearch =
-      t.invoice.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      t.transactionNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.pelanggan.toLowerCase().includes(searchQuery.toLowerCase()) ||
       t.item.toLowerCase().includes(searchQuery.toLowerCase())
     return matchStatus && matchMetode && matchSearch
@@ -273,7 +272,7 @@ export function TransaksiTable() {
           />
           <input
             type="text"
-            placeholder="Cari nomor invoice atau nama pelanggan..."
+            placeholder="Cari no. transaksi atau nama pelanggan..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="h-9 w-full rounded-lg border bg-background pl-9 pr-3 text-sm outline-none ring-ring transition-colors placeholder:text-muted-foreground focus:ring-1"
@@ -521,7 +520,7 @@ export function TransaksiTable() {
         <table className="w-full min-w-[900px] text-left">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Invoice</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">No. Transaksi</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Waktu</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Pelanggan</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Kasir</th>
@@ -539,7 +538,7 @@ export function TransaksiTable() {
                 className="border-b last:border-0 transition-colors hover:bg-muted/20"
               >
                 <td className="px-4 py-3">
-                  <span className="text-sm font-medium">{trx.invoice}</span>
+                  <span className="text-sm font-medium">{trx.transactionNumber}</span>
                 </td>
                 <td className="px-4 py-3 text-sm text-muted-foreground whitespace-nowrap">
                   {trx.waktu}
@@ -586,9 +585,6 @@ export function TransaksiTable() {
                   <div className="flex items-center gap-1">
                     <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lihat Detail">
                       <HugeiconsIcon icon={ViewIcon} size={15} />
-                    </button>
-                    <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Cetak Struk">
-                      <HugeiconsIcon icon={PrinterIcon} size={15} />
                     </button>
                     <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lainnya">
                       <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />

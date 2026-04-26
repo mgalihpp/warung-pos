@@ -1,6 +1,6 @@
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { AddInvoiceIcon, PackageIcon, ArrowRight01Icon, PrinterIcon } from "@hugeicons/core-free-icons"
+import { AddInvoiceIcon, PackageIcon, ArrowRight01Icon, InvoiceIcon } from "@hugeicons/core-free-icons"
 
 export function QuickActions() {
   return (
@@ -16,12 +16,12 @@ export function QuickActions() {
         <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="opacity-0 -translate-x-2 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
       </Link>
       <Link
-        href="#"
+        href="/admin/transaksi"
         className="group flex items-center justify-between rounded-xl bg-primary/10 px-4 py-3 text-sm font-medium text-primary shadow-sm transition-colors hover:bg-primary/20"
       >
         <div className="flex items-center gap-2.5">
-          <HugeiconsIcon icon={PrinterIcon} size={18} className="text-primary" />
-          <span>Cetak Struk</span>
+          <HugeiconsIcon icon={InvoiceIcon} size={18} className="text-primary" />
+          <span>Lihat Transaksi</span>
         </div>
         <HugeiconsIcon icon={ArrowRight01Icon} size={16} className="text-primary opacity-0 -translate-x-2 transition-all group-hover:translate-x-0 group-hover:opacity-100" />
       </Link>

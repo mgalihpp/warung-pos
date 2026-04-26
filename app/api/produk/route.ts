@@ -135,6 +135,7 @@ export async function GET() {
     return {
       rank: index + 1,
       name: row.productName,
+      image: product?.image ?? null,
       sold: row._sum.quantity ?? 0,
       unit: product?.unit ?? "pcs",
       revenue: row._sum.subtotal ?? 0,

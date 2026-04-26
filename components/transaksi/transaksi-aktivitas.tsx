@@ -3,7 +3,7 @@
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   CheckmarkCircle02Icon,
-  PrinterIcon,
+  ShoppingCart01Icon,
   TimeQuarterPassIcon,
   Cancel01Icon,
 } from "@hugeicons/core-free-icons"
@@ -14,15 +14,15 @@ const activities = [
     iconColor: "text-emerald-600",
     iconBg: "bg-emerald-500/10",
     label: "Pembayaran diterima",
-    invoice: "INV-240524-101",
+    transactionNumber: "TRX-240524-101",
     time: "09:42",
   },
   {
-    icon: PrinterIcon,
+    icon: ShoppingCart01Icon,
     iconColor: "text-blue-600",
     iconBg: "bg-blue-500/10",
-    label: "Struk dicetak",
-    invoice: "INV-240524-100",
+    label: "Transaksi selesai",
+    transactionNumber: "TRX-240524-100",
     time: "09:16",
   },
   {
@@ -30,7 +30,7 @@ const activities = [
     iconColor: "text-amber-600",
     iconBg: "bg-amber-500/10",
     label: "Transaksi pending",
-    invoice: "INV-240524-098",
+    transactionNumber: "TRX-240524-098",
     time: "08:23",
   },
   {
@@ -38,7 +38,7 @@ const activities = [
     iconColor: "text-red-600",
     iconBg: "bg-red-500/10",
     label: "Transaksi dibatalkan",
-    invoice: "INV-240524-096",
+    transactionNumber: "TRX-240524-096",
     time: "07:35",
   },
 ]
@@ -50,7 +50,7 @@ export function TransaksiAktivitas() {
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {activities.map((activity) => (
           <div
-            key={activity.invoice + activity.label}
+            key={activity.transactionNumber + activity.label}
             className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5"
           >
             <div
@@ -65,7 +65,7 @@ export function TransaksiAktivitas() {
             <div className="min-w-0 flex-1">
               <p className="text-[11px] font-medium text-muted-foreground">{activity.label}</p>
               <p className="truncate text-xs font-medium">
-                {activity.invoice}
+                {activity.transactionNumber}
               </p>
             </div>
             <span className="shrink-0 text-[10px] text-muted-foreground">

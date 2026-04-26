@@ -63,18 +63,13 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
 
   if (preview) {
     return (
-      <div className="relative w-32 h-32 rounded-2xl overflow-hidden border bg-muted">
-        <Image
-          src={preview}
-          alt="Preview"
-          fill
-          className="object-cover"
-        />
+      <div className="relative h-32 w-32 overflow-hidden rounded-2xl border bg-muted">
+        <Image src={preview} alt="Preview" fill className="object-contain" />
         {!disabled && (
           <button
             type="button"
             onClick={handleRemove}
-            className="absolute top-1 right-1 size-6 rounded-full bg-black/60 text-white flex items-center justify-center hover:bg-black/80 transition-colors"
+            className="absolute top-1 right-1 flex size-6 items-center justify-center rounded-full bg-black/60 text-white transition-colors hover:bg-black/80"
           >
             <HugeiconsIcon icon={Cancel01Icon} size={12} />
           </button>
@@ -86,11 +81,14 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
   return (
     <div
       className={cn(
-        "w-32 h-32 rounded-2xl border-2 border-dashed flex flex-col items-center justify-center gap-2 cursor-pointer transition-colors text-muted-foreground",
+        "flex h-32 w-32 cursor-pointer flex-col items-center justify-center gap-2 rounded-2xl border-2 border-dashed text-muted-foreground transition-colors",
         isDragging && "border-primary bg-primary/5",
         !disabled && "hover:border-primary hover:bg-muted"
       )}
-      onDragOver={(e) => { e.preventDefault(); setIsDragging(true) }}
+      onDragOver={(e) => {
+        e.preventDefault()
+        setIsDragging(true)
+      }}
       onDragLeave={() => setIsDragging(false)}
       onDrop={handleDrop}
       onClick={() => !disabled && inputRef.current?.click()}
@@ -108,7 +106,9 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
       ) : (
         <>
           <Upload size={24} />
-          <p className="text-[10px] text-center px-1 leading-tight">Upload Gambar</p>
+          <p className="px-1 text-center text-[10px] leading-tight">
+            Upload Gambar
+          </p>
         </>
       )}
     </div>

@@ -17,13 +17,13 @@ export function PosCategoryFilter({
   onSelect,
 }: PosCategoryFilterProps) {
   return (
-    <div className="flex items-center gap-2 overflow-x-auto shrink-0 scrollbar-hide">
+    <div className="no-scrollbar flex shrink-0 items-center gap-2 overflow-x-auto">
       <button
         onClick={() => onSelect(null)}
-        className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-medium transition-colors border ${
+        className={`rounded-full border px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
           activeCategory === null
-            ? "bg-primary text-primary-foreground border-primary shadow-sm"
-            : "bg-card text-muted-foreground border-border hover:bg-accent"
+            ? "border-primary bg-primary text-primary-foreground shadow-sm"
+            : "border-border bg-card text-muted-foreground hover:bg-accent"
         }`}
       >
         Semua
@@ -32,10 +32,10 @@ export function PosCategoryFilter({
         <button
           key={cat.id}
           onClick={() => onSelect(cat.id)}
-          className={`whitespace-nowrap px-4 py-2 rounded-full text-xs font-medium transition-colors border ${
+          className={`rounded-full border px-4 py-2 text-xs font-medium whitespace-nowrap transition-colors ${
             activeCategory === cat.id
-              ? "bg-primary text-primary-foreground border-primary shadow-sm"
-              : "bg-card text-muted-foreground border-border hover:bg-accent"
+              ? "border-primary bg-primary text-primary-foreground shadow-sm"
+              : "border-border bg-card text-muted-foreground hover:bg-accent"
           }`}
         >
           {cat.name}

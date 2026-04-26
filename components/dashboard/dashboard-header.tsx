@@ -8,7 +8,7 @@ import {
   SearchIcon,
   Notification03Icon,
   ArrowDown01Icon,
-  Calendar01Icon,
+  Calendar05Icon,
   UserCircleIcon,
   Settings01Icon,
   Logout01Icon,
@@ -54,6 +54,7 @@ import { useRouter, usePathname } from "next/navigation"
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [now, setNow] = React.useState(() => new Date())
   const router = useRouter()
   const pathname = usePathname()
 
@@ -70,12 +71,22 @@ export function DashboardHeader() {
     return () => document.removeEventListener("keydown", down)
   }, [])
 
-  const today = format(new Date(), "EEEE, dd MMMM yyyy", { locale: id })
+  React.useEffect(() => {
+    // Keep header clock in sync without being too noisy.
+    const interval = window.setInterval(() => {
+      setNow(new Date())
+    }, 1000)
+
+    return () => window.clearInterval(interval)
+  }, [])
+
+  const today = format(now, "EEEE, dd MMMM yyyy", { locale: id })
+  const time = format(now, "HH:mm")
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <SidebarTrigger className="-ml-1 md:hidden" />
-      <Separator orientation="vertical" className="mr-1 h-4 md:hidden" />
+      <SidebarTrigger className="-ml-1" />
+      <Separator orientation="vertical" className="mr-1 h-4" />
 
       {/* Search Bar - Interactive */}
       {!isPosPage && (
@@ -126,8 +137,8 @@ export function DashboardHeader() {
         <Popover>
           <PopoverTrigger asChild>
             <button className="flex items-center gap-2 rounded-lg p-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring xl:px-2.5 xl:py-1.5">
-              <HugeiconsIcon icon={Calendar01Icon} size={18} />
-              <span className="hidden capitalize xl:block">{today}</span>
+              <HugeiconsIcon icon={Calendar05Icon} size={18} />
+              <span className="hidden capitalize xl:block">{today} - {time}</span>
             </button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0" align="end">

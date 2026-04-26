@@ -19,19 +19,19 @@ async function requireCashierOrAdmin() {
   return session.user
 }
 
-async function generateInvoiceNumber(): Promise<string> {
+async function generateTransactionNumber(): Promise<string> {
   const today = format(new Date(), "yyyyMMdd")
-  const prefix = `INV-${today}-`
+  const prefix = `TRX-${today}-`
 
   const lastTransaction = await prisma.transaction.findFirst({
-    where: { invoiceNumber: { startsWith: prefix } },
-    orderBy: { invoiceNumber: "desc" },
-    select: { invoiceNumber: true },
+    where: { transactionNumber: { startsWith: prefix } },
+    orderBy: { transactionNumber: "desc" },
+    select: { transactionNumber: true },
   })
 
   let nextSeq = 1
   if (lastTransaction) {
-    const lastSeq = parseInt(lastTransaction.invoiceNumber.replace(prefix, ""), 10)
+    const lastSeq = parseInt(lastTransaction.transactionNumber.replace(prefix, ""), 10)
     if (!isNaN(lastSeq)) nextSeq = lastSeq + 1
   }
 
@@ -118,13 +118,13 @@ export async function POST(request: Request) {
   }
 
   // Create transaction in a database transaction
-  const invoiceNumber = await generateInvoiceNumber()
+  const transactionNumber = await generateTransactionNumber()
 
   const transaction = await prisma.$transaction(async (tx) => {
     // 1. Create the transaction
     const trx = await tx.transaction.create({
       data: {
-        invoiceNumber,
+        transactionNumber,
         cashierId: user.id,
         cashierName: user.name,
         paymentMethod,
@@ -160,7 +160,7 @@ export async function POST(request: Request) {
           quantity: item.quantity,
           stockBefore,
           stockAfter,
-          reason: `Penjualan - ${invoiceNumber}`,
+          reason: `Penjualan - ${transactionNumber}`,
           referenceId: trx.id,
         },
       })
@@ -173,7 +173,7 @@ export async function POST(request: Request) {
     success: true,
     transaction: {
       id: transaction.id,
-      invoiceNumber: transaction.invoiceNumber,
+      transactionNumber: transaction.transactionNumber,
       cashierName: transaction.cashierName,
       paymentMethod: transaction.paymentMethod,
       status: transaction.status,
@@ -228,7 +228,7 @@ export async function GET(request: Request) {
 
   const transactionItems = transactions.map((trx) => ({
     id: trx.id,
-    invoiceNumber: trx.invoiceNumber,
+    transactionNumber: trx.transactionNumber,
     cashierName: trx.cashierName,
     paymentMethod: trx.paymentMethod,
     status: trx.status,

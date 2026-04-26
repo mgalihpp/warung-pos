@@ -138,8 +138,8 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
     <>
       {/* Desktop Layout */}
       <div className="hidden h-full gap-4 overflow-hidden bg-muted/40 p-4 xl:flex">
-        <div className="flex flex-1 flex-col gap-4 overflow-hidden">
-          <div className="flex h-11 w-fit shrink-0 items-center overflow-hidden rounded-xl border bg-card shadow-sm">
+        <div className="flex flex-1 flex-col gap-0 overflow-hidden">
+          <div className="mb-4 flex h-11 w-fit shrink-0 items-center overflow-hidden rounded-xl border bg-card shadow-sm">
             <div className="h-full w-[320px] shrink-0">
               <PosSearchBar
                 value={searchQuery}
@@ -294,12 +294,7 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
               >
                 <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />
               </button>
-              <div className="flex flex-1 items-center gap-2">
-                <HugeiconsIcon
-                  icon={ShoppingCart01Icon}
-                  size={18}
-                  className="text-primary"
-                />
+              <div className="flex flex-1 items-center">
                 <h2 className="font-bold text-foreground">Keranjang Belanja</h2>
               </div>
               {itemCount > 0 && (
@@ -309,14 +304,12 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
               )}
             </div>
 
-            {/* Reusing desktop cart UI in mobile container */}
-            <div className="flex-1 overflow-y-auto">
-              <div className="w-full max-w-none rounded-none border-none shadow-none">
-                <PosCart
-                  onPayment={handlePayment}
-                  isProcessing={payMutation.isPending}
-                />
-              </div>
+            {/* Cart content (PosCart handles its own scrolling) */}
+            <div className="min-h-0 flex-1">
+              <PosCart
+                onPayment={handlePayment}
+                isProcessing={payMutation.isPending}
+              />
             </div>
           </div>
         </div>

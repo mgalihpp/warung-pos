@@ -147,7 +147,7 @@ model Product {
 /// akurat meskipun data user berubah di masa depan.
 model Transaction {
   id            String            @id @default(cuid())
-  invoiceNumber String            @unique // Format: INV-YYYYMMDD-XXXX
+  transactionNumber String        @unique // Format: TRX-YYYYMMDD-XXXX
   cashierId     String
   cashierName   String // Denormalized
   paymentMethod PaymentMethod     @default(CASH)
@@ -164,7 +164,7 @@ model Transaction {
 
   @@index([cashierId])
   @@index([createdAt])
-  @@index([invoiceNumber])
+  @@index([transactionNumber])
   @@map("transaction")
 }
 

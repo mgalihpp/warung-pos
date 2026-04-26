@@ -1,11 +1,7 @@
 "use client"
 
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  CheckmarkCircle02Icon,
-  PrinterIcon,
-  PlusSignIcon,
-} from "@hugeicons/core-free-icons"
+import { CheckmarkCircle02Icon } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
 import {
   Dialog,
@@ -13,10 +9,11 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
+import { Separator } from "@/components/ui/separator"
 
 export type TransactionReceipt = {
   id: string
-  invoiceNumber: string
+  transactionNumber: string
   cashierName: string
   paymentMethod: string
   subtotal: number
@@ -72,118 +69,97 @@ export function PosReceiptDialog({
 }: PosReceiptDialogProps) {
   if (!transaction) return null
 
-  const handlePrint = () => {
-    window.print()
-  }
-
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="sm:max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="sr-only">Struk Pembayaran</DialogTitle>
+      <DialogContent className="sm:max-w-sm">
+        <DialogHeader className="sr-only">
+          <DialogTitle className="sr-only">Ringkasan Pembayaran</DialogTitle>
         </DialogHeader>
 
-        {/* Receipt Content */}
-        <div className="flex flex-col items-center print:p-4" id="receipt-print">
-          {/* Success Icon */}
-          <div className="flex size-16 items-center justify-center rounded-full bg-green-100 text-green-600 mb-3 print:hidden">
-            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={32} />
+        <div className="space-y-4 p-4 print:p-0" id="receipt-print">
+          <div className="flex flex-col items-center text-center">
+            <div className="relative mb-3 flex size-12 items-center justify-center rounded-full bg-green-100 text-green-600 print:hidden">
+              <span className="absolute -top-2 -left-2 text-[10px] leading-none font-bold text-amber-500">
+                ✦
+              </span>
+              <span className="absolute -top-1 -right-1 text-[10px] leading-none font-bold text-amber-400">
+                ✧
+              </span>
+              <span className="absolute -bottom-2 -left-1 text-[10px] leading-none font-bold text-amber-500">
+                ✧
+              </span>
+              <span className="absolute -right-2 -bottom-1 text-[10px] leading-none font-bold text-amber-400">
+                ✦
+              </span>
+              <HugeiconsIcon icon={CheckmarkCircle02Icon} size={24} />
+            </div>
+
+            <h3 className="text-base font-bold text-foreground">
+              Transaksi Berhasil
+            </h3>
+            <p className="text-xs text-muted-foreground">
+              {formatDate(transaction.createdAt)}
+            </p>
           </div>
 
-          <h3 className="text-lg font-bold text-foreground mb-1">Pembayaran Berhasil!</h3>
-          <p className="text-sm text-muted-foreground mb-4">{formatDate(transaction.createdAt)}</p>
+          <Separator className="bg-border/70" />
 
-          {/* Store Info */}
-          <div className="w-full text-center border-b border-dashed pb-3 mb-3">
-            <p className="font-bold text-foreground">Warung Sembako</p>
-            <p className="text-xs text-muted-foreground">Terima kasih atas kunjungan Anda</p>
-          </div>
-
-          {/* Invoice Info */}
-          <div className="w-full grid grid-cols-2 gap-1 text-xs border-b border-dashed pb-3 mb-3">
-            <span className="text-muted-foreground">No. Invoice</span>
-            <span className="text-right font-medium text-foreground">
-              {transaction.invoiceNumber}
-            </span>
-            <span className="text-muted-foreground">Kasir</span>
-            <span className="text-right font-medium text-foreground">
-              {transaction.cashierName}
-            </span>
-            <span className="text-muted-foreground">Pembayaran</span>
-            <span className="text-right font-medium text-foreground">
-              {getPaymentMethodLabel(transaction.paymentMethod)}
-            </span>
-          </div>
-
-          {/* Items */}
-          <div className="w-full border-b border-dashed pb-3 mb-3">
-            <div className="flex flex-col gap-2">
-              {transaction.items.map((item, idx) => (
-                <div key={idx} className="flex justify-between text-xs">
-                  <div className="flex-1 min-w-0">
-                    <p className="font-medium text-foreground truncate">{item.productName}</p>
-                    <p className="text-muted-foreground">
-                      {item.quantity} × {formatRupiah(item.unitPrice)}
-                    </p>
-                  </div>
-                  <span className="font-medium text-foreground shrink-0 ml-2">
-                    {formatRupiah(item.subtotal)}
-                  </span>
-                </div>
-              ))}
+          <div className="space-y-1.5 rounded-2xl bg-muted/40 p-3 text-xs">
+            <div className="flex justify-between gap-3 py-1">
+              <span className="text-muted-foreground">No. Transaksi</span>
+              <span className="text-right font-medium text-foreground">
+                {transaction.transactionNumber}
+              </span>
+            </div>
+            <div className="flex justify-between gap-3 py-1">
+              <span className="text-muted-foreground">Kasir</span>
+              <span className="text-right font-medium text-foreground">
+                {transaction.cashierName}
+              </span>
+            </div>
+            <div className="flex justify-between gap-3 py-1">
+              <span className="text-muted-foreground">Pembayaran</span>
+              <span className="text-right font-medium text-foreground">
+                {getPaymentMethodLabel(transaction.paymentMethod)}
+              </span>
             </div>
           </div>
 
-          {/* Totals */}
-          <div className="w-full flex flex-col gap-1.5 text-sm border-b border-dashed pb-3 mb-3">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Subtotal</span>
-              <span className="font-medium text-foreground">{formatRupiah(transaction.subtotal)}</span>
-            </div>
-            <div className="flex justify-between font-bold text-base">
-              <span className="text-foreground">Total</span>
-              <span className="text-primary">{formatRupiah(transaction.total)}</span>
+          <Separator className="bg-border/70" />
+
+          <div className="rounded-2xl bg-muted/40 p-3">
+            <div className="flex items-center justify-between">
+              <span className="text-sm font-medium text-foreground">Total</span>
+              <span className="text-lg font-bold text-primary tabular-nums">
+                {formatRupiah(transaction.total)}
+              </span>
             </div>
             {transaction.paymentMethod === "CASH" && (
               <>
-                <div className="flex justify-between text-xs">
+                <div className="mt-1 flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Dibayar</span>
-                  <span className="font-medium text-foreground">
+                  <span className="text-foreground tabular-nums">
                     {formatRupiah(transaction.amountPaid)}
                   </span>
                 </div>
-                <div className="flex justify-between text-xs">
+                <div className="mt-1 flex items-center justify-between text-xs">
                   <span className="text-muted-foreground">Kembalian</span>
-                  <span className="font-bold text-primary">{formatRupiah(transaction.change)}</span>
+                  <span className="font-medium text-emerald-600 tabular-nums">
+                    {formatRupiah(transaction.change)}
+                  </span>
                 </div>
               </>
             )}
           </div>
+        </div>
 
-          {/* Notes */}
-          {transaction.notes && (
-            <div className="w-full text-xs text-muted-foreground bg-muted/50 rounded-lg p-2 mb-3">
-              <span className="font-medium">Catatan:</span> {transaction.notes}
-            </div>
-          )}
-
-          {/* Actions */}
-          <div className="w-full flex flex-col gap-2 print:hidden">
-            <button
-              onClick={handlePrint}
-              className="w-full border rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-semibold text-foreground hover:bg-accent transition-colors"
-            >
-              <HugeiconsIcon icon={PrinterIcon} size={16} />
-              Cetak Struk
-            </button>
-            <button
-              onClick={onNewTransaction}
-              className="w-full bg-primary text-primary-foreground rounded-xl py-2.5 flex items-center justify-center gap-2 text-sm font-bold hover:bg-primary/90 transition-colors"
-            >
-              <HugeiconsIcon icon={PlusSignIcon} size={16} />
-              Transaksi Baru
-            </button>
-          </div>
+        <div className="w-full px-4 pt-0 pb-4 print:hidden">
+          <button
+            onClick={onNewTransaction}
+            className="flex w-full items-center justify-center gap-2 rounded-xl bg-primary py-2 text-sm font-bold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            Tutup
+          </button>
         </div>
       </DialogContent>
     </Dialog>

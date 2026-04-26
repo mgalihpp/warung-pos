@@ -38,6 +38,7 @@ export type ProdukCategoryChartItem = {
 export type ProdukPopularItem = {
   rank: number
   name: string
+  image: string | null
   sold: number
   unit: string
   revenue: number

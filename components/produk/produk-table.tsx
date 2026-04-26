@@ -307,11 +307,7 @@ function ProductEditForm({
         )}
       >
         {closeButton}
-        <Button
-          type="submit"
-          className="w-full sm:w-auto"
-          disabled={isPending}
-        >
+        <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
           {isPending ? "Menyimpan..." : "Simpan Perubahan"}
         </Button>
       </DialogFooter>
@@ -427,7 +423,7 @@ function ProductDetailContent({ product }: { product: ProdukItem }) {
   return (
     <div className="grid gap-4 py-2">
       {product.image && (
-        <div className="overflow-hidden rounded-xl border bg-muted">
+        <div className="overflow-hidden rounded-xl bg-muted">
           <Image
             src={product.image}
             alt={product.name}
@@ -569,7 +565,12 @@ function StockForm({
 }: {
   product: ProdukItem
   isMobile?: boolean
-  onSubmit: (payload: { productId: string; mode: string; quantity: number; reason?: string }) => void
+  onSubmit: (payload: {
+    productId: string
+    mode: string
+    quantity: number
+    reason?: string
+  }) => void
   isPending: boolean
 }) {
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -1104,13 +1105,13 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       {product.image ? (
-                        <div className="size-9 shrink-0 overflow-hidden rounded-lg border bg-muted">
+                        <div className="size-9 shrink-0 overflow-hidden rounded-lg bg-muted">
                           <Image
                             src={product.image}
                             alt={product.name}
                             width={36}
                             height={36}
-                            className="size-full object-cover"
+                            className="size-full object-contain"
                           />
                         </div>
                       ) : (
