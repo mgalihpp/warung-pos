@@ -105,7 +105,8 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
               <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem
-                className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                variant="destructive"
+                className="cursor-pointer"
                 onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
               >
                 <HugeiconsIcon icon={Logout03Icon} size={16} className="mr-2" />

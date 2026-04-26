@@ -19,11 +19,16 @@ import {
   DrawerTrigger,
   DrawerFooter,
 } from "@/components/ui/drawer"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type { TransactionItem, TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
 
 // ── Filter options ──
-const statusFilters = ["Semua", "Selesai", "Pending", "Dibatalkan"]
-const metodeFilters = ["Tunai", "QRIS", "Transfer"]
 const statusDropdownOptions = ["Semua Status", "Selesai", "Pending", "Dibatalkan"]
 const metodeDropdownOptions = ["Semua Metode", "Tunai", "QRIS", "Transfer"]
 const sortOptions = ["Terbaru", "Terlama", "Nilai Tertinggi", "Nilai Terendah"]
@@ -98,9 +103,6 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
   const desktopStatus = activeStatusFilter === "Semua" ? "Semua Status" : activeStatusFilter
   const desktopMetode = activeMetodeFilter ?? "Semua Metode"
   const desktopKasir = activeKasirFilter ?? "Semua Kasir"
-
-  // Combined chip filter state
-  const allChipFilters = [...statusFilters, ...metodeFilters]
 
   // Desktop dropdown handlers — directly set active filters + reset page
   const handleDesktopStatusChange = (value: string) => {
@@ -202,21 +204,6 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
     activeFilterLabels.push({ label: `Kasir: ${activeKasirFilter}`, reset: () => setActiveKasirFilter(null) })
 
   const hasActiveFilters = activeFilterCount > 0
-
-  const handleChipClick = (chip: string) => {
-    if (statusFilters.includes(chip)) {
-      setActiveStatusFilter(chip)
-      if (chip !== "Semua") setActiveMetodeFilter(null)
-    } else if (metodeFilters.includes(chip)) {
-      if (activeMetodeFilter === chip) {
-        setActiveMetodeFilter(null)
-      } else {
-        setActiveMetodeFilter(chip)
-        setActiveStatusFilter("Semua")
-      }
-    }
-    setCurrentPage(1)
-  }
 
   // Build pagination buttons
   const paginationButtons = React.useMemo(() => {
@@ -393,77 +380,65 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
         <div className="hidden lg:flex flex-wrap items-center gap-2">
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium text-muted-foreground">Status</span>
-            <select
-              value={desktopStatus}
-              onChange={(e) => handleDesktopStatusChange(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
-            >
-              {statusDropdownOptions.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
+            <Select value={desktopStatus} onValueChange={handleDesktopStatusChange}>
+              <SelectTrigger className="w-full lg:w-[160px]">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                {statusDropdownOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium text-muted-foreground">Metode Bayar</span>
-            <select
-              value={desktopMetode}
-              onChange={(e) => handleDesktopMetodeChange(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
-            >
-              {metodeDropdownOptions.map((m) => (
-                <option key={m}>{m}</option>
-              ))}
-            </select>
+            <Select value={desktopMetode} onValueChange={handleDesktopMetodeChange}>
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder="Metode" />
+              </SelectTrigger>
+              <SelectContent>
+                {metodeDropdownOptions.map((m) => (
+                  <SelectItem key={m} value={m}>
+                    {m}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium text-muted-foreground">Kasir</span>
-            <select
-              value={desktopKasir}
-              onChange={(e) => handleDesktopKasirChange(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
-            >
-              {kasirDropdownOptions.map((k) => (
-                <option key={k}>{k}</option>
-              ))}
-            </select>
+            <Select value={desktopKasir} onValueChange={handleDesktopKasirChange}>
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder="Kasir" />
+              </SelectTrigger>
+              <SelectContent>
+                {kasirDropdownOptions.map((k) => (
+                  <SelectItem key={k} value={k}>
+                    {k}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium text-muted-foreground">Urutkan</span>
-            <select
-              value={activeSort}
-              onChange={(e) => handleDesktopSortChange(e.target.value)}
-              className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
-            >
-              {sortOptions.map((s) => (
-                <option key={s}>{s}</option>
-              ))}
-            </select>
+            <Select value={activeSort} onValueChange={handleDesktopSortChange}>
+              <SelectTrigger className="w-full lg:w-[180px]">
+                <SelectValue placeholder="Urutkan" />
+              </SelectTrigger>
+              <SelectContent>
+                {sortOptions.map((s) => (
+                  <SelectItem key={s} value={s}>
+                    {s}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
           </div>
         </div>
-      </div>
-
-      {/* Filter Chips - desktop only */}
-      <div className="hidden lg:flex flex-wrap gap-2">
-        {allChipFilters.map((chip) => {
-          const isStatusChip = statusFilters.includes(chip)
-          const isActive = isStatusChip
-            ? activeStatusFilter === chip
-            : activeMetodeFilter === chip
-
-          return (
-            <button
-              key={chip}
-              onClick={() => handleChipClick(chip)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                isActive
-                  ? "bg-primary text-primary-foreground shadow-sm"
-                  : "border bg-background text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {chip}
-            </button>
-          )
-        })}
       </div>
 
       {/* Active filter chips on mobile/tablet */}

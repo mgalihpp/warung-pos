@@ -14,7 +14,7 @@ export default function CashierTransaksiPage() {
 
   if (error || !data) {
     return (
-      <div className="flex flex-col gap-3 p-4 lg:gap-6 lg:p-6 min-w-0 overflow-y-auto h-full">
+      <div className="flex flex-1 flex-col gap-3 bg-muted/40 p-4 lg:gap-6 lg:p-6 min-w-0 min-h-0 overflow-y-auto">
         <div className="mb-2">
           <h1 className="text-2xl font-bold text-foreground tracking-tight">Riwayat Transaksi</h1>
           <p className="text-sm text-muted-foreground mt-1">
@@ -29,7 +29,7 @@ export default function CashierTransaksiPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 lg:gap-6 lg:p-6 min-w-0 overflow-y-auto h-full">
+    <div className="flex flex-1 flex-col gap-3 bg-muted/40 p-4 lg:gap-6 lg:p-6 min-w-0 min-h-0 overflow-y-auto">
       <div className="mb-2">
         <h1 className="text-2xl font-bold text-foreground tracking-tight">Riwayat Transaksi</h1>
         <p className="text-sm text-muted-foreground mt-1">
@@ -39,9 +39,7 @@ export default function CashierTransaksiPage() {
 
       <TransaksiStatCards stats={data.stats} />
 
-      <div className="bg-card rounded-xl border shadow-sm">
-        <TransaksiTable transactions={data.transactions} cashierList={data.cashierList} />
-      </div>
+      <TransaksiTable transactions={data.transactions} cashierList={data.cashierList} />
     </div>
   )
 }

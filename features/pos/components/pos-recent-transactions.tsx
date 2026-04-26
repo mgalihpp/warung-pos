@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { useState } from "react"
+import { usePathname } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowDown01Icon, ArrowUp01Icon } from "@hugeicons/core-free-icons"
@@ -31,6 +32,10 @@ function formatTime(iso: string): string {
 
 export function PosRecentTransactions() {
   const [open, setOpen] = useState(false)
+  const pathname = usePathname()
+  const transaksiHref = pathname.startsWith("/admin")
+    ? "/admin/transaksi"
+    : "/cashier/transaksi"
   const { data, isLoading } = useQuery<{
     transactions: RecentTransaction[]
   }>({
@@ -104,7 +109,7 @@ export function PosRecentTransactions() {
           </h3>
           <div className="flex items-center gap-1">
             <Link
-              href="/cashier/transaksi"
+              href={transaksiHref}
               className="px-2 text-xs font-medium text-primary hover:underline"
             >
               Lihat semua
