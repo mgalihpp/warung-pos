@@ -12,6 +12,7 @@ export type TransactionItem = {
   transactionNumber: string
   waktu: string
   kasir: string
+  kasirImage: string | null
   item: string
   metode: PaymentMethod
   total: number

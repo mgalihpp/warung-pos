@@ -8,8 +8,9 @@ import {
   ShoppingCart01Icon,
   Invoice01Icon,
   Logout03Icon,
+  Settings01Icon,
 } from "@hugeicons/core-free-icons"
-import { authClient } from "@/lib/auth-client"
+import { authClient, useSession } from "@/lib/auth-client"
 
 import {
   DropdownMenu,
@@ -19,7 +20,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 
 type CashierLayoutClientProps = {
   userName: string
@@ -33,8 +34,12 @@ const navItems = [
 
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
+  const { data: session } = useSession()
 
-  const initials = userName
+  const displayName = session?.user?.name ?? userName
+  const avatarUrl = session?.user?.image ?? null
+
+  const initials = displayName
     .split(" ")
     .map((n) => n[0])
     .join("")
@@ -61,7 +66,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
                 Warung Mama Nia
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight">
-                Halo, {userName}
+                Halo, {displayName}
               </span>
             </div>
           </div>
@@ -91,18 +96,28 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
                 <Avatar className="size-8">
+                  {avatarUrl ? (
+                    <AvatarImage src={avatarUrl} alt={displayName} />
+                  ) : null}
                   <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
                     {initials || "K"}
                   </AvatarFallback>
                 </Avatar>
                 <div className="hidden flex-col items-start xl:flex">
-                  <span className="text-sm font-medium leading-tight text-foreground truncate max-w-[100px]">{userName}</span>
+                  <span className="text-sm font-medium leading-tight text-foreground truncate max-w-[100px]">{displayName}</span>
                   <span className="text-[11px] text-muted-foreground">Kasir</span>
                 </div>
               </button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem asChild>
+                <Link href="/cashier/pengaturan">
+                  <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+                  <span>Pengaturan</span>
+                </Link>
+              </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 variant="destructive"

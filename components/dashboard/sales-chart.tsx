@@ -1,6 +1,5 @@
 "use client"
 
-import * as React from "react"
 import {
   Bar,
   BarChart,
@@ -22,16 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatRupiah } from "@/lib/format-currency"
-
-const salesData = [
-  { date: "18 Mei", penjualan: 1800000 },
-  { date: "19 Mei", penjualan: 1650000 },
-  { date: "20 Mei", penjualan: 1400000 },
-  { date: "21 Mei", penjualan: 1950000 },
-  { date: "22 Mei", penjualan: 1700000 },
-  { date: "23 Mei", penjualan: 2100000 },
-  { date: "24 Mei", penjualan: 2450000 },
-]
+import type { SalesChartPoint, SalesRange } from "@/features/dashboard/hooks/use-dashboard-queries"
 
 const chartConfig = {
   penjualan: {
@@ -40,14 +30,18 @@ const chartConfig = {
   },
 } satisfies ChartConfig
 
-export function SalesChart() {
-  const [range, setRange] = React.useState("7d")
+type SalesChartProps = {
+  data: SalesChartPoint[]
+  range: SalesRange
+  onRangeChange: (range: SalesRange) => void
+}
 
+export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Grafik Penjualan</h3>
-        <Select value={range} onValueChange={setRange}>
+        <Select value={range} onValueChange={(v) => onRangeChange(v as SalesRange)}>
           <SelectTrigger className="h-7 w-[130px] text-xs">
             <SelectValue placeholder="Pilih rentang" />
           </SelectTrigger>
@@ -60,7 +54,7 @@ export function SalesChart() {
       </div>
       <div className="flex-1 min-h-[220px] min-w-0 min-h-0">
         <ChartContainer config={chartConfig} className="h-full w-full">
-          <BarChart data={salesData} maxBarSize={40}>
+          <BarChart data={data} maxBarSize={40}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="date"

@@ -14,12 +14,10 @@ export default function CashierTransaksiPage() {
 
   if (error || !data) {
     return (
-      <div className="flex flex-1 flex-col gap-3 bg-muted/40 p-4 lg:gap-6 lg:p-6 min-w-0 min-h-0 overflow-y-auto">
-        <div className="mb-2">
-          <h1 className="text-2xl font-bold text-foreground tracking-tight">Riwayat Transaksi</h1>
-          <p className="text-sm text-muted-foreground mt-1">
-            Daftar transaksi yang Anda proses.
-          </p>
+      <div className="flex flex-1 min-w-0 min-h-0 flex-col gap-3 overflow-y-auto p-4 lg:gap-6 lg:p-6">
+        <div>
+          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Riwayat Transaksi</h1>
+          <p className="text-sm text-muted-foreground">Daftar transaksi yang Anda proses.</p>
         </div>
         <div className="flex flex-1 items-center justify-center py-20">
           <p className="text-sm text-destructive">Gagal memuat data transaksi. Silakan coba lagi.</p>
@@ -29,12 +27,10 @@ export default function CashierTransaksiPage() {
   }
 
   return (
-    <div className="flex flex-1 flex-col gap-3 bg-muted/40 p-4 lg:gap-6 lg:p-6 min-w-0 min-h-0 overflow-y-auto">
-      <div className="mb-2">
-        <h1 className="text-2xl font-bold text-foreground tracking-tight">Riwayat Transaksi</h1>
-        <p className="text-sm text-muted-foreground mt-1">
-          Daftar transaksi yang Anda proses.
-        </p>
+    <div className="flex flex-1 min-w-0 min-h-0 flex-col gap-3 overflow-y-auto p-4 lg:gap-6 lg:p-6">
+      <div>
+        <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Riwayat Transaksi</h1>
+        <p className="text-sm text-muted-foreground">Daftar transaksi yang Anda proses.</p>
       </div>
 
       <TransaksiStatCards stats={data.stats} />

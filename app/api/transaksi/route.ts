@@ -62,9 +62,8 @@ export async function GET() {
     return NextResponse.json({ error: "Tidak memiliki akses" }, { status: 403 })
   }
 
-  // Admin sees all transactions; cashier only sees their own
-  const isAdmin = user.role === "admin"
-  const cashierWhere = isAdmin ? {} : { cashierId: user.id }
+  // Both admin and cashier see all transactions
+  const cashierWhere = {}
 
   // Date boundaries for "today" stats
   const now = new Date()
@@ -87,6 +86,7 @@ export async function GET() {
       where: cashierWhere,
       include: {
         items: { select: { productName: true } },
+        cashier: { select: { image: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -143,14 +143,12 @@ export async function GET() {
       orderBy: { createdAt: "desc" },
       take: 4,
     }),
-    // Distinct cashier names for filter dropdown (admin only)
-    isAdmin
-      ? prisma.transaction.findMany({
-          distinct: ["cashierName"],
-          select: { cashierName: true },
-          orderBy: { cashierName: "asc" },
-        })
-      : Promise.resolve([]),
+    // Distinct cashier names for filter dropdown
+    prisma.transaction.findMany({
+      distinct: ["cashierName"],
+      select: { cashierName: true },
+      orderBy: { cashierName: "asc" },
+    }),
   ])
 
   // --- Stats ---
@@ -204,6 +202,7 @@ export async function GET() {
     transactionNumber: t.transactionNumber,
     waktu: dateFormatter.format(t.createdAt),
     kasir: t.cashierName,
+    kasirImage: t.cashier?.image ?? null,
     item: t.items.map((i) => i.productName).join(", "),
     metode: mapPaymentMethod(t.paymentMethod),
     total: t.total,

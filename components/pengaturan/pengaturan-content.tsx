@@ -1,5 +1,8 @@
 "use client"
 
+import * as React from "react"
+import { useTransition } from "react"
+import Image from "next/image"
 import { useTheme } from "next-themes"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -8,9 +11,17 @@ import {
   Moon02Icon,
   Sun03Icon,
   UserCircleIcon,
+  LockPasswordIcon,
+  Camera01Icon,
+  Delete02Icon,
 } from "@hugeicons/core-free-icons"
+import { generateReactHelpers } from "@uploadthing/react"
+import { useRouter } from "next/navigation"
+import { toast } from "sonner"
 
-import { updateProfile, updateUserAccess } from "@/app/admin/pengaturan/actions"
+import { useSession } from "@/lib/auth-client"
+import { updateProfile, changePassword, updateAvatar, updateUserAccess } from "@/app/admin/pengaturan/actions"
+import type { AppFileRouter } from "@/app/api/uploadthing/core"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -24,12 +35,15 @@ import { Input } from "@/components/ui/input"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
-type SettingsUser = {
+const { useUploadThing } = generateReactHelpers<AppFileRouter>()
+
+export type SettingsUser = {
   id: string
   name: string
   email: string
   role: string | null
   banned: boolean | null
+  image?: string | null
 }
 
 type PengaturanContentProps = {
@@ -59,7 +73,6 @@ const themeOptions = [
 ]
 
 export function PengaturanContent({ currentUser, users }: PengaturanContentProps) {
-  const { theme, setTheme } = useTheme()
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -85,48 +98,7 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
         </TabsList>
 
         <TabsContent value="profile" className="m-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Profile Pengguna</CardTitle>
-              <CardDescription>
-                Data ini mengikuti skema database pengguna: nama, email, role, dan status akun.
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-5">
-              <div className="flex flex-col gap-4 rounded-2xl border bg-muted/30 p-4 sm:flex-row sm:items-center">
-                <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                  <HugeiconsIcon icon={UserCircleIcon} size={28} />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="font-semibold">{displayUser.name}</p>
-                  <p className="text-sm text-muted-foreground">{displayUser.email}</p>
-                </div>
-                <Badge variant="outline">{formatRole(displayUser.role)}</Badge>
-              </div>
-
-              <form action={updateProfile} className="grid gap-4 md:grid-cols-2">
-                <FieldGroup label="Nama Pengguna">
-                  <Input name="name" defaultValue={displayUser.name} required />
-                </FieldGroup>
-
-                <FieldGroup label="Email Akun">
-                  <Input name="email" type="email" defaultValue={displayUser.email} required />
-                </FieldGroup>
-
-                <FieldGroup label="Role">
-                  <Input value={formatRole(displayUser.role)} disabled />
-                </FieldGroup>
-
-                <FieldGroup label="Status Akun">
-                  <Input value={displayUser.banned ? "Nonaktif" : "Aktif"} disabled />
-                </FieldGroup>
-
-                <div className="md:col-span-2">
-                  <Button type="submit">Simpan Profile</Button>
-                </div>
-              </form>
-            </CardContent>
-          </Card>
+          <ProfileTab displayUser={displayUser} />
         </TabsContent>
 
         <TabsContent value="pengguna" className="m-0">
@@ -197,50 +169,268 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
         </TabsContent>
 
         <TabsContent value="tema" className="m-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Tema Aplikasi</CardTitle>
-              <CardDescription>
-                Sesuaikan tema aplikasi untuk kenyamanan mata selama operasional toko.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-                {themeOptions.map((option) => {
-                  const isActive = (theme ?? "system") === option.value
-
-                  return (
-                    <button
-                      key={option.value}
-                      type="button"
-                      onClick={() => setTheme(option.value)}
-                      className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
-                        isActive ? "border-primary bg-primary/10" : "bg-card"
-                      }`}
-                    >
-                      <div className="mb-4 flex items-center justify-between gap-3">
-                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                          <HugeiconsIcon icon={option.icon} size={20} />
-                        </div>
-                        {isActive && (
-                          <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
-                          </div>
-                        )}
-                      </div>
-                      <p className="font-semibold">{option.label}</p>
-                      <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                        {option.description}
-                      </p>
-                    </button>
-                  )
-                })}
-              </div>
-            </CardContent>
-          </Card>
+          <TemaTab />
         </TabsContent>
       </Tabs>
     </div>
+  )
+}
+
+export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
+  const [isPending, startTransition] = useTransition()
+  const [isPwPending, startPwTransition] = useTransition()
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(displayUser.image ?? null)
+  const avatarInputRef = React.useRef<HTMLInputElement>(null)
+  const pwFormRef = React.useRef<HTMLFormElement>(null)
+  const router = useRouter()
+  const { refetch: refetchSession } = useSession()
+
+  async function syncSessionAndRoute() {
+    await refetchSession()
+    router.refresh()
+  }
+
+  const { startUpload, isUploading } = useUploadThing("avatarUpload", {
+    onClientUploadComplete: async (res) => {
+      const url = res[0]?.url ?? null
+      if (!url) return
+      setAvatarUrl(url)
+      const result = await updateAvatar(url)
+      if (result.success) {
+        toast.success(result.message)
+        await syncSessionAndRoute()
+      } else {
+        toast.error(result.message)
+      }
+    },
+    onUploadError: () => {
+      toast.error("Gagal mengupload foto profil.")
+    },
+  })
+
+  async function handleAvatarChange(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (file) startUpload([file])
+  }
+
+  async function handleAvatarRemove() {
+    setAvatarUrl(null)
+    if (avatarInputRef.current) avatarInputRef.current.value = ""
+    const result = await updateAvatar(null)
+    if (result.success) {
+      toast.success(result.message)
+      await syncSessionAndRoute()
+    } else {
+      toast.error(result.message)
+    }
+  }
+
+  function handleProfileSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startTransition(async () => {
+      const result = await updateProfile(formData)
+      if (result.success) {
+        toast.success(result.message)
+        await syncSessionAndRoute()
+      } else {
+        toast.error(result.message)
+      }
+    })
+  }
+
+  function handlePasswordSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+    startPwTransition(async () => {
+      const result = await changePassword(formData)
+      if (result.success) {
+        toast.success(result.message)
+        pwFormRef.current?.reset()
+      } else {
+        toast.error(result.message)
+      }
+    })
+  }
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Profile Pengguna</CardTitle>
+          <CardDescription>
+            Perbarui nama dan email akun yang sedang login.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-5">
+          <div className="flex items-center gap-4 rounded-2xl border bg-muted/30 p-4">
+            <div className="relative shrink-0">
+              <div className="relative flex size-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-background bg-primary/10 text-primary shadow-sm sm:size-16">
+                {avatarUrl ? (
+                  <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                ) : (
+                  <HugeiconsIcon icon={UserCircleIcon} size={32} />
+                )}
+              </div>
+              
+              {/* Tombol Aksi di Pojok Kanan Atas */}
+              {avatarUrl ? (
+                <button
+                  type="button"
+                  onClick={handleAvatarRemove}
+                  className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full bg-destructive text-white shadow-md transition-transform hover:scale-110 active:scale-95"
+                  title="Hapus foto"
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={14} />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  disabled={isUploading}
+                  onClick={() => avatarInputRef.current?.click()}
+                  className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
+                  title="Upload foto"
+                >
+                  {isUploading ? (
+                    <span className="size-3 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                  ) : (
+                    <HugeiconsIcon icon={Camera01Icon} size={14} />
+                  )}
+                </button>
+              )}
+              
+              <input
+                ref={avatarInputRef}
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={handleAvatarChange}
+              />
+            </div>
+            <div className="min-w-0 flex-1 space-y-0.5">
+              <p className="truncate font-semibold sm:text-lg">{displayUser.name}</p>
+              <p className="truncate text-xs text-muted-foreground sm:text-sm">{displayUser.email}</p>
+              <div className="pt-1">
+                <Badge variant="outline" className="h-5 px-1.5 text-[10px] sm:h-6 sm:px-2 sm:text-xs">
+                  {formatRole(displayUser.role)}
+                </Badge>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleProfileSubmit} className="grid gap-4 md:grid-cols-2">
+            <FieldGroup label="Nama Pengguna">
+              <Input name="name" defaultValue={displayUser.name} required />
+            </FieldGroup>
+
+            <FieldGroup label="Email Akun">
+              <Input name="email" type="email" defaultValue={displayUser.email} required />
+            </FieldGroup>
+
+            <FieldGroup label="Role">
+              <Input value={formatRole(displayUser.role)} disabled />
+            </FieldGroup>
+
+            <FieldGroup label="Status Akun">
+              <Input value={displayUser.banned ? "Nonaktif" : "Aktif"} disabled />
+            </FieldGroup>
+
+            <div className="md:col-span-2">
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Menyimpan..." : "Simpan Profile"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+              <HugeiconsIcon icon={LockPasswordIcon} size={20} />
+            </div>
+            <div>
+              <CardTitle>Ganti Password</CardTitle>
+              <CardDescription className="mt-0.5">
+                Masukkan password saat ini lalu buat password baru.
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <form ref={pwFormRef} onSubmit={handlePasswordSubmit} className="grid gap-4 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <FieldGroup label="Password Saat Ini">
+                <Input name="currentPassword" type="password" autoComplete="current-password" required />
+              </FieldGroup>
+            </div>
+
+            <FieldGroup label="Password Baru">
+              <Input name="newPassword" type="password" autoComplete="new-password" minLength={8} required />
+            </FieldGroup>
+
+            <FieldGroup label="Konfirmasi Password Baru">
+              <Input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required />
+            </FieldGroup>
+
+            <div className="md:col-span-2">
+              <Button type="submit" disabled={isPwPending} variant="outline">
+                {isPwPending ? "Mengubah..." : "Ganti Password"}
+              </Button>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
+    </div>
+  )
+}
+
+export function TemaTab() {
+  const { theme, setTheme } = useTheme()
+
+  return (
+    <Card>
+      <CardHeader>
+        <CardTitle>Tema Aplikasi</CardTitle>
+        <CardDescription>
+          Sesuaikan tema aplikasi untuk kenyamanan mata selama operasional toko.
+        </CardDescription>
+      </CardHeader>
+      <CardContent>
+        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+          {themeOptions.map((option) => {
+            const isActive = (theme ?? "system") === option.value
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTheme(option.value)}
+                className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
+                  isActive ? "border-primary bg-primary/10" : "bg-card"
+                }`}
+              >
+                <div className="mb-4 flex items-center justify-between gap-3">
+                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                    <HugeiconsIcon icon={option.icon} size={20} />
+                  </div>
+                  {isActive && (
+                    <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+                    </div>
+                  )}
+                </div>
+                <p className="font-semibold">{option.label}</p>
+                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                  {option.description}
+                </p>
+              </button>
+            )
+          })}
+        </div>
+      </CardContent>
+    </Card>
   )
 }
 

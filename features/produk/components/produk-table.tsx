@@ -4,6 +4,7 @@ import * as React from "react"
 import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowDown01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   Delete02Icon,
@@ -12,6 +13,7 @@ import {
   MoreVerticalCircle01Icon,
   PackageIcon,
   SearchIcon,
+  Tick02Icon,
   ViewIcon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons"
@@ -89,6 +91,56 @@ const pageSize = 8
 type ProdukTableProps = {
   products: ProdukItem[]
   categories: ProdukCategory[]
+}
+
+function FilterDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: string
+  options: string[]
+  onChange: (value: string) => void
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full justify-between font-normal"
+        >
+          <span className="truncate">{value}</span>
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            size={16}
+            className="shrink-0 text-muted-foreground"
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-72 overflow-y-auto"
+      >
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={option}
+            onSelect={() => onChange(option)}
+            className="cursor-pointer justify-between"
+          >
+            <span className="truncate">{option}</span>
+            {value === option && (
+              <HugeiconsIcon
+                icon={Tick02Icon}
+                size={14}
+                className="shrink-0 text-primary"
+              />
+            )}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
 }
 
 function Field({
@@ -955,49 +1007,25 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
             </DrawerHeader>
             <div className="grid gap-4 px-4 pb-2">
               <Field label="Kategori">
-                <Select
+                <FilterDropdown
                   value={activeCategory}
-                  onValueChange={setActiveCategory}
-                >
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categoryOptions.map((category) => (
-                      <SelectItem key={category} value={category}>
-                        {category}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  options={categoryOptions}
+                  onChange={setActiveCategory}
+                />
               </Field>
               <Field label="Status">
-                <Select value={activeStatus} onValueChange={setActiveStatus}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {statusOptions.map((status) => (
-                      <SelectItem key={status} value={status}>
-                        {status}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FilterDropdown
+                  value={activeStatus}
+                  options={statusOptions}
+                  onChange={setActiveStatus}
+                />
               </Field>
               <Field label="Urutkan">
-                <Select value={activeSort} onValueChange={setActiveSort}>
-                  <SelectTrigger className="w-full">
-                    <SelectValue placeholder="Urutkan" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {sortOptions.map((sort) => (
-                      <SelectItem key={sort} value={sort}>
-                        {sort}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <FilterDropdown
+                  value={activeSort}
+                  options={sortOptions}
+                  onChange={setActiveSort}
+                />
               </Field>
             </div>
             <DrawerFooter>

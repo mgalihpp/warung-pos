@@ -25,6 +25,7 @@ export default async function PengaturanPage() {
             email: true,
             role: true,
             banned: true,
+            image: true,
           },
         })
       : null,

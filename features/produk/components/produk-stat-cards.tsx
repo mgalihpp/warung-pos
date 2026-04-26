@@ -53,11 +53,11 @@ export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
   return (
     <>
       {/* Mobile: horizontal scroll compact cards */}
-      <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden -mx-4 px-4 scrollbar-none">
+      <div className="scrollbar-none -mx-4 flex gap-3 overflow-x-auto px-4 pb-1 lg:hidden">
         {items.map((stat) => (
           <div
             key={stat.title}
-            className="group relative flex min-w-[160px] shrink-0 cursor-pointer items-center gap-3 rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
+            className="group relative flex min-w-[180px] shrink-0 cursor-pointer items-center gap-3 rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
           >
             <div
               className={`flex size-10 shrink-0 items-center justify-center rounded-lg ${stat.iconBg}`}
@@ -69,7 +69,7 @@ export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-medium text-muted-foreground">
+              <p className="truncate text-[10px] font-medium text-muted-foreground">
                 {stat.title}
               </p>
               <p className="text-xl font-bold tracking-tight">{stat.value}</p>

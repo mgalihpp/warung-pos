@@ -1,50 +1,10 @@
 import Link from "next/link"
+import Image from "next/image"
 import { formatRupiah } from "@/lib/format-currency"
+import type { BestSellerItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-const bestSellers = [
-  {
-    rank: 1,
-    name: "Beras 5kg",
-    sold: 128,
-    unit: "pcs",
-    revenue: 1920000,
-    emoji: "🌾",
-  },
-  {
-    rank: 2,
-    name: "Minyak Goreng 1L",
-    sold: 96,
-    unit: "pcs",
-    revenue: 1440000,
-    emoji: "🫗",
-  },
-  {
-    rank: 3,
-    name: "Gula Pasir 1kg",
-    sold: 88,
-    unit: "pcs",
-    revenue: 880000,
-    emoji: "🧂",
-  },
-  {
-    rank: 4,
-    name: "Mie Instan (Karton)",
-    sold: 72,
-    unit: "karton",
-    revenue: 720000,
-    emoji: "🍜",
-  },
-  {
-    rank: 5,
-    name: "Telur Ayam Ras 1kg",
-    sold: 60,
-    unit: "kg",
-    revenue: 660000,
-    emoji: "🥚",
-  },
-]
-
-export function BestSellersPanel() {
+export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
+  const bestSellers = items
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
@@ -58,9 +18,12 @@ export function BestSellersPanel() {
       </div>
 
       <div className="space-y-3">
+        {bestSellers.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted-foreground">Belum ada penjualan bulan ini</p>
+        ) : null}
         {bestSellers.map((item) => (
           <div
-            key={item.rank}
+            key={item.id}
             className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
           >
             {/* Rank Badge */}
@@ -78,10 +41,20 @@ export function BestSellersPanel() {
               {item.rank}
             </div>
 
-            {/* Emoji Icon */}
-            <div className="flex size-9 items-center justify-center rounded-lg bg-primary/5 text-lg">
-              {item.emoji}
-            </div>
+            {/* Product Image */}
+            {item.image ? (
+              <Image
+                src={item.image}
+                alt={item.name}
+                width={36}
+                height={36}
+                className="size-9 shrink-0 rounded-lg bg-white object-contain"
+              />
+            ) : (
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-sm font-bold text-primary">
+                {item.name.charAt(0)}
+              </div>
+            )}
 
             {/* Info */}
             <div className="flex-1 min-w-0">

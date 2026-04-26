@@ -9,7 +9,6 @@ import {
   Notification03Icon,
   ArrowDown01Icon,
   Calendar05Icon,
-  UserCircleIcon,
   Settings01Icon,
   Logout01Icon,
   InvoiceIcon,
@@ -17,7 +16,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
 
 import {
@@ -48,7 +47,8 @@ import {
 } from "@/components/ui/popover"
 
 import { Calendar } from "@/components/ui/calendar"
-import { signOut } from "@/lib/auth-client"
+import { signOut, useSession } from "@/lib/auth-client"
+import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 
 export function DashboardHeader() {
@@ -57,6 +57,16 @@ export function DashboardHeader() {
   const [now, setNow] = React.useState(() => new Date())
   const router = useRouter()
   const pathname = usePathname()
+  const { data: session } = useSession()
+
+  const userName = session?.user?.name ?? "..."
+  const userRole = session?.user?.role === "admin" ? "Admin" : session?.user?.role === "cashier" ? "Kasir" : "..."
+  const userInitials = userName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((p: string) => p[0]?.toUpperCase())
+    .join("")
 
   const isPosPage = pathname?.includes("/admin/pos")
 
@@ -200,13 +210,16 @@ export function DashboardHeader() {
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
             <Avatar className="size-8">
+              {session?.user?.image && (
+                <AvatarImage src={session.user.image} alt={userName} />
+              )}
               <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                BW
+                {userInitials}
               </AvatarFallback>
             </Avatar>
             <div className="hidden flex-col items-start xl:flex">
-              <span className="text-sm font-medium leading-tight text-foreground">Budi Warung</span>
-              <span className="text-[11px] text-muted-foreground">Pemilik</span>
+              <span className="text-sm font-medium leading-tight text-foreground">{userName}</span>
+              <span className="text-[11px] text-muted-foreground">{userRole}</span>
             </div>
             <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="hidden text-muted-foreground xl:block" />
           </button>
@@ -215,13 +228,11 @@ export function DashboardHeader() {
           <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem>
-              <HugeiconsIcon icon={UserCircleIcon} size={16} className="mr-2" />
-              <span>Profil</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem>
-              <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
-              <span>Pengaturan</span>
+            <DropdownMenuItem asChild>
+              <Link href="/admin/pengaturan">
+                <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+                <span>Pengaturan</span>
+              </Link>
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />

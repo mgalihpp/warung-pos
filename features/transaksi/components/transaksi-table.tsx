@@ -3,14 +3,17 @@
 import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowDown01Icon,
   SearchIcon,
   ViewIcon,
   MoreVerticalCircle01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   FilterIcon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
+import { Button } from "@/components/ui/button"
 import {
   Drawer,
   DrawerContent,
@@ -20,12 +23,19 @@ import {
   DrawerFooter,
 } from "@/components/ui/drawer"
 import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import type { TransactionItem, TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
 
 // ── Filter options ──
@@ -34,6 +44,56 @@ const metodeDropdownOptions = ["Semua Metode", "Tunai", "QRIS", "Transfer"]
 const sortOptions = ["Terbaru", "Terlama", "Nilai Tertinggi", "Nilai Terendah"]
 
 const ITEMS_PER_PAGE = 10
+
+function FilterDropdown({
+  value,
+  options,
+  onChange,
+}: {
+  value: string
+  options: string[]
+  onChange: (value: string) => void
+}) {
+  return (
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          type="button"
+          variant="outline"
+          className="w-full justify-between font-normal"
+        >
+          <span className="truncate">{value}</span>
+          <HugeiconsIcon
+            icon={ArrowDown01Icon}
+            size={16}
+            className="shrink-0 text-muted-foreground"
+          />
+        </Button>
+      </DropdownMenuTrigger>
+      <DropdownMenuContent
+        align="start"
+        className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-72 overflow-y-auto"
+      >
+        {options.map((option) => (
+          <DropdownMenuItem
+            key={option}
+            onSelect={() => onChange(option)}
+            className="cursor-pointer justify-between"
+          >
+            <span className="truncate">{option}</span>
+            {value === option && (
+              <HugeiconsIcon
+                icon={Tick02Icon}
+                size={14}
+                className="shrink-0 text-primary"
+              />
+            )}
+          </DropdownMenuItem>
+        ))}
+      </DropdownMenuContent>
+    </DropdownMenu>
+  )
+}
 
 // ── Status badge styles ──
 function getStatusBadgeClass(status: TransactionStatus) {
@@ -230,9 +290,9 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
       </div>
 
       {/* Search + Filters */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+      <div className="flex flex-col gap-3 2xl:flex-row 2xl:items-end">
         {/* Search */}
-        <div className="relative flex-1">
+        <div className="relative flex-1 lg:max-w-sm 2xl:max-w-none">
           <HugeiconsIcon
             icon={SearchIcon}
             size={16}
@@ -276,85 +336,38 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
             <DrawerHeader>
               <DrawerTitle>Filter & Urutkan</DrawerTitle>
             </DrawerHeader>
-            <div className="flex flex-col gap-5 px-4 pb-2">
-              {/* Status */}
-              <div className="flex flex-col gap-2">
+            <div className="grid gap-4 px-4 pb-2">
+              <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-foreground">Status</span>
-                <div className="flex flex-wrap gap-2">
-                  {statusDropdownOptions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setTempStatus(s)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                        tempStatus === s
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                <FilterDropdown
+                  value={tempStatus}
+                  options={statusDropdownOptions}
+                  onChange={setTempStatus}
+                />
               </div>
-
-              {/* Metode Bayar */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-foreground">Metode Bayar</span>
-                <div className="flex flex-wrap gap-2">
-                  {metodeDropdownOptions.map((m) => (
-                    <button
-                      key={m}
-                      onClick={() => setTempMetode(m)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                        tempMetode === m
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {m}
-                    </button>
-                  ))}
-                </div>
+                <FilterDropdown
+                  value={tempMetode}
+                  options={metodeDropdownOptions}
+                  onChange={setTempMetode}
+                />
               </div>
-
-              {/* Kasir */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-foreground">Kasir</span>
-                <div className="flex flex-wrap gap-2">
-                  {kasirDropdownOptions.map((k) => (
-                    <button
-                      key={k}
-                      onClick={() => setTempKasir(k)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                        tempKasir === k
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {k}
-                    </button>
-                  ))}
-                </div>
+                <FilterDropdown
+                  value={tempKasir}
+                  options={kasirDropdownOptions}
+                  onChange={setTempKasir}
+                />
               </div>
-
-              {/* Urutkan */}
-              <div className="flex flex-col gap-2">
+              <div className="flex flex-col gap-1.5">
                 <span className="text-xs font-semibold text-foreground">Urutkan</span>
-                <div className="flex flex-wrap gap-2">
-                  {sortOptions.map((s) => (
-                    <button
-                      key={s}
-                      onClick={() => setTempSort(s)}
-                      className={`rounded-full px-3.5 py-1.5 text-xs font-medium transition-colors ${
-                        tempSort === s
-                          ? "bg-primary text-primary-foreground shadow-sm"
-                          : "border bg-background text-muted-foreground"
-                      }`}
-                    >
-                      {s}
-                    </button>
-                  ))}
-                </div>
+                <FilterDropdown
+                  value={tempSort}
+                  options={sortOptions}
+                  onChange={setTempSort}
+                />
               </div>
             </div>
             <DrawerFooter>
@@ -510,9 +523,14 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-2">
-                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-[11px] font-bold text-blue-600">
-                        {trx.kasir.charAt(0)}
-                      </div>
+                      <Avatar className="size-7">
+                        {trx.kasirImage ? (
+                          <AvatarImage src={trx.kasirImage} alt={trx.kasir} />
+                        ) : null}
+                        <AvatarFallback className="bg-blue-500/10 text-[11px] font-bold text-blue-600">
+                          {trx.kasir.charAt(0)}
+                        </AvatarFallback>
+                      </Avatar>
                       <span className="text-sm">{trx.kasir}</span>
                     </div>
                   </td>

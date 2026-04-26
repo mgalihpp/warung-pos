@@ -1,57 +1,12 @@
 import Link from "next/link"
-import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ArrowRight01Icon } from "@hugeicons/core-free-icons"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Badge } from "@/components/ui/badge"
 import { formatRupiah } from "@/lib/format-currency"
+import type { RecentTransactionItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-const transactions = [
-  {
-    no: 1,
-    waktu: "24 Mei 2025 09:42",
-    kasir: "Siti",
-    initials: "SI",
-    items: "Beras 5kg, Minyak 1L, Gula 1kg",
-    total: 125000,
-    status: "Selesai" as const,
-  },
-  {
-    no: 2,
-    waktu: "24 Mei 2025 09:15",
-    kasir: "Doni",
-    initials: "DO",
-    items: "Mie Instan, Telur 1kg, Kecap",
-    total: 78000,
-    status: "Selesai" as const,
-  },
-  {
-    no: 3,
-    waktu: "24 Mei 2025 08:50",
-    kasir: "Siti",
-    initials: "SI",
-    items: "Beras 2.5kg, Gula 1kg",
-    total: 60000,
-    status: "Selesai" as const,
-  },
-  {
-    no: 4,
-    waktu: "24 Mei 2025 08:23",
-    kasir: "Doni",
-    initials: "DO",
-    items: "Sabun, Shampoo, Pasta Gigi",
-    total: 45000,
-    status: "Selesai" as const,
-  },
-  {
-    no: 5,
-    waktu: "24 Mei 2025 07:58",
-    kasir: "Siti",
-    initials: "SI",
-    items: "Minyak 1L, Tepung 1kg, Garam",
-    total: 68000,
-    status: "Pending" as const,
-  },
-]
-
-export function RecentTransactions() {
+export function RecentTransactions({ transactions }: { transactions: RecentTransactionItem[] }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -77,8 +32,15 @@ export function RecentTransactions() {
             </tr>
           </thead>
           <tbody>
+            {transactions.length === 0 ? (
+              <tr>
+                <td colSpan={6} className="py-8 text-center text-xs text-muted-foreground">
+                  Belum ada transaksi
+                </td>
+              </tr>
+            ) : null}
             {transactions.map((tx) => (
-              <tr key={tx.no} className="border-b border-border/50 last:border-0">
+              <tr key={tx.id} className="border-b border-border/50 last:border-0">
                 <td className="py-3 pr-3 text-muted-foreground">{tx.no}</td>
                 <td className="py-3 pr-3 whitespace-nowrap text-xs text-muted-foreground">
                   {tx.waktu}
@@ -86,6 +48,9 @@ export function RecentTransactions() {
                 <td className="py-3 pr-3">
                   <div className="flex items-center gap-2">
                     <Avatar className="size-6">
+                      {tx.kasirImage ? (
+                        <AvatarImage src={tx.kasirImage} alt={tx.kasir} />
+                      ) : null}
                       <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
                         {tx.initials}
                       </AvatarFallback>
@@ -105,10 +70,12 @@ export function RecentTransactions() {
                     className={
                       tx.status === "Selesai"
                         ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20"
-                        : "bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"
+                        : tx.status === "Pending"
+                          ? "bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"
+                          : "bg-destructive/10 text-destructive hover:bg-destructive/20"
                     }
                   >
-                    {tx.status === "Selesai" ? "✓" : "⏳"} {tx.status}
+                    {tx.status}
                   </Badge>
                 </td>
               </tr>
@@ -122,7 +89,8 @@ export function RecentTransactions() {
           href="/admin/transaksi"
           className="inline-flex items-center gap-1 text-xs text-muted-foreground transition-colors hover:text-foreground"
         >
-          Lihat Semua Transaksi ▾
+          Lihat Semua Transaksi
+          <HugeiconsIcon icon={ArrowRight01Icon} size={12} />
         </Link>
       </div>
     </div>

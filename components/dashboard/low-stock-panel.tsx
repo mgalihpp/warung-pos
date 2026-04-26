@@ -1,40 +1,10 @@
 import Link from "next/link"
+import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
+import type { LowStockItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-const lowStockItems = [
-  {
-    name: "Beras 5kg",
-    stock: 6,
-    unit: "pcs",
-    urgency: "warning" as const,
-  },
-  {
-    name: "Gula Pasir 1kg",
-    stock: 4,
-    unit: "pcs",
-    urgency: "danger" as const,
-  },
-  {
-    name: "Minyak Goreng 1L",
-    stock: 3,
-    unit: "pcs",
-    urgency: "danger" as const,
-  },
-  {
-    name: "Telur Ayam Ras 1kg",
-    stock: 8,
-    unit: "kg",
-    urgency: "warning" as const,
-  },
-  {
-    name: "Mie Instan (Karton)",
-    stock: 2,
-    unit: "karton",
-    urgency: "danger" as const,
-  },
-]
-
-export function LowStockPanel() {
+export function LowStockPanel({ items }: { items: LowStockItem[] }) {
+  const lowStockItems = items
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
@@ -53,19 +23,28 @@ export function LowStockPanel() {
       </div>
 
       <div className="space-y-3">
+        {lowStockItems.length === 0 ? (
+          <p className="py-6 text-center text-xs text-muted-foreground">Semua stok aman 🎉</p>
+        ) : null}
         {lowStockItems.map((item) => (
           <div
-            key={item.name}
+            key={item.id}
             className="flex items-center justify-between rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
           >
-            <div className="flex items-center gap-3">
-              <div className="flex size-9 items-center justify-center rounded-lg bg-primary/5 text-lg">
-                {item.name.includes("Beras") && "🌾"}
-                {item.name.includes("Gula") && "🧂"}
-                {item.name.includes("Minyak") && "🫗"}
-                {item.name.includes("Telur") && "🥚"}
-                {item.name.includes("Mie") && "🍜"}
-              </div>
+            <div className="flex items-center gap-3 min-w-0">
+              {item.image ? (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  width={36}
+                  height={36}
+                  className="size-9 shrink-0 rounded-lg bg-white object-contain"
+                />
+              ) : (
+                <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-sm font-bold text-primary">
+                  {item.name.charAt(0)}
+                </div>
+              )}
               <div className="flex-1 min-w-0">
                 <p className="truncate text-xs font-medium">{item.name}</p>
                 <p className="text-[11px] text-muted-foreground">Stok: {item.stock}</p>

@@ -37,7 +37,7 @@ export function TransaksiHeader() {
       </div>
 
       {/* Mobile Floating Action Button Overlay & Menu */}
-      <div className="xl:hidden">
+      <div className="contents xl:hidden">
         {/* Overlay background when menu is open */}
         {isMobileMenuOpen && (
           <div 

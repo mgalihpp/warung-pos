@@ -7,24 +7,22 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import type { CategoryChartItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-const categoryData = [
-  { name: "Sembako", value: 45, fill: "#3b82f6" }, // blue-500
-  { name: "Minuman", value: 20, fill: "#10b981" }, // emerald-500
-  { name: "Mie Instan", value: 15, fill: "#f59e0b" }, // amber-500
-  { name: "Bumbu & Dapur", value: 10, fill: "#f43f5e" }, // rose-500
-  { name: "Lainnya", value: 10, fill: "#8b5cf6" }, // violet-500
-]
+const chartConfig = {} satisfies ChartConfig
 
-const chartConfig = {
-  sembako: { label: "Sembako", color: "#3b82f6" },
-  minuman: { label: "Minuman", color: "#10b981" },
-  mieInstan: { label: "Mie Instan", color: "#f59e0b" },
-  bumbuDapur: { label: "Bumbu & Dapur", color: "#f43f5e" },
-  lainnya: { label: "Lainnya", color: "#8b5cf6" },
-} satisfies ChartConfig
-
-export function CategoryChart() {
+export function CategoryChart({ data }: { data: CategoryChartItem[] }) {
+  const categoryData = data
+  if (categoryData.length === 0) {
+    return (
+      <div className="rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
+        <h3 className="mb-4 text-sm font-semibold">Kategori Terlaris</h3>
+        <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
+          Belum ada data penjualan bulan ini
+        </div>
+      </div>
+    )
+  }
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
       <h3 className="mb-4 text-sm font-semibold">Kategori Terlaris</h3>

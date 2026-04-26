@@ -5,35 +5,23 @@ import {
   ArrowDataTransferHorizontalIcon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
+import type { PaymentMethodItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-const paymentMethods = [
-  {
-    name: "Tunai",
-    amount: 1250000,
-    percentage: 51,
-    icon: Money01Icon,
-    bg: "bg-emerald-500/10",
-    color: "text-emerald-600",
-  },
-  {
-    name: "QRIS",
-    amount: 950000,
-    percentage: 39,
-    icon: QrCodeIcon,
-    bg: "bg-blue-500/10",
-    color: "text-blue-600",
-  },
-  {
-    name: "Transfer",
-    amount: 250000,
-    percentage: 10,
+const METHOD_STYLE: Record<
+  PaymentMethodItem["name"],
+  { icon: typeof Money01Icon; bg: string; color: string }
+> = {
+  Tunai: { icon: Money01Icon, bg: "bg-emerald-500/10", color: "text-emerald-600" },
+  QRIS: { icon: QrCodeIcon, bg: "bg-blue-500/10", color: "text-blue-600" },
+  Transfer: {
     icon: ArrowDataTransferHorizontalIcon,
     bg: "bg-violet-500/10",
     color: "text-violet-600",
   },
-]
+}
 
-export function PaymentMethods() {
+export function PaymentMethods({ methods }: { methods: PaymentMethodItem[] }) {
+  const paymentMethods = methods.map((m) => ({ ...m, ...METHOD_STYLE[m.name] }))
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h3 className="mb-3 text-sm font-semibold">Metode Pembayaran</h3>
