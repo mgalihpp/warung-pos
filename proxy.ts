@@ -5,9 +5,19 @@ import { canAccessPath, getDashboardPath } from "@/lib/auth-routes"
 
 export async function proxy(request: NextRequest) {
   const { pathname, search } = request.nextUrl
-  const session = await auth.api.getSession({
-    headers: request.headers,
-  })
+  let session = null
+
+  try {
+    session = await auth.api.getSession({
+      headers: request.headers,
+    })
+  } catch (error) {
+    if (pathname === "/login" || pathname === "/register") {
+      return NextResponse.next()
+    }
+
+    throw error
+  }
 
   if (pathname === "/login" || pathname === "/register") {
     if (session?.user) {

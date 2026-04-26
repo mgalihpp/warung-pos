@@ -1,15 +1,25 @@
 "use client"
 
 import Link from "next/link"
+import Image from "next/image"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ShoppingCart01Icon,
   Invoice01Icon,
   Logout03Icon,
-  Store01Icon,
 } from "@hugeicons/core-free-icons"
 import { authClient } from "@/lib/auth-client"
+
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
 
 type CashierLayoutClientProps = {
   userName: string
@@ -24,19 +34,31 @@ const navItems = [
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
 
+  const initials = userName
+    .split(" ")
+    .map((n) => n[0])
+    .join("")
+    .substring(0, 2)
+    .toUpperCase()
+
   return (
-    <div className="flex h-svh flex-col bg-background overflow-hidden">
+    <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
       {/* Top Navigation Bar */}
       <header className="bg-card border-b px-4 py-2 shrink-0">
         <div className="flex items-center justify-between gap-3">
-          {/* Left: brand */}
           <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary text-primary-foreground">
-              <HugeiconsIcon icon={Store01Icon} size={16} />
+            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
+              <Image
+                src="/logo warung.png"
+                alt="Logo Warung Mama Nia"
+                width={32}
+                height={32}
+                className="h-full w-full object-contain p-0.5 scale-125"
+              />
             </div>
             <div className="flex flex-col min-w-0">
               <span className="text-sm font-bold text-foreground leading-tight truncate">
-                Warung Sembako
+                Warung Mama Nia
               </span>
               <span className="text-[10px] text-muted-foreground leading-tight">
                 Halo, {userName}
@@ -45,39 +67,75 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
           </div>
 
           {/* Center: nav tabs */}
-          <nav className="flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href
               return (
                 <Link
                   key={item.href}
                   href={item.href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
-                    isActive
+                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isActive
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                  }`}
+                    }`}
                 >
                   <HugeiconsIcon icon={item.icon} size={14} />
-                  <span className="hidden sm:inline">{item.label}</span>
+                  <span>{item.label}</span>
                 </Link>
               )
             })}
           </nav>
 
-          {/* Right: logout */}
-          <button
-            onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => window.location.href = "/login" } })}
-            className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-xs font-medium text-muted-foreground hover:bg-destructive/10 hover:text-destructive transition-colors"
-          >
-            <HugeiconsIcon icon={Logout03Icon} size={14} />
-            <span className="hidden sm:inline">Keluar</span>
-          </button>
+          {/* Right: User Avatar Dropdown */}
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
+                <Avatar className="size-8">
+                  <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                    {initials || "K"}
+                  </AvatarFallback>
+                </Avatar>
+                <div className="hidden flex-col items-start xl:flex">
+                  <span className="text-sm font-medium leading-tight text-foreground truncate max-w-[100px]">{userName}</span>
+                  <span className="text-[11px] text-muted-foreground">Kasir</span>
+                </div>
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+              <DropdownMenuSeparator />
+              <DropdownMenuItem
+                className="text-destructive focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
+              >
+                <HugeiconsIcon icon={Logout03Icon} size={16} className="mr-2" />
+                <span>Keluar</span>
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
         </div>
       </header>
 
       {/* Content */}
-      <main className="flex-1 overflow-hidden">{children}</main>
+      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">{children}</main>
+
+      {/* Mobile Bottom Navigation */}
+      <nav className="md:hidden flex items-center justify-around bg-card border-t shrink-0 h-[60px] pb-[env(safe-area-inset-bottom)]">
+        {navItems.map((item) => {
+          const isActive = pathname === item.href
+          return (
+            <Link
+              key={item.href}
+              href={item.href}
+              className={`flex flex-col items-center justify-center flex-1 h-full gap-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"
+                }`}
+            >
+              <HugeiconsIcon icon={item.icon} size={20} />
+              <span>{item.label}</span>
+            </Link>
+          )
+        })}
+      </nav>
     </div>
   )
 }

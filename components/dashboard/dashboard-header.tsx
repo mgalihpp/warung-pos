@@ -49,13 +49,16 @@ import {
 
 import { Calendar } from "@/components/ui/calendar"
 import { signOut } from "@/lib/auth-client"
-import { useRouter } from "next/navigation"
+import { useRouter, usePathname } from "next/navigation"
 
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(new Date())
   const router = useRouter()
-  
+  const pathname = usePathname()
+
+  const isPosPage = pathname?.includes("/admin/pos")
+
   React.useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === "k" && (e.metaKey || e.ctrlKey)) {
@@ -75,17 +78,22 @@ export function DashboardHeader() {
       <Separator orientation="vertical" className="mr-1 h-4 md:hidden" />
 
       {/* Search Bar - Interactive */}
-      <div className="relative flex flex-1 items-center">
-        <button
-          onClick={() => setOpenCommand(true)}
-          className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 sm:px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
-        >
-          <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
-          <span className="hidden flex-1 truncate text-left sm:block">Cari produk, transaksi, pelanggan...</span>
-          <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
-          <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
-        </button>
-      </div>
+      {!isPosPage && (
+        <div className="relative flex flex-1 items-center">
+          <button
+            onClick={() => setOpenCommand(true)}
+            className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 sm:px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
+          >
+            <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
+            <span className="hidden flex-1 truncate text-left sm:block">Cari produk, transaksi, pelanggan...</span>
+            <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
+            <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
+          </button>
+        </div>
+      )}
+
+      {/* Spacer when search is hidden */}
+      {isPosPage && <div className="flex-1" />}
 
       <CommandDialog open={openCommand} onOpenChange={setOpenCommand}>
         <Command>
@@ -206,7 +214,7 @@ export function DashboardHeader() {
             </DropdownMenuItem>
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
-          <DropdownMenuItem 
+          <DropdownMenuItem
             className="text-destructive focus:bg-destructive/10 focus:text-destructive"
             onClick={async () => {
               await signOut()

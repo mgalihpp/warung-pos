@@ -3,7 +3,6 @@ import { config } from "dotenv"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "@prisma/client"
 
-config({ path: ".env.local", override: true })
 config()
 
 const globalForPrisma = globalThis as typeof globalThis & {

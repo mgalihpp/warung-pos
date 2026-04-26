@@ -1,13 +1,12 @@
-import { config } from "dotenv";
-import { defineConfig, env } from "prisma/config";
+import { config } from "dotenv"
+import { defineConfig, env } from "prisma/config"
 
-config({ path: ".env.local", override: false });
-config();
+config()
 
 type Env = {
-  DATABASE_URL: string;
-  DIRECT_URL: string;
-};
+  DATABASE_URL: string
+  DIRECT_URL: string
+}
 
 export default defineConfig({
   schema: "prisma/schema.prisma",
@@ -19,4 +18,4 @@ export default defineConfig({
     // Prisma 7 expects CLI and migration connection URLs here.
     url: env<Env>("DIRECT_URL"),
   },
-});
+})
