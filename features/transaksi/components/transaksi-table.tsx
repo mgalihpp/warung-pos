@@ -10,7 +10,7 @@ import {
   ArrowRight01Icon,
   FilterIcon,
 } from "@hugeicons/core-free-icons"
-import { formatRupiah } from "@/lib/format"
+import { formatRupiah } from "@/lib/format-currency"
 import {
   Drawer,
   DrawerContent,
@@ -19,122 +19,16 @@ import {
   DrawerTrigger,
   DrawerFooter,
 } from "@/components/ui/drawer"
+import type { TransactionItem, TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
 
 // ── Filter options ──
 const statusFilters = ["Semua", "Selesai", "Pending", "Dibatalkan"]
 const metodeFilters = ["Tunai", "QRIS", "Transfer"]
-const statusDropdownOptions = ["Semua Status", "Selesai", "Pending", "Dibatalkan", "Refund"]
+const statusDropdownOptions = ["Semua Status", "Selesai", "Pending", "Dibatalkan"]
 const metodeDropdownOptions = ["Semua Metode", "Tunai", "QRIS", "Transfer"]
-const kasirDropdownOptions = ["Semua Kasir", "Siti", "Doni", "Budi"]
 const sortOptions = ["Terbaru", "Terlama", "Nilai Tertinggi", "Nilai Terendah"]
 
-// ── Types ──
-type TransactionStatus = "Selesai" | "Pending" | "Dibatalkan"
-type PaymentMethod = "Tunai" | "QRIS" | "Transfer"
-
-type Transaction = {
-  id: string
-  transactionNumber: string
-  waktu: string
-  pelanggan: string
-  kasir: string
-  item: string
-  metode: PaymentMethod
-  total: number
-  status: TransactionStatus
-}
-
-// ── Mock data ──
-const transactions: Transaction[] = [
-  {
-    id: "1",
-    transactionNumber: "TRX-240524-101",
-    waktu: "24 Mei 2025 09:42",
-    pelanggan: "Pelanggan Umum",
-    kasir: "Siti",
-    item: "Beras 5kg, Minyak 1L, Gula 1kg",
-    metode: "Tunai",
-    total: 125000,
-    status: "Selesai",
-  },
-  {
-    id: "2",
-    transactionNumber: "TRX-240524-100",
-    waktu: "24 Mei 2025 09:15",
-    pelanggan: "Pelanggan Umum",
-    kasir: "Siti",
-    item: "Mie Instan, Telur 1kg, Kecap",
-    metode: "QRIS",
-    total: 78000,
-    status: "Selesai",
-  },
-  {
-    id: "3",
-    transactionNumber: "TRX-240524-099",
-    waktu: "24 Mei 2025 08:50",
-    pelanggan: "Ibu Rina",
-    kasir: "Siti",
-    item: "Beras 2.5kg, Gula 1kg",
-    metode: "Transfer",
-    total: 60000,
-    status: "Selesai",
-  },
-  {
-    id: "4",
-    transactionNumber: "TRX-240524-098",
-    waktu: "24 Mei 2025 08:23",
-    pelanggan: "Pak Andi",
-    kasir: "Doni",
-    item: "Sabun, Shampoo, Pasta Gigi",
-    metode: "Tunai",
-    total: 45000,
-    status: "Pending",
-  },
-  {
-    id: "5",
-    transactionNumber: "TRX-240524-097",
-    waktu: "24 Mei 2025 07:58",
-    pelanggan: "Pelanggan Umum",
-    kasir: "Siti",
-    item: "Minyak 1L, Tepung 1kg, Garam",
-    metode: "Tunai",
-    total: 68000,
-    status: "Selesai",
-  },
-  {
-    id: "6",
-    transactionNumber: "TRX-240524-096",
-    waktu: "24 Mei 2025 07:33",
-    pelanggan: "Bu Sari",
-    kasir: "Doni",
-    item: "Susu Kental, Roti, Kopi Sachet",
-    metode: "QRIS",
-    total: 39000,
-    status: "Dibatalkan",
-  },
-  {
-    id: "7",
-    transactionNumber: "TRX-240524-095",
-    waktu: "24 Mei 2025 07:10",
-    pelanggan: "Pelanggan Umum",
-    kasir: "Siti",
-    item: "Air Mineral, Snack, Mie Instan",
-    metode: "QRIS",
-    total: 23500,
-    status: "Selesai",
-  },
-  {
-    id: "8",
-    transactionNumber: "TRX-240524-094",
-    waktu: "24 Mei 2025 06:48",
-    pelanggan: "Pak Joko",
-    kasir: "Doni",
-    item: "Telur 1kg, Minyak 1L",
-    metode: "Transfer",
-    total: 46000,
-    status: "Pending",
-  },
-]
+const ITEMS_PER_PAGE = 10
 
 // ── Status badge styles ──
 function getStatusBadgeClass(status: TransactionStatus) {
@@ -164,9 +58,30 @@ function getMetodeBadgeClass(metode: PaymentMethod) {
   }
 }
 
-export function TransaksiTable() {
+function sortTransactions(list: TransactionItem[], sort: string): TransactionItem[] {
+  const sorted = [...list]
+  switch (sort) {
+    case "Terlama":
+      return sorted.reverse()
+    case "Nilai Tertinggi":
+      return sorted.sort((a, b) => b.total - a.total)
+    case "Nilai Terendah":
+      return sorted.sort((a, b) => a.total - b.total)
+    default: // "Terbaru" — already sorted desc from API
+      return sorted
+  }
+}
+
+type Props = {
+  transactions: TransactionItem[]
+  cashierList: string[]
+}
+
+export function TransaksiTable({ transactions, cashierList }: Props) {
   const [activeStatusFilter, setActiveStatusFilter] = React.useState("Semua")
   const [activeMetodeFilter, setActiveMetodeFilter] = React.useState<string | null>(null)
+  const [activeKasirFilter, setActiveKasirFilter] = React.useState<string | null>(null)
+  const [activeSort, setActiveSort] = React.useState("Terbaru")
   const [searchQuery, setSearchQuery] = React.useState("")
   const [currentPage, setCurrentPage] = React.useState(1)
   const [isFilterOpen, setIsFilterOpen] = React.useState(false)
@@ -177,29 +92,65 @@ export function TransaksiTable() {
   const [tempKasir, setTempKasir] = React.useState("Semua Kasir")
   const [tempSort, setTempSort] = React.useState("Terbaru")
 
-  // Desktop dropdown state
-  const [desktopStatus, setDesktopStatus] = React.useState("Semua Status")
-  const [desktopMetode, setDesktopMetode] = React.useState("Semua Metode")
-  const [desktopKasir, setDesktopKasir] = React.useState("Semua Kasir")
-  const [desktopSort, setDesktopSort] = React.useState("Terbaru")
+  const kasirDropdownOptions = ["Semua Kasir", ...cashierList]
+
+  // Derive desktop dropdown display values from active filter state
+  const desktopStatus = activeStatusFilter === "Semua" ? "Semua Status" : activeStatusFilter
+  const desktopMetode = activeMetodeFilter ?? "Semua Metode"
+  const desktopKasir = activeKasirFilter ?? "Semua Kasir"
 
   // Combined chip filter state
   const allChipFilters = [...statusFilters, ...metodeFilters]
 
-  const filteredTransactions = transactions.filter((t) => {
-    // Status chip filter
-    const matchStatus =
-      activeStatusFilter === "Semua" || t.status === activeStatusFilter
-    // Metode chip filter
-    const matchMetode =
-      !activeMetodeFilter || t.metode === activeMetodeFilter
-    // Search filter
-    const matchSearch =
-      t.transactionNumber.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.pelanggan.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.item.toLowerCase().includes(searchQuery.toLowerCase())
-    return matchStatus && matchMetode && matchSearch
-  })
+  // Desktop dropdown handlers — directly set active filters + reset page
+  const handleDesktopStatusChange = (value: string) => {
+    setActiveStatusFilter(value === "Semua Status" ? "Semua" : value)
+    setCurrentPage(1)
+  }
+  const handleDesktopMetodeChange = (value: string) => {
+    setActiveMetodeFilter(value === "Semua Metode" ? null : value)
+    setCurrentPage(1)
+  }
+  const handleDesktopKasirChange = (value: string) => {
+    setActiveKasirFilter(value === "Semua Kasir" ? null : value)
+    setCurrentPage(1)
+  }
+  const handleDesktopSortChange = (value: string) => {
+    setActiveSort(value)
+    setCurrentPage(1)
+  }
+  const handleSearchChange = (value: string) => {
+    setSearchQuery(value)
+    setCurrentPage(1)
+  }
+
+  const filteredTransactions = React.useMemo(() => {
+    let result = transactions.filter((t) => {
+      const matchStatus =
+        activeStatusFilter === "Semua" || t.status === activeStatusFilter
+      const matchMetode =
+        !activeMetodeFilter || t.metode === activeMetodeFilter
+      const matchKasir =
+        !activeKasirFilter || t.kasir === activeKasirFilter
+      const query = searchQuery.toLowerCase()
+      const matchSearch =
+        !query ||
+        t.transactionNumber.toLowerCase().includes(query) ||
+        t.kasir.toLowerCase().includes(query) ||
+        t.item.toLowerCase().includes(query)
+      return matchStatus && matchMetode && matchKasir && matchSearch
+    })
+
+    result = sortTransactions(result, activeSort)
+    return result
+  }, [transactions, activeStatusFilter, activeMetodeFilter, activeKasirFilter, searchQuery, activeSort])
+
+  // Pagination
+  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE))
+  const paginatedTransactions = filteredTransactions.slice(
+    (currentPage - 1) * ITEMS_PER_PAGE,
+    currentPage * ITEMS_PER_PAGE,
+  )
 
   const handleApplyFilter = () => {
     if (tempStatus !== "Semua Status") {
@@ -212,6 +163,13 @@ export function TransaksiTable() {
     } else {
       setActiveMetodeFilter(null)
     }
+    if (tempKasir !== "Semua Kasir") {
+      setActiveKasirFilter(tempKasir)
+    } else {
+      setActiveKasirFilter(null)
+    }
+    setActiveSort(tempSort)
+    setCurrentPage(1)
     setIsFilterOpen(false)
   }
 
@@ -222,13 +180,17 @@ export function TransaksiTable() {
     setTempSort("Terbaru")
     setActiveStatusFilter("Semua")
     setActiveMetodeFilter(null)
+    setActiveKasirFilter(null)
+    setActiveSort("Terbaru")
+    setCurrentPage(1)
     setIsFilterOpen(false)
   }
 
   // Count active filters for badge
   const activeFilterCount =
     (activeStatusFilter !== "Semua" ? 1 : 0) +
-    (activeMetodeFilter ? 1 : 0)
+    (activeMetodeFilter ? 1 : 0) +
+    (activeKasirFilter ? 1 : 0)
 
   // Collect active filter labels for chips
   const activeFilterLabels: { label: string; reset: () => void }[] = []
@@ -236,13 +198,14 @@ export function TransaksiTable() {
     activeFilterLabels.push({ label: activeStatusFilter, reset: () => setActiveStatusFilter("Semua") })
   if (activeMetodeFilter)
     activeFilterLabels.push({ label: activeMetodeFilter, reset: () => setActiveMetodeFilter(null) })
+  if (activeKasirFilter)
+    activeFilterLabels.push({ label: `Kasir: ${activeKasirFilter}`, reset: () => setActiveKasirFilter(null) })
 
   const hasActiveFilters = activeFilterCount > 0
 
   const handleChipClick = (chip: string) => {
     if (statusFilters.includes(chip)) {
       setActiveStatusFilter(chip)
-      // Clear metode filter when clicking a status chip
       if (chip !== "Semua") setActiveMetodeFilter(null)
     } else if (metodeFilters.includes(chip)) {
       if (activeMetodeFilter === chip) {
@@ -252,7 +215,25 @@ export function TransaksiTable() {
         setActiveStatusFilter("Semua")
       }
     }
+    setCurrentPage(1)
   }
+
+  // Build pagination buttons
+  const paginationButtons = React.useMemo(() => {
+    const pages: (number | "...")[] = []
+    if (totalPages <= 5) {
+      for (let i = 1; i <= totalPages; i++) pages.push(i)
+    } else {
+      pages.push(1)
+      if (currentPage > 3) pages.push("...")
+      const start = Math.max(2, currentPage - 1)
+      const end = Math.min(totalPages - 1, currentPage + 1)
+      for (let i = start; i <= end; i++) pages.push(i)
+      if (currentPage < totalPages - 2) pages.push("...")
+      pages.push(totalPages)
+    }
+    return pages
+  }, [totalPages, currentPage])
 
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
@@ -272,9 +253,9 @@ export function TransaksiTable() {
           />
           <input
             type="text"
-            placeholder="Cari no. transaksi atau nama pelanggan..."
+            placeholder="Cari no. transaksi, kasir, atau item..."
             value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
+            onChange={(e) => handleSearchChange(e.target.value)}
             className="h-9 w-full rounded-lg border bg-background pl-9 pr-3 text-sm outline-none ring-ring transition-colors placeholder:text-muted-foreground focus:ring-1"
           />
         </div>
@@ -285,8 +266,8 @@ export function TransaksiTable() {
           if (open) {
             setTempStatus(activeStatusFilter === "Semua" ? "Semua Status" : activeStatusFilter)
             setTempMetode(activeMetodeFilter || "Semua Metode")
-            setTempKasir(desktopKasir)
-            setTempSort(desktopSort)
+            setTempKasir(activeKasirFilter || "Semua Kasir")
+            setTempSort(activeSort)
           }
         }}>
           <DrawerTrigger asChild>
@@ -414,7 +395,7 @@ export function TransaksiTable() {
             <span className="text-[10px] font-medium text-muted-foreground">Status</span>
             <select
               value={desktopStatus}
-              onChange={(e) => setDesktopStatus(e.target.value)}
+              onChange={(e) => handleDesktopStatusChange(e.target.value)}
               className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
             >
               {statusDropdownOptions.map((s) => (
@@ -426,7 +407,7 @@ export function TransaksiTable() {
             <span className="text-[10px] font-medium text-muted-foreground">Metode Bayar</span>
             <select
               value={desktopMetode}
-              onChange={(e) => setDesktopMetode(e.target.value)}
+              onChange={(e) => handleDesktopMetodeChange(e.target.value)}
               className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
             >
               {metodeDropdownOptions.map((m) => (
@@ -438,7 +419,7 @@ export function TransaksiTable() {
             <span className="text-[10px] font-medium text-muted-foreground">Kasir</span>
             <select
               value={desktopKasir}
-              onChange={(e) => setDesktopKasir(e.target.value)}
+              onChange={(e) => handleDesktopKasirChange(e.target.value)}
               className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
             >
               {kasirDropdownOptions.map((k) => (
@@ -449,8 +430,8 @@ export function TransaksiTable() {
           <div className="flex flex-col gap-1">
             <span className="text-[10px] font-medium text-muted-foreground">Urutkan</span>
             <select
-              value={desktopSort}
-              onChange={(e) => setDesktopSort(e.target.value)}
+              value={activeSort}
+              onChange={(e) => handleDesktopSortChange(e.target.value)}
               className="h-9 rounded-lg border bg-background px-3 text-sm outline-none ring-ring focus:ring-1"
             >
               {sortOptions.map((s) => (
@@ -507,6 +488,7 @@ export function TransaksiTable() {
             onClick={() => {
               setActiveStatusFilter("Semua")
               setActiveMetodeFilter(null)
+              setActiveKasirFilter(null)
             }}
             className="text-xs font-medium text-muted-foreground hover:text-foreground"
           >
@@ -522,7 +504,6 @@ export function TransaksiTable() {
             <tr className="border-b bg-muted/30">
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">No. Transaksi</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Waktu</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Pelanggan</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Kasir</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Item</th>
               <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Metode</th>
@@ -532,67 +513,69 @@ export function TransaksiTable() {
             </tr>
           </thead>
           <tbody>
-            {filteredTransactions.map((trx) => (
-              <tr
-                key={trx.id}
-                className="border-b last:border-0 transition-colors hover:bg-muted/20"
-              >
-                <td className="px-4 py-3">
-                  <span className="text-sm font-medium">{trx.transactionNumber}</span>
-                </td>
-                <td className="px-4 py-3 text-sm text-muted-foreground whitespace-nowrap">
-                  {trx.waktu}
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-primary/10 text-[11px] font-bold text-primary">
-                      {trx.pelanggan.charAt(0)}
-                    </div>
-                    <span className="text-sm">{trx.pelanggan}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-2">
-                    <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-[11px] font-bold text-blue-600">
-                      {trx.kasir.charAt(0)}
-                    </div>
-                    <span className="text-sm">{trx.kasir}</span>
-                  </div>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm text-muted-foreground max-w-[200px] truncate block">
-                    {trx.item}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getMetodeBadgeClass(trx.metode)}`}
-                  >
-                    {trx.metode}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <span className="text-sm font-semibold">{formatRupiah(trx.total)}</span>
-                </td>
-                <td className="px-4 py-3">
-                  <span
-                    className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getStatusBadgeClass(trx.status)}`}
-                  >
-                    {trx.status}
-                  </span>
-                </td>
-                <td className="px-4 py-3">
-                  <div className="flex items-center gap-1">
-                    <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lihat Detail">
-                      <HugeiconsIcon icon={ViewIcon} size={15} />
-                    </button>
-                    <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lainnya">
-                      <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
-                    </button>
-                  </div>
+            {paginatedTransactions.length === 0 ? (
+              <tr>
+                <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                  {searchQuery || hasActiveFilters
+                    ? "Tidak ada transaksi yang cocok dengan filter."
+                    : "Belum ada data transaksi."}
                 </td>
               </tr>
-            ))}
+            ) : (
+              paginatedTransactions.map((trx) => (
+                <tr
+                  key={trx.id}
+                  className="border-b last:border-0 transition-colors hover:bg-muted/20"
+                >
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-medium">{trx.transactionNumber}</span>
+                  </td>
+                  <td className="px-4 py-3 text-sm text-muted-foreground whitespace-nowrap">
+                    {trx.waktu}
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-2">
+                      <div className="flex size-7 shrink-0 items-center justify-center rounded-full bg-blue-500/10 text-[11px] font-bold text-blue-600">
+                        {trx.kasir.charAt(0)}
+                      </div>
+                      <span className="text-sm">{trx.kasir}</span>
+                    </div>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm text-muted-foreground max-w-[200px] truncate block">
+                      {trx.item}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getMetodeBadgeClass(trx.metode)}`}
+                    >
+                      {trx.metode}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span className="text-sm font-semibold">{formatRupiah(trx.total)}</span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <span
+                      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getStatusBadgeClass(trx.status)}`}
+                    >
+                      {trx.status}
+                    </span>
+                  </td>
+                  <td className="px-4 py-3">
+                    <div className="flex items-center gap-1">
+                      <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lihat Detail">
+                        <HugeiconsIcon icon={ViewIcon} size={15} />
+                      </button>
+                      <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lainnya">
+                        <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))
+            )}
           </tbody>
         </table>
       </div>
@@ -600,37 +583,38 @@ export function TransaksiTable() {
       {/* Pagination */}
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
         <p className="text-xs text-muted-foreground">
-          Menampilkan 1–{filteredTransactions.length} dari 327 transaksi
+          Menampilkan {filteredTransactions.length === 0 ? 0 : (currentPage - 1) * ITEMS_PER_PAGE + 1}–{Math.min(currentPage * ITEMS_PER_PAGE, filteredTransactions.length)} dari {filteredTransactions.length} transaksi
         </p>
         <div className="flex items-center gap-1">
-          <button className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted">
+          <button
+            disabled={currentPage <= 1}
+            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+          >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
           </button>
-          {[1, 2, 3].map((page) => (
-            <button
-              key={page}
-              onClick={() => setCurrentPage(page)}
-              className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
-                currentPage === page
-                  ? "bg-primary text-primary-foreground"
-                  : "border text-muted-foreground hover:bg-muted"
-              }`}
-            >
-              {page}
-            </button>
-          ))}
-          <span className="px-1 text-xs text-muted-foreground">...</span>
+          {paginationButtons.map((page, idx) =>
+            page === "..." ? (
+              <span key={`ellipsis-${idx}`} className="px-1 text-xs text-muted-foreground">...</span>
+            ) : (
+              <button
+                key={page}
+                onClick={() => setCurrentPage(page)}
+                className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
+                  currentPage === page
+                    ? "bg-primary text-primary-foreground"
+                    : "border text-muted-foreground hover:bg-muted"
+                }`}
+              >
+                {page}
+              </button>
+            ),
+          )}
           <button
-            onClick={() => setCurrentPage(41)}
-            className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
-              currentPage === 41
-                ? "bg-primary text-primary-foreground"
-                : "border text-muted-foreground hover:bg-muted"
-            }`}
+            disabled={currentPage >= totalPages}
+            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
           >
-            41
-          </button>
-          <button className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted">
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
           </button>
         </div>

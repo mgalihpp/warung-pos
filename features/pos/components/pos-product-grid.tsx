@@ -2,8 +2,9 @@
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import { PlusSignIcon, Alert02Icon } from "@hugeicons/core-free-icons"
+import Image from "next/image"
 import { formatRupiah } from "@/lib/format-currency"
-import { useCartStore, useCartItemQuantity } from "@/hooks/use-cart"
+import { useCartStore, useCartItemQuantity } from "@/features/pos/hooks/use-cart"
 
 export type PosProduct = {
   id: string
@@ -59,9 +60,11 @@ function ProductCard({ product }: { product: PosProduct }) {
 
         <div className="w-24 shrink-0 overflow-hidden">
           {product.image ? (
-            <img
+            <Image
               src={product.image}
               alt={product.name}
+              width={96}
+              height={96}
               className="h-full w-full object-contain"
             />
           ) : (
@@ -126,11 +129,15 @@ function ProductCard({ product }: { product: PosProduct }) {
 
         <div className="flex w-full flex-col items-center gap-3">
           {product.image ? (
-            <img
-              src={product.image}
-              alt={product.name}
-              className="h-24 w-full shrink-0 rounded-lg bg-white object-contain"
-            />
+            <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg bg-white">
+              <Image
+                src={product.image}
+                alt={product.name}
+                fill
+                sizes="(max-width: 1279px) 50vw, 25vw"
+                className="object-contain"
+              />
+            </div>
           ) : (
             <div className="flex h-24 w-full shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-3xl font-bold text-primary">
               {product.name.charAt(0).toUpperCase()}

@@ -1,21 +1,17 @@
 "use server"
 
-import { headers } from "next/headers"
 import { revalidatePath } from "next/cache"
 
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
+import { getSessionUser, requireAdmin } from "@/lib/server/auth-guards"
 
 function asRole(value: FormDataEntryValue | null) {
   return value === "admin" || value === "cashier" ? value : null
 }
 
 export async function updateProfile(formData: FormData) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user.id) {
+  const user = await getSessionUser()
+  if (!user?.id) {
     return
   }
 
@@ -27,7 +23,7 @@ export async function updateProfile(formData: FormData) {
   }
 
   await prisma.user.update({
-    where: { id: session.user.id },
+    where: { id: user.id },
     data: { name, email },
   })
 
@@ -35,11 +31,8 @@ export async function updateProfile(formData: FormData) {
 }
 
 export async function updateUserAccess(formData: FormData) {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (session?.user.role !== "admin") {
+  const admin = await requireAdmin()
+  if (!admin) {
     return
   }
 

@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { formatRupiah } from "@/lib/format"
+import { formatRupiah } from "@/lib/format-currency"
 
 const bestSellers = [
   {

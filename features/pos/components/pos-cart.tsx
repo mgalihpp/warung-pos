@@ -1,6 +1,7 @@
 "use client"
 
 import { useState } from "react"
+import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ShoppingCart01Icon,
@@ -23,7 +24,7 @@ import {
   useCartChange,
   useCartItemCount,
   type PaymentMethod,
-} from "@/hooks/use-cart"
+} from "@/features/pos/hooks/use-cart"
 import {
   AlertDialog,
   AlertDialogAction,
@@ -139,9 +140,11 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                 >
                   {/* Item Image */}
                   {item.image ? (
-                    <img
+                    <Image
                       src={item.image}
                       alt={item.name}
+                      width={40}
+                      height={40}
                       className="size-10 shrink-0 rounded-lg object-contain"
                     />
                   ) : (

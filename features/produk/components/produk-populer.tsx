@@ -1,6 +1,7 @@
 import Link from "next/link"
-import { formatRupiah } from "@/lib/format"
-import type { ProdukPopularItem } from "./types"
+import Image from "next/image"
+import { formatRupiah } from "@/lib/format-currency"
+import type { ProdukPopularItem } from "../types"
 
 type ProdukPopulerProps = {
   products: ProdukPopularItem[]
@@ -35,11 +36,12 @@ export function ProdukPopuler({ products }: ProdukPopulerProps) {
               {item.rank}
             </div>
             {item.image ? (
-              <img
+              <Image
                 src={item.image}
                 alt={item.name}
+                width={36}
+                height={36}
                 className="size-9 shrink-0 rounded-lg bg-white object-contain"
-                loading="lazy"
               />
             ) : (
               <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-sm font-bold text-primary">

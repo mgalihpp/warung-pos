@@ -7,7 +7,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import type { ProdukCategoryChartItem } from "./types"
+import type { ProdukCategoryChartItem } from "../types"
 
 type ProdukKategoriChartProps = {
   data: ProdukCategoryChartItem[]

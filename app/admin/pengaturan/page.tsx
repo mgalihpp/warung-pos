@@ -1,17 +1,24 @@
 import { PengaturanContent } from "@/components/pengaturan/pengaturan-content"
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { headers } from "next/headers"
+import { redirect } from "next/navigation"
+
+import { getSessionUser } from "@/lib/server/auth-guards"
 
 export default async function PengaturanPage() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  if (user.role !== "admin") {
+    redirect("/unauthorized")
+  }
 
   const [currentUser, users] = await Promise.all([
-    session?.user.id
+    user.id
       ? prisma.user.findUnique({
-          where: { id: session.user.id },
+          where: { id: user.id },
           select: {
             id: true,
             name: true,

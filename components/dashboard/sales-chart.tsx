@@ -21,7 +21,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { formatRupiah } from "@/lib/format"
+import { formatRupiah } from "@/lib/format-currency"
 
 const salesData = [
   { date: "18 Mei", penjualan: 1800000 },

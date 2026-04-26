@@ -7,7 +7,7 @@ import type {
   ProdukStats,
   ProdukCategoryChartItem,
   ProdukPopularItem,
-} from "./types"
+} from "../types"
 
 export type ProdukPageData = {
   products: ProdukItem[]

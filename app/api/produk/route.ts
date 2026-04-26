@@ -1,23 +1,11 @@
 import { NextResponse } from "next/server"
-import { headers } from "next/headers"
 
-import { auth } from "@/lib/auth"
+import { requireAdmin } from "@/lib/server/auth-guards"
 import { prisma } from "@/lib/prisma"
-import { createProductSchema } from "@/app/admin/produk/schemas"
+import { createProductSchema } from "@/lib/schemas/produk"
 
 const chartColors = ["#16a34a", "#3b82f6", "#f59e0b", "#f43f5e", "#8b5cf6", "#94a3b8"]
 
-async function requireAdmin() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (session?.user.role !== "admin") {
-    return null
-  }
-
-  return session.user
-}
 
 function slugify(value: string) {
   return value

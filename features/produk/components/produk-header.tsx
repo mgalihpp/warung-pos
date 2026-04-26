@@ -4,7 +4,7 @@ import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowDown01Icon, PlusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons"
 
-import { useCreateProduct } from "./use-produk-actions"
+import { useCreateProduct } from "../hooks/use-produk-actions"
 import { ImageUpload } from "./produk-image-upload"
 import { Button } from "@/components/ui/button"
 import {
@@ -49,7 +49,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
-import type { ProdukCategory } from "./types"
+import type { ProdukCategory } from "../types"
 
 type ProdukHeaderProps = {
   categories: ProdukCategory[]

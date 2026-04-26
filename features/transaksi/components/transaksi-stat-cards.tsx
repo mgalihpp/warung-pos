@@ -2,53 +2,77 @@
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  InvoiceIcon,
+  MoneyReceiveSquareIcon,
   PackageIcon,
-  Layers01Icon,
-  Alert02Icon,
-  Cancel01Icon,
+  ChartAverageIcon,
+  ArrowUp01Icon,
+  ArrowDown01Icon,
   ArrowRight01Icon,
 } from "@hugeicons/core-free-icons"
-import type { ProdukStats } from "./types"
+import { formatRupiah } from "@/lib/format-currency"
+import type { TransactionStats } from "../hooks/use-transaksi-queries"
 
-type ProdukStatCardsProps = {
-  stats: ProdukStats
+type StatItem = {
+  title: string
+  value: string
+  description: string
+  trend?: "up" | "down" | null
+  icon: typeof InvoiceIcon
+  iconBg: string
+  iconColor: string
 }
 
-export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
-  const items = [
+function buildStats(stats: TransactionStats): StatItem[] {
+  const trendDir = (val: number | null) =>
+    val === null ? null : val >= 0 ? "up" : "down"
+
+  const trendLabel = (val: number | null, suffix = "dari kemarin") => {
+    if (val === null) return suffix
+    const abs = Math.abs(val)
+    return `${val >= 0 ? "Naik" : "Turun"} ${abs}% ${suffix}`
+  }
+
+  return [
     {
-      title: "Total Produk",
-      value: stats.totalProducts,
-      description: "Produk aktif terdaftar",
-      icon: PackageIcon,
+      title: "Total Transaksi Hari Ini",
+      value: String(stats.todayCount),
+      description: trendLabel(stats.todayTrend),
+      trend: trendDir(stats.todayTrend),
+      icon: InvoiceIcon,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
     },
     {
-      title: "Kategori",
-      value: stats.totalCategories,
-      description: "Kategori produk",
-      icon: Layers01Icon,
-      iconBg: "bg-blue-500/10",
-      iconColor: "text-blue-600",
+      title: "Total Penjualan Hari Ini",
+      value: formatRupiah(stats.todaySales),
+      description: trendLabel(stats.salesTrend, "dari kemarin"),
+      trend: trendDir(stats.salesTrend),
+      icon: MoneyReceiveSquareIcon,
+      iconBg: "bg-emerald-500/10",
+      iconColor: "text-emerald-600",
     },
     {
-      title: "Stok Menipis",
-      value: stats.lowStock,
-      description: "Produk perlu restock",
-      icon: Alert02Icon,
+      title: "Produk Terjual Hari Ini",
+      value: String(stats.soldProductsCount),
+      description: "Total item dari transaksi selesai",
+      icon: PackageIcon,
       iconBg: "bg-amber-500/10",
       iconColor: "text-amber-600",
     },
     {
-      title: "Produk Nonaktif",
-      value: stats.inactiveProducts,
-      description: "Produk disembunyikan",
-      icon: Cancel01Icon,
-      iconBg: "bg-slate-500/10",
-      iconColor: "text-slate-600",
+      title: "Rata-rata Nilai Transaksi",
+      value: formatRupiah(stats.avgTransaction),
+      description: "Per transaksi hari ini",
+      icon: ChartAverageIcon,
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
     },
   ]
+}
+
+export function TransaksiStatCards({ stats }: { stats: TransactionStats }) {
+  const items = buildStats(stats)
 
   return (
     <>
@@ -69,7 +93,7 @@ export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-medium text-muted-foreground">
+              <p className="text-[10px] font-medium text-muted-foreground truncate">
                 {stat.title}
               </p>
               <p className="text-xl font-bold tracking-tight">{stat.value}</p>
@@ -104,7 +128,17 @@ export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
                 {stat.title}
               </p>
               <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-              <p className="text-[10px] text-muted-foreground sm:text-[11px]">
+              <p className="text-[10px] text-muted-foreground sm:text-[11px] flex items-center gap-1">
+                {stat.trend === "up" && (
+                  <span className="inline-flex items-center gap-0.5 text-emerald-600">
+                    <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
+                  </span>
+                )}
+                {stat.trend === "down" && (
+                  <span className="inline-flex items-center gap-0.5 text-red-500">
+                    <HugeiconsIcon icon={ArrowDown01Icon} size={10} />
+                  </span>
+                )}
                 {stat.description}
               </p>
             </div>

@@ -22,7 +22,7 @@ import {
   useDeleteProduct,
   useToggleProductActive,
   useAdjustStock,
-} from "./use-produk-actions"
+} from "../hooks/use-produk-actions"
 import { ImageUpload } from "./produk-image-upload"
 import { CategoryCombobox, UnitCombobox } from "./produk-header"
 import {
@@ -71,9 +71,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
-import { formatRupiah } from "@/lib/format"
+import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
-import type { ProdukCategory, ProdukItem } from "./types"
+import type { ProdukCategory, ProdukItem } from "../types"
 
 const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Nonaktif"]
 const sortOptions = [

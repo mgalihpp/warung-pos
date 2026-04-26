@@ -5,7 +5,7 @@ import {
   ChartHistogramIcon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons"
-import { formatRupiah } from "@/lib/format"
+import { formatRupiah } from "@/lib/format-currency"
 
 const stats = [
   {

@@ -1,22 +1,22 @@
 "use client"
 
-import { useState, useMemo } from "react"
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
+import { useMemo, useState } from "react"
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  ShoppingCart01Icon,
   ArrowLeft01Icon,
-  Search01Icon,
   Cancel01Icon,
+  Search01Icon,
+  ShoppingCart01Icon,
 } from "@hugeicons/core-free-icons"
-import { formatRupiah } from "@/lib/format-currency"
-import { PosProductGrid, type PosProduct } from "./pos-product-grid"
-import { PosRecentTransactions } from "./pos-recent-transactions"
-import { PosCart } from "./pos-cart"
-import { PosSearchBar } from "./pos-search-bar"
-import { PosReceiptDialog, type TransactionReceipt } from "./pos-receipt-dialog"
-import { useCartStore, useCartTotal, useCartItemCount } from "@/hooks/use-cart"
 import { toast } from "sonner"
+
+import { formatRupiah } from "@/lib/format-currency"
+import {
+  useCartItemCount,
+  useCartStore,
+  useCartTotal,
+} from "@/features/pos/hooks/use-cart"
 import {
   Select,
   SelectContent,
@@ -25,22 +25,21 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
+import { PosCart } from "./pos-cart"
+import { PosProductGrid, type PosProduct } from "./pos-product-grid"
+import { PosReceiptDialog, type TransactionReceipt } from "./pos-receipt-dialog"
+import { PosRecentTransactions } from "./pos-recent-transactions"
+import { PosSearchBar } from "./pos-search-bar"
+
 type MobileTab = "produk" | "keranjang"
 
-type PosPageClientProps = {
-  cashierName: string
-  cashierId: string
-}
-
-export function PosPageClient({ cashierName }: PosPageClientProps) {
+export function PosPageClient() {
   const queryClient = useQueryClient()
   const [mobileTab, setMobileTab] = useState<MobileTab>("produk")
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
-    null
-  )
+  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(null)
 
   // Cart state
   const cartItems = useCartStore((s) => s.items)
@@ -51,7 +50,6 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
   const amountPaid = useCartStore((s) => s.amountPaid)
   const notes = useCartStore((s) => s.notes)
 
-  // Data fetching
   const { data, isLoading } = useQuery({
     queryKey: ["kasir", "produk"],
     queryFn: async () => {
@@ -61,7 +59,6 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
     },
   })
 
-  // Transaction mutation
   const payMutation = useMutation({
     mutationFn: async () => {
       const payload = {
@@ -81,7 +78,7 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
       })
 
       const result = await res.json()
-      if (!res.ok)
+      if (!res.ok) {
         throw new Error(
           result.errors
             ? JSON.stringify(result.errors)
@@ -89,11 +86,13 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
               ? result.error
               : "Gagal memproses transaksi"
         )
+      }
+
       return result
     },
-    onSuccess: (data) => {
+    onSuccess: (result) => {
       toast.success("Transaksi berhasil!")
-      setReceiptData(data.transaction)
+      setReceiptData(result.transaction)
       queryClient.invalidateQueries({ queryKey: ["kasir", "produk"] })
       queryClient.invalidateQueries({ queryKey: ["kasir", "transaksi-recent"] })
     },
@@ -108,21 +107,19 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
     },
   })
 
-  // Filtering
-  const products = (data?.products ?? []) as PosProduct[]
-  const categories = (data?.categories ?? []) as { id: string; name: string }[]
-
   const filteredProducts = useMemo(() => {
+    const products = (data?.products ?? []) as PosProduct[]
+
     return products.filter((p) => {
-      const matchCategory = activeCategory
-        ? p.categoryId === activeCategory
-        : true
+      const matchCategory = activeCategory ? p.categoryId === activeCategory : true
       const matchSearch = p.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
       return matchCategory && matchSearch
     })
-  }, [products, activeCategory, searchQuery])
+  }, [data?.products, activeCategory, searchQuery])
+
+  const categories = (data?.categories ?? []) as { id: string; name: string }[]
 
   const handlePayment = () => {
     payMutation.mutate()
@@ -172,15 +169,11 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
           <PosProductGrid products={filteredProducts} isLoading={isLoading} />
           <PosRecentTransactions />
         </div>
-        <PosCart
-          onPayment={handlePayment}
-          isProcessing={payMutation.isPending}
-        />
+        <PosCart onPayment={handlePayment} isProcessing={payMutation.isPending} />
       </div>
 
       {/* Mobile Layout */}
       <div className="flex h-full flex-col overflow-hidden bg-muted/40 xl:hidden">
-        {/* Tab Content */}
         <div className="relative flex-1 overflow-hidden">
           {/* Tab: Produk */}
           <div
@@ -190,7 +183,6 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
                 : "pointer-events-none -translate-x-full"
             }`}
           >
-            {/* Mobile Header: Category Dropdown & Search Icon */}
             <div className="shrink-0 px-3 pt-3">
               <div className="flex h-[46px] items-center overflow-hidden rounded-xl border bg-card shadow-sm">
                 {!isMobileSearchActive ? (
@@ -254,7 +246,6 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
 
             <PosProductGrid products={filteredProducts} isLoading={isLoading} />
 
-            {/* Sticky Cart Peek Bar */}
             <div className="pointer-events-none absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background via-background to-transparent px-3 pt-6 pb-4">
               <button
                 onClick={() => setMobileTab("keranjang")}
@@ -271,9 +262,7 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
                   </div>
                   <span className="text-sm font-semibold">Lihat Keranjang</span>
                 </div>
-                <span className="text-sm font-bold">
-                  {formatRupiah(cartTotal)}
-                </span>
+                <span className="text-sm font-bold">{formatRupiah(cartTotal)}</span>
               </button>
             </div>
           </div>
@@ -286,7 +275,6 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
                 : "pointer-events-none translate-x-full"
             }`}
           >
-            {/* Cart mobile header */}
             <div className="flex shrink-0 items-center gap-3 border-b bg-card px-4 py-3">
               <button
                 onClick={() => setMobileTab("produk")}
@@ -304,12 +292,8 @@ export function PosPageClient({ cashierName }: PosPageClientProps) {
               )}
             </div>
 
-            {/* Cart content (PosCart handles its own scrolling) */}
             <div className="min-h-0 flex-1">
-              <PosCart
-                onPayment={handlePayment}
-                isProcessing={payMutation.isPending}
-              />
+              <PosCart onPayment={handlePayment} isProcessing={payMutation.isPending} />
             </div>
           </div>
         </div>

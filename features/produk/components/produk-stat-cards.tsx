@@ -2,57 +2,59 @@
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  InvoiceIcon,
-  MoneyReceiveSquareIcon,
-  TimeQuarterPassIcon,
-  ChartAverageIcon,
-  ArrowUp01Icon,
+  PackageIcon,
+  Layers01Icon,
+  Alert02Icon,
+  Cancel01Icon,
   ArrowRight01Icon,
 } from "@hugeicons/core-free-icons"
-import { formatRupiah } from "@/lib/format"
+import type { ProdukStats } from "../types"
 
-const stats = [
-  {
-    title: "Total Transaksi Hari Ini",
-    value: "86",
-    description: "Naik 8,7% dari kemarin",
-    trend: "up" as const,
-    icon: InvoiceIcon,
-    iconBg: "bg-primary/10",
-    iconColor: "text-primary",
-  },
-  {
-    title: "Total Penjualan Hari Ini",
-    value: formatRupiah(2450000),
-    description: "Omzet transaksi hari ini",
-    icon: MoneyReceiveSquareIcon,
-    iconBg: "bg-emerald-500/10",
-    iconColor: "text-emerald-600",
-  },
-  {
-    title: "Transaksi Pending",
-    value: "7",
-    description: "Menunggu pembayaran / penyelesaian",
-    icon: TimeQuarterPassIcon,
-    iconBg: "bg-amber-500/10",
-    iconColor: "text-amber-600",
-  },
-  {
-    title: "Rata-rata Nilai Transaksi",
-    value: formatRupiah(28500),
-    description: "Per transaksi",
-    icon: ChartAverageIcon,
-    iconBg: "bg-blue-500/10",
-    iconColor: "text-blue-600",
-  },
-]
+type ProdukStatCardsProps = {
+  stats: ProdukStats
+}
 
-export function TransaksiStatCards() {
+export function ProdukStatCards({ stats }: ProdukStatCardsProps) {
+  const items = [
+    {
+      title: "Total Produk",
+      value: stats.totalProducts,
+      description: "Produk aktif terdaftar",
+      icon: PackageIcon,
+      iconBg: "bg-primary/10",
+      iconColor: "text-primary",
+    },
+    {
+      title: "Kategori",
+      value: stats.totalCategories,
+      description: "Kategori produk",
+      icon: Layers01Icon,
+      iconBg: "bg-blue-500/10",
+      iconColor: "text-blue-600",
+    },
+    {
+      title: "Stok Menipis",
+      value: stats.lowStock,
+      description: "Produk perlu restock",
+      icon: Alert02Icon,
+      iconBg: "bg-amber-500/10",
+      iconColor: "text-amber-600",
+    },
+    {
+      title: "Produk Nonaktif",
+      value: stats.inactiveProducts,
+      description: "Produk disembunyikan",
+      icon: Cancel01Icon,
+      iconBg: "bg-slate-500/10",
+      iconColor: "text-slate-600",
+    },
+  ]
+
   return (
     <>
       {/* Mobile: horizontal scroll compact cards */}
       <div className="flex gap-3 overflow-x-auto pb-1 lg:hidden -mx-4 px-4 scrollbar-none">
-        {stats.map((stat) => (
+        {items.map((stat) => (
           <div
             key={stat.title}
             className="group relative flex min-w-[160px] shrink-0 cursor-pointer items-center gap-3 rounded-xl border bg-card p-3 shadow-sm transition-shadow hover:shadow-md"
@@ -67,7 +69,7 @@ export function TransaksiStatCards() {
               />
             </div>
             <div className="min-w-0">
-              <p className="text-[10px] font-medium text-muted-foreground truncate">
+              <p className="text-[10px] font-medium text-muted-foreground">
                 {stat.title}
               </p>
               <p className="text-xl font-bold tracking-tight">{stat.value}</p>
@@ -83,7 +85,7 @@ export function TransaksiStatCards() {
 
       {/* Desktop: full grid */}
       <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 2xl:grid-cols-4">
-        {stats.map((stat) => (
+        {items.map((stat) => (
           <div
             key={stat.title}
             className="group relative flex cursor-pointer items-center gap-4 overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
@@ -102,12 +104,7 @@ export function TransaksiStatCards() {
                 {stat.title}
               </p>
               <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-              <p className="text-[10px] text-muted-foreground sm:text-[11px] flex items-center gap-1">
-                {stat.trend === "up" && (
-                  <span className="inline-flex items-center gap-0.5 text-emerald-600">
-                    <HugeiconsIcon icon={ArrowUp01Icon} size={10} />
-                  </span>
-                )}
+              <p className="text-[10px] text-muted-foreground sm:text-[11px]">
                 {stat.description}
               </p>
             </div>

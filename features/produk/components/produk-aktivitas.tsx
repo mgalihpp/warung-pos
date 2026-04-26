@@ -2,7 +2,7 @@
 
 import { HugeiconsIcon } from "@hugeicons/react"
 import { PlusSignIcon, ArrowRight01Icon } from "@hugeicons/core-free-icons"
-import type { ProdukActivityItem } from "./types"
+import type { ProdukActivityItem } from "../types"
 
 type ProdukAktivitasProps = {
   activities: ProdukActivityItem[]

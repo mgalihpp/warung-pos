@@ -1,11 +1,11 @@
 "use client"
 
-import { useProducts } from "@/components/produk/use-produk-queries"
-import { ProdukHeader } from "@/components/produk/produk-header"
-import { ProdukStatCards } from "@/components/produk/produk-stat-cards"
-import { ProdukTable } from "@/components/produk/produk-table"
-import { ProdukKategoriChart } from "@/components/produk/produk-kategori-chart"
-import { ProdukPopuler } from "@/components/produk/produk-populer"
+import { useProducts } from "@/features/produk/hooks/use-produk-queries"
+import { ProdukHeader } from "@/features/produk/components/produk-header"
+import { ProdukStatCards } from "@/features/produk/components/produk-stat-cards"
+import { ProdukTable } from "@/features/produk/components/produk-table"
+import { ProdukKategoriChart } from "@/features/produk/components/produk-kategori-chart"
+import { ProdukPopuler } from "@/features/produk/components/produk-populer"
 import ProdukLoading from "./loading"
 
 export default function ProdukPage() {

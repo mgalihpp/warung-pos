@@ -104,20 +104,20 @@ export function PosReceiptDialog({
 
           <Separator className="bg-border/70" />
 
-          <div className="space-y-1.5 rounded-2xl bg-muted/40 p-3 text-xs">
-            <div className="flex justify-between gap-3 py-1">
+          <div className="rounded-2xl bg-muted/40 p-3 text-xs">
+            <div className="flex justify-between gap-3">
               <span className="text-muted-foreground">No. Transaksi</span>
               <span className="text-right font-medium text-foreground">
                 {transaction.transactionNumber}
               </span>
             </div>
-            <div className="flex justify-between gap-3 py-1">
+            <div className="mt-1 flex justify-between gap-3">
               <span className="text-muted-foreground">Kasir</span>
               <span className="text-right font-medium text-foreground">
                 {transaction.cashierName}
               </span>
             </div>
-            <div className="flex justify-between gap-3 py-1">
+            <div className="mt-1 flex justify-between gap-3">
               <span className="text-muted-foreground">Pembayaran</span>
               <span className="text-right font-medium text-foreground">
                 {getPaymentMethodLabel(transaction.paymentMethod)}

@@ -1,23 +1,9 @@
 import { NextResponse } from "next/server"
-import { headers } from "next/headers"
 import { format } from "date-fns"
 
-import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
-import { createTransactionSchema } from "../schemas"
-
-async function requireCashierOrAdmin() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user) return null
-  if (session.user.role !== "cashier" && session.user.role !== "admin") {
-    return null
-  }
-
-  return session.user
-}
+import { createTransactionSchema } from "@/lib/schemas/pos"
+import { requireCashierOrAdmin } from "@/lib/server/auth-guards"
 
 async function generateTransactionNumber(): Promise<string> {
   const today = format(new Date(), "yyyyMMdd")

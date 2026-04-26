@@ -1,21 +1,7 @@
 import { NextResponse } from "next/server"
-import { headers } from "next/headers"
 
-import { auth } from "@/lib/auth"
+import { requireCashierOrAdmin } from "@/lib/server/auth-guards"
 import { prisma } from "@/lib/prisma"
-
-async function requireCashierOrAdmin() {
-  const session = await auth.api.getSession({
-    headers: await headers(),
-  })
-
-  if (!session?.user) return null
-  if (session.user.role !== "cashier" && session.user.role !== "admin") {
-    return null
-  }
-
-  return session.user
-}
 
 export async function GET() {
   const user = await requireCashierOrAdmin()
