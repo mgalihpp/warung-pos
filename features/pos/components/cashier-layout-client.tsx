@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import Image from "next/image"
+import { useEffect, useState } from "react"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -35,6 +36,7 @@ const navItems = [
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
+  const [hidePosBottomNav, setHidePosBottomNav] = useState(false)
 
   const displayName = session?.user?.name ?? userName
   const avatarUrl = session?.user?.image ?? null
@@ -45,6 +47,23 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
     .join("")
     .substring(0, 2)
     .toUpperCase()
+
+  useEffect(() => {
+    if (pathname !== "/cashier/pos") {
+      return
+    }
+
+    const syncMobileTab = (event: Event) => {
+      const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab
+      setHidePosBottomNav(tab === "keranjang")
+    }
+
+    window.addEventListener("pos-mobile-tab-change", syncMobileTab)
+
+    return () => {
+      window.removeEventListener("pos-mobile-tab-change", syncMobileTab)
+    }
+  }, [pathname])
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
@@ -136,22 +155,24 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
       <main className="flex-1 flex flex-col min-h-0 overflow-hidden">{children}</main>
 
       {/* Mobile Bottom Navigation */}
-      <nav className="md:hidden flex items-center justify-around bg-card border-t shrink-0 h-[60px] pb-[env(safe-area-inset-bottom)]">
-        {navItems.map((item) => {
-          const isActive = pathname === item.href
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center flex-1 h-full gap-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"
-                }`}
-            >
-              <HugeiconsIcon icon={item.icon} size={20} />
-              <span>{item.label}</span>
-            </Link>
-          )
-        })}
-      </nav>
+      {!(pathname === "/cashier/pos" && hidePosBottomNav) && (
+        <nav className="flex h-[60px] shrink-0 items-center justify-around border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
+          {navItems.map((item) => {
+            const isActive = pathname === item.href
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                className={`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"
+                  }`}
+              >
+                <HugeiconsIcon icon={item.icon} size={20} />
+                <span>{item.label}</span>
+              </Link>
+            )
+          })}
+        </nav>
+      )}
     </div>
   )
 }

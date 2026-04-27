@@ -1,7 +1,7 @@
 import { config } from "dotenv"
 import { defineConfig, env } from "prisma/config"
 
-config()
+config({ quiet: true })
 
 type Env = {
   DATABASE_URL: string

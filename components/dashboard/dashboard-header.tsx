@@ -95,8 +95,8 @@ export function DashboardHeader() {
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <SidebarTrigger className="-ml-1" />
-      <Separator orientation="vertical" className="mr-1 h-4" />
+      <SidebarTrigger className="-ml-1 hidden lg:flex" />
+      <Separator orientation="vertical" className="mr-1 hidden h-4 lg:block" />
 
       {/* Search Bar - Interactive */}
       {!isPosPage && (
@@ -237,7 +237,8 @@ export function DashboardHeader() {
           </DropdownMenuGroup>
           <DropdownMenuSeparator />
           <DropdownMenuItem
-            className="text-destructive focus:bg-destructive/10 focus:text-destructive"
+            variant="destructive"
+            className="cursor-pointer"
             onClick={async () => {
               await signOut()
               router.push("/login")

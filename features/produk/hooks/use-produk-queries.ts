@@ -12,6 +12,7 @@ import type {
 export type ProdukPageData = {
   products: ProdukItem[]
   categories: ProdukCategory[]
+  units: string[]
   stats: ProdukStats
   categoryChartData: ProdukCategoryChartItem[]
   popularProducts: ProdukPopularItem[]

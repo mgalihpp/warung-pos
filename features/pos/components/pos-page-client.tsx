@@ -1,6 +1,6 @@
 "use client"
 
-import { useMemo, useState } from "react"
+import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -39,7 +39,9 @@ export function PosPageClient() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(null)
+  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
+    null
+  )
 
   // Cart state
   const cartItems = useCartStore((s) => s.items)
@@ -91,7 +93,6 @@ export function PosPageClient() {
       return result
     },
     onSuccess: (result) => {
-      toast.success("Transaksi berhasil!")
       setReceiptData(result.transaction)
       queryClient.invalidateQueries({ queryKey: ["kasir", "produk"] })
       queryClient.invalidateQueries({ queryKey: ["kasir", "transaksi-recent"] })
@@ -111,7 +112,9 @@ export function PosPageClient() {
     const products = (data?.products ?? []) as PosProduct[]
 
     return products.filter((p) => {
-      const matchCategory = activeCategory ? p.categoryId === activeCategory : true
+      const matchCategory = activeCategory
+        ? p.categoryId === activeCategory
+        : true
       const matchSearch = p.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
@@ -131,45 +134,70 @@ export function PosPageClient() {
     setMobileTab("produk")
   }
 
+  useEffect(() => {
+    document.body.dataset.posMobileTab = mobileTab
+    const event = new CustomEvent("pos-mobile-tab-change", {
+      detail: { tab: mobileTab },
+    })
+    window.dispatchEvent(event)
+
+    const timeout = window.setTimeout(() => {
+      window.dispatchEvent(event)
+    }, 0)
+
+    return () => {
+      window.clearTimeout(timeout)
+      document.body.dataset.posMobileTab = "produk"
+      window.dispatchEvent(
+        new CustomEvent("pos-mobile-tab-change", { detail: { tab: "produk" } })
+      )
+    }
+  }, [mobileTab])
+
   return (
     <>
       {/* Desktop Layout */}
       <div className="hidden h-full gap-4 overflow-hidden bg-muted/40 p-4 xl:flex">
-        <div className="flex flex-1 flex-col gap-0 overflow-hidden">
-          <div className="mb-4 flex h-11 w-fit shrink-0 items-center overflow-hidden rounded-xl border bg-card shadow-sm">
-            <div className="h-full w-[320px] shrink-0">
-              <PosSearchBar
-                value={searchQuery}
-                onChange={setSearchQuery}
-                className="h-full rounded-none border-0 bg-transparent focus:ring-0"
-              />
-            </div>
-            <div className="h-6 w-px shrink-0 bg-border" />
-            <div className="flex h-full w-[200px] shrink-0 items-center">
-              <Select
-                value={activeCategory || "all"}
-                onValueChange={(val) =>
-                  setActiveCategory(val === "all" ? null : val)
-                }
-              >
-                <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0">
-                  <SelectValue placeholder="Semua Kategori" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Semua Kategori</SelectItem>
-                  {categories.map((c) => (
-                    <SelectItem key={c.id} value={c.id}>
-                      {c.name}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+        <div className="flex flex-1 flex-col gap-3 overflow-hidden">
+          <div className="relative shrink-0">
+            <div className="flex h-11 w-fit items-center overflow-hidden rounded-xl border bg-card shadow-sm">
+              <div className="h-full w-[320px] shrink-0">
+                <PosSearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  className="h-full rounded-none border-0 bg-transparent focus:ring-0"
+                />
+              </div>
+              <div className="h-6 w-px shrink-0 bg-border" />
+              <div className="flex h-full w-[200px] shrink-0 items-center">
+                <Select
+                  value={activeCategory || "all"}
+                  onValueChange={(val) =>
+                    setActiveCategory(val === "all" ? null : val)
+                  }
+                >
+                  <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0">
+                    <SelectValue placeholder="Semua Kategori" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">Semua Kategori</SelectItem>
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
             </div>
           </div>
           <PosProductGrid products={filteredProducts} isLoading={isLoading} />
           <PosRecentTransactions />
         </div>
-        <PosCart onPayment={handlePayment} isProcessing={payMutation.isPending} />
+        <PosCart
+          onPayment={handlePayment}
+          isProcessing={payMutation.isPending}
+        />
       </div>
 
       {/* Mobile Layout */}
@@ -183,7 +211,7 @@ export function PosPageClient() {
                 : "pointer-events-none -translate-x-full"
             }`}
           >
-            <div className="shrink-0 px-3 pt-3">
+            <div className="relative shrink-0 px-3 pt-3">
               <div className="flex h-[46px] items-center overflow-hidden rounded-xl border bg-card shadow-sm">
                 {!isMobileSearchActive ? (
                   <>
@@ -246,7 +274,7 @@ export function PosPageClient() {
 
             <PosProductGrid products={filteredProducts} isLoading={isLoading} />
 
-            <div className="pointer-events-none absolute right-0 bottom-0 left-0 bg-gradient-to-t from-background via-background to-transparent px-3 pt-6 pb-4">
+            <div className="pointer-events-none absolute right-0 bottom-0 left-0 z-[45] bg-gradient-to-t from-muted/90 via-muted/45 to-transparent px-3 pt-6 pb-4">
               <button
                 onClick={() => setMobileTab("keranjang")}
                 className="pointer-events-auto flex w-full items-center justify-between rounded-xl bg-primary px-4 py-3.5 text-primary-foreground shadow-lg transition-all active:scale-[0.98]"
@@ -262,7 +290,9 @@ export function PosPageClient() {
                   </div>
                   <span className="text-sm font-semibold">Lihat Keranjang</span>
                 </div>
-                <span className="text-sm font-bold">{formatRupiah(cartTotal)}</span>
+                <span className="text-sm font-bold">
+                  {formatRupiah(cartTotal)}
+                </span>
               </button>
             </div>
           </div>
@@ -293,7 +323,10 @@ export function PosPageClient() {
             </div>
 
             <div className="min-h-0 flex-1">
-              <PosCart onPayment={handlePayment} isProcessing={payMutation.isPending} />
+              <PosCart
+                onPayment={handlePayment}
+                isProcessing={payMutation.isPending}
+              />
             </div>
           </div>
         </div>

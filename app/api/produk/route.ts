@@ -77,6 +77,7 @@ export async function GET() {
   ])
 
   const activeProducts = products.filter((product) => product.isActive)
+  const units = [...new Set(products.map((product) => product.unit).filter(Boolean))].sort((a, b) => a.localeCompare(b))
 
   const productItems = products.map((product) => ({
     id: product.id,
@@ -136,6 +137,7 @@ export async function GET() {
     stats,
     categoryChartData,
     popularProducts,
+    units,
   })
 }
 

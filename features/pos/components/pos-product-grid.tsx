@@ -178,7 +178,8 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
   if (isLoading) {
     return (
       <div className="relative min-h-0 flex-1">
-        <div className="no-scrollbar h-full min-h-0 overflow-y-auto px-3 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
+        <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background/75 to-transparent dark:from-background/25" />
+        <div className="no-scrollbar h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
           <div className="grid grid-cols-2 gap-3 min-[1399px]:grid-cols-4 sm:grid-cols-3 xl:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductSkeleton key={i} />
@@ -199,7 +200,9 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
 
   return (
     <div className="relative min-h-0 flex-1">
-      <div className="scrollbar-thin h-full min-h-0 overflow-y-auto px-3 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
+      <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background/75 to-transparent dark:from-background/25" />
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-6 bg-gradient-to-t from-background/75 to-transparent dark:from-background/25 xl:block" />
+      <div className="scrollbar-thin h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
         <div className="grid grid-cols-2 gap-3 min-[1399px]:grid-cols-4 sm:grid-cols-3 xl:gap-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />

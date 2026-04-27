@@ -2,6 +2,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "@/components/dashboard/app-sidebar"
 import { DashboardHeader } from "@/components/dashboard/dashboard-header"
+import { AdminLayoutClient } from "@/components/dashboard/admin-layout-client"
 import { cookies } from "next/headers"
 
 export default async function AdminLayout({
@@ -18,8 +19,10 @@ export default async function AdminLayout({
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
         <SidebarInset className="min-w-0">
-          <DashboardHeader />
-          <div className="flex-1 overflow-x-hidden">{children}</div>
+          <AdminLayoutClient>
+            <DashboardHeader />
+            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">{children}</div>
+          </AdminLayoutClient>
         </SidebarInset>
       </SidebarProvider>
     </TooltipProvider>

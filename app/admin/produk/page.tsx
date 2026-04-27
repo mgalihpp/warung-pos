@@ -32,7 +32,7 @@ export default function ProdukPage() {
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
       {/* Header */}
-      <ProdukHeader categories={data.categories} />
+      <ProdukHeader />
 
       {/* Stat Cards */}
       <ProdukStatCards stats={data.stats} />

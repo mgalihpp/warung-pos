@@ -95,7 +95,7 @@ export function PosRecentTransactions() {
   )
 
   return (
-    <div className="shrink-0 rounded-xl border bg-card p-4">
+    <div className="relative shrink-0 rounded-xl border bg-card p-4">
       <Collapsible open={open} onOpenChange={setOpen}>
         <div
           className={

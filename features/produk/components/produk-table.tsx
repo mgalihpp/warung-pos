@@ -2,6 +2,7 @@
 
 import * as React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
@@ -20,13 +21,10 @@ import {
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
-  useUpdateProduct,
   useDeleteProduct,
   useToggleProductActive,
   useAdjustStock,
 } from "../hooks/use-produk-actions"
-import { ImageUpload } from "./produk-image-upload"
-import { CategoryCombobox, UnitCombobox } from "./produk-header"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -72,7 +70,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { Textarea } from "@/components/ui/textarea"
 import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import type { ProdukCategory, ProdukItem } from "../types"
@@ -171,303 +168,17 @@ function getStatus(product: ProdukItem) {
   return "Aktif"
 }
 
-function ProductEditForm({
-  product,
-  categories,
-  stickyFooter = false,
-  closeButton,
-  onSubmit,
-  isPending,
-  errors,
-}: {
-  product: ProdukItem
-  categories: ProdukCategory[]
-  stickyFooter?: boolean
-  closeButton?: React.ReactNode
-  onSubmit: (data: Record<string, unknown> & { id: string }) => void
-  isPending: boolean
-  errors: Record<string, string[]> | null
-}) {
-  const [imageUrl, setImageUrl] = React.useState<string | null>(product.image)
-
-  function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault()
-    const fd = new FormData(e.currentTarget)
-    onSubmit({
-      id: product.id,
-      name: String(fd.get("name") ?? "").trim(),
-      categoryName: String(fd.get("categoryName") ?? "").trim(),
-      unit: String(fd.get("unit") ?? "").trim(),
-      stock: Number(fd.get("stock") ?? 0),
-      minStock: Number(fd.get("minStock") ?? 0),
-      buyPrice: Number(fd.get("buyPrice") ?? 0),
-      sellPrice: Number(fd.get("sellPrice") ?? 0),
-      description: String(fd.get("description") ?? "").trim(),
-      isActive: fd.get("isActive") as string,
-      image: imageUrl,
-    })
-  }
-
-  const fields = (
-    <>
-      <div className="grid gap-6 sm:grid-cols-2">
-        <div className="space-y-4">
-          <div className="mb-2 flex items-center gap-2 border-b pb-2">
-            <h4 className="text-sm font-semibold">Informasi Dasar</h4>
-          </div>
-
-          <div className="flex flex-col items-start gap-3">
-            <ImageUpload value={imageUrl} onChange={setImageUrl} />
-            <Field label="Nama produk" error={errors?.name}>
-              <Input
-                name="name"
-                required
-                autoComplete="off"
-                defaultValue={product.name}
-                className="bg-muted/50"
-              />
-            </Field>
-          </div>
-          <input type="hidden" name="image" value={imageUrl ?? ""} />
-          <Field label="Kategori" error={errors?.categoryId}>
-            <CategoryCombobox
-              categories={categories}
-              defaultValue={product.category}
-            />
-          </Field>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Satuan" error={errors?.unit}>
-              <UnitCombobox defaultValue={product.unit} />
-            </Field>
-            <Field label="Status">
-              <Select
-                name="isActive"
-                defaultValue={product.isActive ? "on" : "off"}
-              >
-                <SelectTrigger className="w-full bg-muted/50">
-                  <SelectValue placeholder="Status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="on">Aktif</SelectItem>
-                  <SelectItem value="off">Nonaktif</SelectItem>
-                </SelectContent>
-              </Select>
-            </Field>
-          </div>
-        </div>
-
-        <div className="space-y-4">
-          <div className="mb-2 flex items-center gap-2 border-b pb-2">
-            <h4 className="text-sm font-semibold">Harga & Stok</h4>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Harga Beli" error={errors?.buyPrice}>
-              <div className="relative">
-                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
-                  Rp
-                </span>
-                <Input
-                  name="buyPrice"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={product.buyPrice}
-                  className="bg-muted/50 pl-8"
-                />
-              </div>
-            </Field>
-            <Field label="Harga Jual" error={errors?.sellPrice}>
-              <div className="relative">
-                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
-                  Rp
-                </span>
-                <Input
-                  name="sellPrice"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={product.sellPrice}
-                  className="bg-muted/50 pl-8 font-medium text-primary"
-                />
-              </div>
-            </Field>
-          </div>
-          <div className="grid grid-cols-2 gap-4">
-            <Field label="Stok Saat Ini" error={errors?.stock}>
-              <Input
-                name="stock"
-                type="number"
-                min="0"
-                required
-                defaultValue={product.stock}
-                className="bg-muted/50"
-              />
-            </Field>
-            <Field label="Stok Minimum" error={errors?.minStock}>
-              <Input
-                name="minStock"
-                type="number"
-                min="0"
-                required
-                defaultValue={product.minStock}
-                className="bg-muted/50"
-              />
-            </Field>
-          </div>
-        </div>
-      </div>
-
-      <div className="pt-2">
-        <Field label="Deskripsi Produk" error={errors?.description}>
-          <Textarea
-            name="description"
-            defaultValue={product.description ?? ""}
-            className="min-h-[80px] bg-muted/50"
-            placeholder="Opsional: Tambahkan deskripsi produk di sini..."
-          />
-        </Field>
-      </div>
-    </>
-  )
-
-  return (
-    <form
-      onSubmit={handleSubmit}
-      className={cn(
-        "flex flex-col gap-0 pt-2",
-        stickyFooter && "min-h-0 flex-1"
-      )}
-      autoComplete="off"
-    >
-      <input type="hidden" name="id" value={product.id} />
-      <div
-        className={cn(
-          "scrollbar-thin min-h-0 flex-1 overflow-y-auto px-2 pt-2 pb-2",
-          !stickyFooter && "max-h-[55vh] sm:max-h-[60vh]"
-        )}
-      >
-        {fields}
-      </div>
-
-      <DialogFooter
-        className={cn(
-          "shrink-0 gap-2 pt-2",
-          stickyFooter
-            ? "-mx-2 -mb-2 shrink-0 rounded-b-3xl bg-popover px-4 pt-3 pb-4"
-            : "bg-popover/50 px-0 pt-3"
-        )}
-      >
-        {closeButton}
-        <Button type="submit" className="w-full sm:w-auto" disabled={isPending}>
-          {isPending ? "Menyimpan..." : "Simpan Perubahan"}
-        </Button>
-      </DialogFooter>
-    </form>
-  )
-}
-
 function ProductEditDialog({
   product,
-  categories,
 }: {
   product: ProdukItem
-  categories: ProdukCategory[]
 }) {
-  const [dialogOpen, setDialogOpen] = React.useState(false)
-  const [drawerOpen, setDrawerOpen] = React.useState(false)
-  const updateMutation = useUpdateProduct()
-  const errors = updateMutation.errors ?? null
-
   return (
-    <>
-      <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
-        <DialogTrigger asChild>
-          <button
-            className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
-            aria-label="Edit produk"
-          >
-            <HugeiconsIcon icon={Edit02Icon} size={15} />
-          </button>
-        </DialogTrigger>
-        <DialogContent className="scrollbar-thin max-h-[90vh] overflow-y-auto sm:max-w-2xl">
-          <DialogHeader>
-            <DialogTitle className="text-xl">Edit Produk</DialogTitle>
-            <DialogDescription>
-              Perubahan data produk langsung tersimpan setelah disimpan.
-            </DialogDescription>
-          </DialogHeader>
-          <ProductEditForm
-            product={product}
-            categories={categories}
-            errors={errors}
-            isPending={updateMutation.isPending}
-            onSubmit={(data) =>
-              updateMutation.mutate(data, {
-                onSuccess: (result) => {
-                  if (result.success) setDialogOpen(false)
-                },
-              })
-            }
-            closeButton={
-              <DialogClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-2 w-full sm:mt-0 sm:w-auto"
-                >
-                  Batal
-                </Button>
-              </DialogClose>
-            }
-          />
-        </DialogContent>
-      </Dialog>
-
-      <Drawer open={drawerOpen} onOpenChange={setDrawerOpen}>
-        <DrawerTrigger asChild>
-          <button
-            className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
-            aria-label="Edit produk"
-          >
-            <HugeiconsIcon icon={Edit02Icon} size={15} />
-          </button>
-        </DrawerTrigger>
-        <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
-          <DrawerHeader>
-            <DrawerTitle>Edit Produk</DrawerTitle>
-            <DrawerDescription>
-              Perubahan data produk langsung tersimpan setelah disimpan.
-            </DrawerDescription>
-          </DrawerHeader>
-          <ProductEditForm
-            product={product}
-            categories={categories}
-            stickyFooter
-            errors={errors}
-            isPending={updateMutation.isPending}
-            onSubmit={(data) =>
-              updateMutation.mutate(data, {
-                onSuccess: (result) => {
-                  if (result.success) setDrawerOpen(false)
-                },
-              })
-            }
-            closeButton={
-              <DrawerClose asChild>
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="mt-2 w-full sm:mt-0 sm:w-auto"
-                >
-                  Batal
-                </Button>
-              </DrawerClose>
-            }
-          />
-        </DrawerContent>
-      </Drawer>
-    </>
+    <Button asChild variant="ghost" className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex">
+      <Link href={`/admin/produk/${product.id}/edit`} aria-label="Edit produk">
+        <HugeiconsIcon icon={Edit02Icon} size={15} />
+      </Link>
+    </Button>
   )
 }
 
@@ -751,6 +462,13 @@ function ProductActionMenu({ product }: { product: ProdukItem }) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
+          <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg py-2">
+            <Link href={`/admin/produk/${product.id}/edit`}>
+              <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+              Edit Produk
+            </Link>
+          </DropdownMenuItem>
+          <DropdownMenuSeparator className="my-1" />
           <DropdownMenuItem
             onSelect={() => setStockOpen(true)}
             className="cursor-pointer gap-2 rounded-lg py-2"
@@ -1178,10 +896,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <ProductEditDialog
-                        product={product}
-                        categories={categories}
-                      />
+                      <ProductEditDialog product={product} />
                       <ProductDetailDialog product={product} />
                       <ProductActionMenu product={product} />
                     </div>

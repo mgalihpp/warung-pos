@@ -3,7 +3,7 @@ import { config } from "dotenv"
 import { PrismaPg } from "@prisma/adapter-pg"
 import { PrismaClient } from "@prisma/client"
 
-config()
+config({ quiet: true })
 
 const globalForPrisma = globalThis as typeof globalThis & {
   prisma?: PrismaClient
