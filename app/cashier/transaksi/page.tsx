@@ -14,7 +14,7 @@ export default function CashierTransaksiPage() {
 
   if (error || !data) {
     return (
-      <div className="flex flex-1 min-w-0 min-h-0 flex-col gap-3 overflow-y-auto p-4 lg:gap-6 lg:p-6">
+      <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
         <div>
           <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Riwayat Transaksi</h1>
           <p className="text-sm text-muted-foreground">Daftar transaksi yang Anda proses.</p>
@@ -27,7 +27,7 @@ export default function CashierTransaksiPage() {
   }
 
   return (
-    <div className="flex flex-1 min-w-0 min-h-0 flex-col gap-3 overflow-y-auto p-4 lg:gap-6 lg:p-6">
+    <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Riwayat Transaksi</h1>
         <p className="text-sm text-muted-foreground">Daftar transaksi yang Anda proses.</p>

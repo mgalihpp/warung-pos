@@ -7,6 +7,8 @@ import { prisma } from "@/lib/prisma"
 import { getSessionUser, requireAdmin } from "@/lib/server/auth-guards"
 import { headers } from "next/headers"
 
+type ActionResult = { success: boolean; message: string }
+
 function asRole(value: FormDataEntryValue | null) {
   return value === "admin" || value === "cashier" ? value : null
 }
@@ -93,26 +95,93 @@ export async function updateAvatar(
   }
 }
 
-export async function updateUserAccess(formData: FormData) {
+export async function updateUserAccess(formData: FormData): Promise<ActionResult> {
   const admin = await requireAdmin()
   if (!admin) {
-    return
+    return { success: false, message: "Akses ditolak." }
   }
 
   const userId = String(formData.get("userId") ?? "")
   const role = asRole(formData.get("role"))
 
   if (!userId || !role) {
-    return
+    return { success: false, message: "Data pengguna tidak valid." }
+  }
+
+  if (admin.id === userId) {
+    return { success: false, message: "Akun sendiri tidak bisa diubah dari tab ini." }
+  }
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: { id: true, role: true, banned: true },
+  })
+
+  if (!targetUser) {
+    return { success: false, message: "Pengguna tidak ditemukan." }
+  }
+
+  const status = String(formData.get("status") ?? "")
+  const nextBanned = status ? status === "inactive" : formData.get("banned") === "on"
+  const nextRole = role
+  const willRemainActiveAdmin = nextRole === "admin" && !nextBanned
+
+  if (targetUser.role === "admin" && !willRemainActiveAdmin) {
+    const activeAdminCount = await prisma.user.count({
+      where: { role: "admin", banned: false },
+    })
+
+    if (activeAdminCount <= 1) {
+      return { success: false, message: "Tidak bisa menonaktifkan admin terakhir." }
+    }
   }
 
   await prisma.user.update({
     where: { id: userId },
     data: {
-      role,
-      banned: formData.get("banned") === "on",
+      role: nextRole,
+      banned: nextBanned,
     },
   })
 
   revalidatePath("/admin/pengaturan")
+  return { success: true, message: "Akses pengguna berhasil diperbarui." }
+}
+
+export async function createUserAccount(formData: FormData): Promise<ActionResult> {
+  const admin = await requireAdmin()
+  if (!admin) {
+    return { success: false, message: "Akses ditolak." }
+  }
+
+  const name = String(formData.get("name") ?? "").trim()
+  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const password = String(formData.get("password") ?? "")
+  const role = asRole(formData.get("role")) ?? "cashier"
+
+  if (!name || !email || !password) {
+    return { success: false, message: "Nama, email, dan password wajib diisi." }
+  }
+
+  if (password.length < 8) {
+    return { success: false, message: "Password minimal 8 karakter." }
+  }
+
+  try {
+    await auth.api.createUser({
+      body: {
+        name,
+        email,
+        password,
+        role,
+      },
+      headers: await headers(),
+    })
+
+    revalidatePath("/admin/pengaturan")
+    return { success: true, message: "Akun baru berhasil dibuat." }
+  } catch (error) {
+    const message = error instanceof Error ? error.message : "Gagal membuat akun baru."
+    return { success: false, message }
+  }
 }

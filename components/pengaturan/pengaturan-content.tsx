@@ -9,6 +9,7 @@ import {
   CheckmarkCircle02Icon,
   ComputerDesk01Icon,
   Moon02Icon,
+  PlusSignIcon,
   Sun03Icon,
   UserCircleIcon,
   LockPasswordIcon,
@@ -16,6 +17,7 @@ import {
   Delete02Icon,
 } from "@hugeicons/core-free-icons"
 import { generateReactHelpers } from "@uploadthing/react"
+import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 
@@ -32,8 +34,14 @@ import {
   CardTitle,
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
-import { Switch } from "@/components/ui/switch"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
+import { cn } from "@/lib/utils"
 
 const { useUploadThing } = generateReactHelpers<AppFileRouter>()
 
@@ -73,6 +81,9 @@ const themeOptions = [
 ]
 
 export function PengaturanContent({ currentUser, users }: PengaturanContentProps) {
+  const [activeTab, setActiveTab] = React.useState<"profile" | "pengguna" | "tema">("profile")
+  const [isAccessPending, startAccessTransition] = useTransition()
+  const router = useRouter()
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -81,40 +92,164 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
     banned: false,
   }
 
+  function handleUserAccessSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault()
+    const formData = new FormData(e.currentTarget)
+
+    startAccessTransition(async () => {
+      const result = await updateUserAccess(formData)
+      if (result.success) {
+        toast.success(result.message)
+        router.refresh()
+      } else {
+        toast.error(result.message)
+      }
+    })
+  }
+
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Pengaturan</h1>
         <p className="text-sm text-muted-foreground">
-          Kelola profile pengguna, hak akses pengguna, dan tema aplikasi.
+          Kelola profile pengguna, manajemen pengguna, dan tema aplikasi.
         </p>
       </div>
 
-      <Tabs defaultValue="profile" className="gap-4">
-        <TabsList className="w-full justify-start overflow-x-auto rounded-2xl p-1 sm:w-fit">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="pengguna">Hak Akses Pengguna</TabsTrigger>
-          <TabsTrigger value="tema">Tema</TabsTrigger>
-        </TabsList>
+      <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-b px-4 lg:mx-0 lg:px-0">
+        {[
+          { value: "profile", label: "Profile", icon: UserCircleIcon },
+          { value: "pengguna", label: "Manajemen Pengguna", icon: CheckmarkCircle02Icon },
+          { value: "tema", label: "Tema", icon: ComputerDesk01Icon },
+        ].map((tab) => {
+          const isActive = activeTab === tab.value
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setActiveTab(tab.value as "profile" | "pengguna" | "tema")}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <HugeiconsIcon icon={tab.icon} size={16} />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
 
-        <TabsContent value="profile" className="m-0">
-          <ProfileTab displayUser={displayUser} />
-        </TabsContent>
+      {activeTab === "profile" && <ProfileTab displayUser={displayUser} />}
 
-        <TabsContent value="pengguna" className="m-0">
-          <Card>
-            <CardHeader>
-              <CardTitle>Hak Akses Pengguna</CardTitle>
-              <CardDescription>
+      {activeTab === "pengguna" && (
+        <div className="flex flex-col gap-4">
+          <div className="flex items-center justify-between gap-3">
+            <div>
+              <h2 className="text-lg font-semibold tracking-tight">Manajemen Pengguna</h2>
+              <p className="text-sm text-muted-foreground">
                 Ubah role dan status akun berdasarkan field yang sudah ada di tabel user.
-              </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <div className="overflow-hidden rounded-2xl border">
-                <div className="grid grid-cols-[1fr_auto] gap-4 border-b bg-muted/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground lg:grid-cols-[1fr_160px_120px_96px]">
+              </p>
+            </div>
+
+            <Button asChild className="hidden gap-2 lg:inline-flex">
+              <Link href="/admin/pengaturan/tambah-akun">
+                <HugeiconsIcon icon={PlusSignIcon} size={16} />
+                Tambah Akun
+              </Link>
+            </Button>
+          </div>
+
+          <Card>
+            <CardContent className="px-3 pt-3 sm:px-6 sm:pt-6">
+              <div className="overflow-hidden rounded-2xl border lg:hidden">
+                <div className="border-b bg-muted/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
+                  Pengguna
+                </div>
+
+                <div className="divide-y">
+                  {users.map((user) => (
+                    <form key={user.id} onSubmit={handleUserAccessSubmit} className="grid gap-3 p-4">
+                      <input type="hidden" name="userId" value={user.id} />
+
+                      <div className="flex min-w-0 items-start gap-3">
+                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
+                          {getInitials(user.name)}
+                        </div>
+                        <div className="min-w-0 flex-1">
+                          <p className="truncate text-sm font-semibold leading-5">{user.name}</p>
+                          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
+                          <div className="mt-2 flex flex-wrap gap-2">
+                            <Badge variant="outline">{formatRole(user.role)}</Badge>
+                            <Badge variant={user.banned ? "secondary" : "default"}>
+                              {user.banned ? "Nonaktif" : "Aktif"}
+                            </Badge>
+                            {currentUser?.id === user.id && <Badge variant="outline">Akun Anda</Badge>}
+                          </div>
+                        </div>
+                      </div>
+
+                      <div className="grid gap-3 min-[420px]:grid-cols-2">
+                        <label className="grid gap-1.5 text-sm">
+                          <span className="text-xs font-medium text-muted-foreground">Role</span>
+                          <Select
+                            name="role"
+                            defaultValue={user.role === "admin" ? "admin" : "cashier"}
+                            disabled={currentUser?.id === user.id}
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="admin">Admin</SelectItem>
+                              <SelectItem value="cashier">Kasir</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </label>
+
+                        <label className="grid gap-1.5 text-sm">
+                          <span className="text-xs font-medium text-muted-foreground">Status</span>
+                          <Select
+                            name="status"
+                            defaultValue={user.banned ? "inactive" : "active"}
+                            disabled={currentUser?.id === user.id}
+                          >
+                            <SelectTrigger className="h-10 w-full">
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="active">Aktif</SelectItem>
+                              <SelectItem value="inactive">Nonaktif</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </label>
+                      </div>
+
+                      {currentUser?.id === user.id && (
+                        <p className="text-xs text-muted-foreground">Akun Anda hanya bisa diubah dari tab Profile.</p>
+                      )}
+
+                      <Button
+                        type="submit"
+                        size="sm"
+                        variant="outline"
+                        className="w-full"
+                        disabled={isAccessPending || currentUser?.id === user.id}
+                      >
+                        Simpan
+                      </Button>
+                    </form>
+                  ))}
+                </div>
+              </div>
+
+              <div className="hidden overflow-hidden rounded-2xl border lg:block">
+                <div className="grid grid-cols-[1fr_180px_140px_120px] gap-4 border-b bg-muted/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
                   <span>Pengguna</span>
-                  <span className="hidden lg:block">Role</span>
-                  <span className="hidden lg:block">Status</span>
+                  <span>Role</span>
+                  <span>Status</span>
                   <span className="text-right">Aksi</span>
                 </div>
 
@@ -122,8 +257,8 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
                   {users.map((user) => (
                     <form
                       key={user.id}
-                      action={updateUserAccess}
-                      className="grid grid-cols-[1fr_auto] items-center gap-4 px-4 py-4 lg:grid-cols-[1fr_160px_120px_96px]"
+                      onSubmit={handleUserAccessSubmit}
+                      className="grid grid-cols-[1fr_180px_140px_120px] items-center gap-4 px-4 py-4"
                     >
                       <input type="hidden" name="userId" value={user.id} />
 
@@ -134,44 +269,80 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
                         <div className="min-w-0">
                           <p className="truncate text-sm font-semibold">{user.name}</p>
                           <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                          <div className="mt-2 flex items-center gap-2 lg:hidden">
-                            <Badge variant="outline">{formatRole(user.role)}</Badge>
-                            <Badge variant={user.banned ? "secondary" : "default"}>
-                              {user.banned ? "Nonaktif" : "Aktif"}
+                          {currentUser?.id === user.id && (
+                            <Badge className="mt-2" variant="outline">
+                              Akun Anda
                             </Badge>
-                          </div>
+                          )}
                         </div>
                       </div>
 
-                      <select
-                        name="role"
-                        defaultValue={user.role === "admin" ? "admin" : "cashier"}
-                        className="hidden h-9 rounded-4xl border border-input bg-input/30 px-3 text-sm outline-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 lg:block"
-                      >
-                        <option value="admin">Admin</option>
-                        <option value="cashier">Kasir</option>
-                      </select>
-
-                      <label className="hidden items-center gap-2 text-sm lg:flex">
-                        <Switch name="banned" defaultChecked={Boolean(user.banned)} />
-                        Nonaktif
+                      <label className="grid gap-1.5 text-sm">
+                        <span className="sr-only">Role</span>
+                        <Select
+                          name="role"
+                          defaultValue={user.role === "admin" ? "admin" : "cashier"}
+                          disabled={currentUser?.id === user.id}
+                        >
+                          <SelectTrigger className="h-10 w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="cashier">Kasir</SelectItem>
+                          </SelectContent>
+                        </Select>
                       </label>
 
-                      <Button type="submit" size="sm" variant="outline">
-                        Simpan
-                      </Button>
+                      <label className="grid gap-1.5 text-sm">
+                        <span className="sr-only">Status</span>
+                        <Select
+                          name="status"
+                          defaultValue={user.banned ? "inactive" : "active"}
+                          disabled={currentUser?.id === user.id}
+                        >
+                          <SelectTrigger className="h-10 w-full">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="active">Aktif</SelectItem>
+                            <SelectItem value="inactive">Nonaktif</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </label>
+
+                      <div className="flex items-center justify-end">
+                        <Button
+                          type="submit"
+                          size="sm"
+                          variant="outline"
+                          disabled={isAccessPending || currentUser?.id === user.id}
+                        >
+                          Simpan
+                        </Button>
+                      </div>
                     </form>
                   ))}
                 </div>
               </div>
             </CardContent>
           </Card>
-        </TabsContent>
 
-        <TabsContent value="tema" className="m-0">
-          <TemaTab />
-        </TabsContent>
-      </Tabs>
+          <div className="lg:hidden">
+            <Button
+              asChild
+              className="fixed right-6 bottom-24 z-40 size-14 rounded-full shadow-lg"
+              aria-label="Tambah akun"
+            >
+              <Link href="/admin/pengaturan/tambah-akun">
+                <HugeiconsIcon icon={PlusSignIcon} size={28} />
+              </Link>
+            </Button>
+          </div>
+        </div>
+      )}
+
+      {activeTab === "tema" && <TemaTab />}
     </div>
   )
 }

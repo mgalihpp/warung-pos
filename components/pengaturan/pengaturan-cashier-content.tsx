@@ -1,13 +1,18 @@
 "use client"
 
+import * as React from "react"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { ComputerDesk01Icon, UserCircleIcon } from "@hugeicons/core-free-icons"
+
 import { ProfileTab, TemaTab, type SettingsUser } from "@/components/pengaturan/pengaturan-content"
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { cn } from "@/lib/utils"
 
 type PengaturanCashierContentProps = {
   currentUser: SettingsUser | null
 }
 
 export function PengaturanCashierContent({ currentUser }: PengaturanCashierContentProps) {
+  const [activeTab, setActiveTab] = React.useState<"profile" | "tema">("profile")
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -25,20 +30,33 @@ export function PengaturanCashierContent({ currentUser }: PengaturanCashierConte
         </p>
       </div>
 
-      <Tabs defaultValue="profile" className="gap-4">
-        <TabsList className="w-full justify-start overflow-x-auto rounded-2xl p-1 sm:w-fit">
-          <TabsTrigger value="profile">Profile</TabsTrigger>
-          <TabsTrigger value="tema">Tema</TabsTrigger>
-        </TabsList>
+      <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-b px-4 lg:mx-0 lg:px-0">
+        {[
+          { value: "profile", label: "Profile", icon: UserCircleIcon },
+          { value: "tema", label: "Tema", icon: ComputerDesk01Icon },
+        ].map((tab) => {
+          const isActive = activeTab === tab.value
+          return (
+            <button
+              key={tab.value}
+              type="button"
+              onClick={() => setActiveTab(tab.value as "profile" | "tema")}
+              className={cn(
+                "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+                isActive
+                  ? "border-primary text-primary"
+                  : "border-transparent text-muted-foreground hover:text-foreground",
+              )}
+            >
+              <HugeiconsIcon icon={tab.icon} size={16} />
+              {tab.label}
+            </button>
+          )
+        })}
+      </div>
 
-        <TabsContent value="profile" className="m-0">
-          <ProfileTab displayUser={displayUser} />
-        </TabsContent>
-
-        <TabsContent value="tema" className="m-0">
-          <TemaTab />
-        </TabsContent>
-      </Tabs>
+      {activeTab === "profile" && <ProfileTab displayUser={displayUser} />}
+      {activeTab === "tema" && <TemaTab />}
     </div>
   )
 }

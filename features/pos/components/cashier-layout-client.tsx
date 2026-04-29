@@ -152,7 +152,11 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
       </header>
 
       {/* Content */}
-      <main className="flex-1 flex flex-col min-h-0 overflow-hidden">{children}</main>
+      <main
+        className={`flex min-h-0 flex-1 flex-col ${pathname === "/cashier/pos" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"}`}
+      >
+        {children}
+      </main>
 
       {/* Mobile Bottom Navigation */}
       {!(pathname === "/cashier/pos" && hidePosBottomNav) && (

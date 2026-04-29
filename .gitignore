@@ -15,6 +15,7 @@
 /.next/
 /out/
 /.vercel/
+/app/generated/prisma
 
 # production
 /build
