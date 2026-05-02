@@ -15,7 +15,7 @@ export function LowStockPanel({ items }: { items: LowStockItem[] }) {
           </Badge>
         </div>
         <Link
-          href="/admin/stok"
+          href="/admin/laporan/stok"
           className="text-xs font-medium text-primary hover:underline"
         >
           Lihat Semua

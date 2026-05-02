@@ -52,9 +52,20 @@ import { signOut, useSession } from "@/lib/auth-client"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
 
+type NotificationItem = {
+  id: string
+  title: string
+  description: string
+  image?: string | null
+  time: string
+  href: string
+}
+
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
   const [date, setDate] = React.useState<Date | undefined>(new Date())
+  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
+  const [isLoadingNotifications, setIsLoadingNotifications] = React.useState(true)
   const router = useRouter()
   const pathname = usePathname()
   const { data: session } = useSession()
@@ -84,6 +95,40 @@ export function DashboardHeader() {
   React.useEffect(() => {
     // no-op: header shouldn't re-render every second
   }, [])
+
+  React.useEffect(() => {
+    const controller = new AbortController()
+
+    async function loadNotifications() {
+      try {
+        const response = await fetch("/api/notifikasi", {
+          signal: controller.signal,
+          cache: "no-store",
+        })
+
+        if (!response.ok) {
+          setNotifications([])
+          return
+        }
+
+        const data = (await response.json()) as { items?: NotificationItem[] }
+        setNotifications(data.items ?? [])
+      } catch {
+        if (!controller.signal.aborted) {
+          setNotifications([])
+        }
+      } finally {
+        if (!controller.signal.aborted) {
+          setIsLoadingNotifications(false)
+        }
+      }
+    }
+
+    loadNotifications()
+    return () => controller.abort()
+  }, [])
+
+  const notificationCount = notifications.length
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -181,36 +226,53 @@ export function DashboardHeader() {
         <DropdownMenuTrigger asChild>
           <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
             <HugeiconsIcon icon={Notification03Icon} size={18} />
-            <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
-              3
-            </span>
+            {notificationCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
+                {notificationCount}
+              </span>
+            )}
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuLabel>Notifikasi (3)</DropdownMenuLabel>
+          <DropdownMenuLabel>Notifikasi ({notificationCount})</DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
-            <DropdownMenuItem className="flex flex-col items-start gap-1 p-3">
-              <div className="flex w-full items-center justify-between gap-2">
-                <span className="text-xs font-semibold leading-none">Stok Beras 5kg Menipis</span>
-                <span className="text-[10px] text-muted-foreground shrink-0">10m lalu</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground line-clamp-1">Sisa 6 pcs, perlu restok segera.</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex flex-col items-start gap-1 p-3">
-              <div className="flex w-full items-center justify-between gap-2">
-                <span className="text-xs font-semibold leading-none">Transaksi Berhasil</span>
-                <span className="text-[10px] text-muted-foreground shrink-0">45m lalu</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground line-clamp-1">Pembayaran Rp 125.000 via QRIS.</span>
-            </DropdownMenuItem>
-            <DropdownMenuItem className="flex flex-col items-start gap-1 p-3">
-              <div className="flex w-full items-center justify-between gap-2">
-                <span className="text-xs font-semibold leading-none">Gula Pasir 1kg Menipis</span>
-                <span className="text-[10px] text-muted-foreground shrink-0">2j lalu</span>
-              </div>
-              <span className="text-[11px] text-muted-foreground line-clamp-1">Sisa 4 pcs, jangan sampai kehabisan.</span>
-            </DropdownMenuItem>
+            {isLoadingNotifications && (
+              <DropdownMenuItem disabled className="p-3 text-xs text-muted-foreground">
+                Memuat notifikasi...
+              </DropdownMenuItem>
+            )}
+            {!isLoadingNotifications && notificationCount === 0 && (
+              <DropdownMenuItem disabled className="p-3 text-xs text-muted-foreground">
+                Belum ada notifikasi.
+              </DropdownMenuItem>
+            )}
+            {!isLoadingNotifications && notifications.map((notification) => (
+              <DropdownMenuItem key={notification.id} asChild>
+                <Link href={notification.href} className="flex items-start gap-2.5 p-3">
+                  <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted text-xs font-semibold text-muted-foreground">
+                    {notification.image ? (
+                      <Image
+                        src={notification.image}
+                        alt={notification.title}
+                        fill
+                        sizes="40px"
+                        className="object-cover"
+                      />
+                    ) : (
+                      notification.title.slice(0, 2).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1 space-y-1">
+                    <div className="flex w-full items-center justify-between gap-2">
+                      <span className="truncate text-xs font-semibold leading-none">{notification.title}</span>
+                      <span className="shrink-0 text-[10px] text-muted-foreground">{notification.time}</span>
+                    </div>
+                    <span className="line-clamp-2 text-[11px] leading-snug text-muted-foreground">{notification.description}</span>
+                  </div>
+                </Link>
+              </DropdownMenuItem>
+            ))}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
