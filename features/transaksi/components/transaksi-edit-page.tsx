@@ -170,17 +170,6 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
     )
   }
 
-  const handleDelete = () => {
-    deleteMutation.mutate(data.id, {
-      onSuccess: (result) => {
-        if (result.success) {
-          toast.success("Transaksi berhasil dihapus")
-          router.push(basePath)
-        }
-      },
-    })
-  }
-
   return (
     <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       {/* ── Header ─────────────────────────────────────────────────────── */}
@@ -332,11 +321,10 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
                       key={m.value}
                       type="button"
                       onClick={() => setPaymentMethod(m.value)}
-                      className={`flex-1 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-all ${
-                        paymentMethod === m.value
+                      className={`flex-1 rounded-lg border px-3 py-2.5 text-xs font-semibold transition-all ${paymentMethod === m.value
                           ? "border-primary bg-primary/10 text-primary"
                           : "border-border bg-background text-muted-foreground hover:border-border/80 hover:bg-muted/50"
-                      }`}
+                        }`}
                     >
                       {m.label}
                     </button>
@@ -392,9 +380,8 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               <div className="flex justify-between text-muted-foreground">
                 <span>Kembalian</span>
                 <span
-                  className={`font-medium ${
-                    isPaymentShort ? "text-destructive" : "text-foreground"
-                  }`}
+                  className={`font-medium ${isPaymentShort ? "text-destructive" : "text-foreground"
+                    }`}
                 >
                   {isPaymentShort
                     ? `Kurang ${formatRupiah(subtotal - amountPaid)}`
