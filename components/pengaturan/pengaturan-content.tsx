@@ -118,7 +118,7 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
+    <div className="flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">
       <div>
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Pengaturan</h1>
         <p className="text-sm text-muted-foreground">
@@ -339,7 +339,7 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
           <div className="lg:hidden">
             <Button
               asChild
-              className="fixed right-6 bottom-24 z-40 size-14 rounded-full shadow-lg"
+              className="fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 size-14 rounded-full shadow-lg sm:right-6"
               aria-label="Tambah akun"
             >
               <Link href="/admin/pengaturan/tambah-akun">

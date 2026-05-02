@@ -60,9 +60,9 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
                 } ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"}`}
               >
                 <span
-                  className={`flex items-center justify-center ${
+                  className={`flex items-center justify-center transition-colors ${
                     isPrimary
-                      ? `size-11 rounded-full shadow-sm ${isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"}`
+                      ? `size-11 rounded-full border shadow-sm ${isActive ? "border-primary bg-primary text-primary-foreground ring-4 ring-primary/15" : "border-primary/20 bg-primary/10 text-primary"}`
                       : ""
                   }`}
                 >

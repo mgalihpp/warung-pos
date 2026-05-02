@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { format } from "date-fns"
 import { id } from "date-fns/locale"
 import { HugeiconsIcon } from "@hugeicons/react"
@@ -104,8 +105,28 @@ export function DashboardHeader() {
         </div>
       )}
 
-      {/* Spacer when search is hidden */}
-      {isPosPage && <div className="flex-1" />}
+      {/* POS brand when search is hidden */}
+      {isPosPage && (
+        <>
+          <div className="flex min-w-0 flex-1 items-center gap-2.5 lg:hidden">
+            <div className="flex size-8 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10">
+              <Image
+                src="/logo warung.png"
+                alt="Logo Warung Mama Nia"
+                width={32}
+                height={32}
+                className="h-full w-full scale-125 object-contain p-0.5"
+                priority
+              />
+            </div>
+            <div className="min-w-0 leading-tight">
+              <p className="truncate text-sm font-semibold text-foreground">Warung Mama Nia</p>
+              <p className="hidden text-[11px] text-muted-foreground sm:block">Mode Admin</p>
+            </div>
+          </div>
+          <div className="hidden flex-1 lg:block" />
+        </>
+      )}
 
       <CommandDialog open={openCommand} onOpenChange={setOpenCommand}>
         <Command>

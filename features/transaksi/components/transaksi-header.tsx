@@ -41,20 +41,19 @@ export function TransaksiHeader() {
         {/* Overlay background when menu is open */}
         {isMobileMenuOpen && (
           <div 
-            className="fixed inset-0 z-40 bg-background/80 backdrop-blur-sm transition-opacity"
-            onClick={() => setIsMobileMenuOpen(false)}
+            className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px] transition-opacity"
           />
         )}
 
         {/* Floating Button Container */}
-        <div className="fixed right-6 bottom-24 z-40 flex flex-col items-end gap-3 lg:bottom-6">
+        <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6 lg:bottom-6">
           
           {/* Menu Items */}
           <div 
             className={`flex flex-col items-end gap-3 transition-all duration-200 origin-bottom ${
               isMobileMenuOpen 
-                ? "opacity-100 translate-y-0 scale-100 pointer-events-auto" 
-                : "opacity-0 translate-y-4 scale-95 pointer-events-none"
+                ? "pointer-events-auto translate-y-0 scale-100 opacity-100" 
+                : "pointer-events-none translate-y-4 scale-95 opacity-0"
             }`}
           >
             <button className="group flex items-center justify-end gap-3">
@@ -88,7 +87,7 @@ export function TransaksiHeader() {
           {/* Main Toggle Button */}
           <button 
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${
+            className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${
               isMobileMenuOpen ? "bg-card text-foreground border" : "bg-primary text-primary-foreground"
             }`}
           >

@@ -163,6 +163,8 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
         <nav className="flex h-[60px] shrink-0 items-center justify-around border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
           {navItems.map((item) => {
             const isActive = pathname === item.href
+            const isPrimary = item.href === "/cashier/pos"
+
             return (
               <Link
                 key={item.href}
@@ -170,7 +172,15 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
                 className={`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"
                   }`}
               >
-                <HugeiconsIcon icon={item.icon} size={20} />
+                <span
+                  className={`flex items-center justify-center transition-colors ${
+                    isPrimary
+                      ? `size-10 rounded-full border shadow-sm ${isActive ? "border-primary bg-primary text-primary-foreground ring-4 ring-primary/15" : "border-primary/20 bg-primary/10 text-primary"}`
+                      : ""
+                  }`}
+                >
+                  <HugeiconsIcon icon={item.icon} size={isPrimary ? 21 : 20} />
+                </span>
                 <span>{item.label}</span>
               </Link>
             )

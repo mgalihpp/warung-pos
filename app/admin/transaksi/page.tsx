@@ -29,7 +29,7 @@ export default function TransaksiPage() {
   }
 
   return (
-    <div className="flex flex-col gap-3 p-4 lg:gap-6 lg:p-6 min-w-0">
+    <div className="flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6 xl:pb-6">
       {/* Header */}
       <TransaksiHeader />
 
