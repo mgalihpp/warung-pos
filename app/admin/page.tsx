@@ -9,7 +9,10 @@ import { PaymentMethods } from "@/components/dashboard/payment-methods"
 import { RecentTransactions } from "@/components/dashboard/recent-transactions"
 import { LowStockPanel } from "@/components/dashboard/low-stock-panel"
 import { BestSellersPanel } from "@/components/dashboard/best-sellers-panel"
-import { QuickActions } from "@/components/dashboard/quick-actions"
+import {
+  QuickActions,
+  QuickActionsFab,
+} from "@/components/dashboard/quick-actions"
 import {
   useDashboard,
   type SalesRange,
@@ -33,6 +36,8 @@ export default function AdminDashboardPage() {
 
   return (
     <div className="flex flex-col gap-6 p-4 lg:p-6 min-w-0">
+      <QuickActionsFab />
+
       {/* Stat Cards - Full Row */}
       <StatCards stats={data.stats} />
 
