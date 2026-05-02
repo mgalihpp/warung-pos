@@ -19,7 +19,7 @@ export function RecentTransactions({ transactions }: { transactions: RecentTrans
         </Link>
       </div>
 
-      <div className="overflow-x-auto">
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b text-left text-xs text-muted-foreground">
@@ -82,6 +82,53 @@ export function RecentTransactions({ transactions }: { transactions: RecentTrans
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<md) ── */}
+      <div className="flex flex-col gap-2 md:hidden">
+        {transactions.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada transaksi
+          </div>
+        ) : (
+          transactions.map((tx) => (
+            <div
+              key={tx.id}
+              className="flex items-center gap-3 rounded-lg border border-border/50 bg-background p-3"
+            >
+              <Avatar className="size-8 shrink-0">
+                {tx.kasirImage ? (
+                  <AvatarImage src={tx.kasirImage} alt={tx.kasir} />
+                ) : null}
+                <AvatarFallback className="bg-primary/10 text-[10px] font-semibold text-primary">
+                  {tx.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center justify-between gap-2">
+                  <p className="truncate text-xs font-semibold">{tx.kasir}</p>
+                  <p className="shrink-0 text-xs font-bold">{formatRupiah(tx.total)}</p>
+                </div>
+                <div className="mt-0.5 flex items-center justify-between gap-2">
+                  <p className="truncate text-[11px] text-muted-foreground">{tx.items}</p>
+                  <Badge
+                    variant={tx.status === "Selesai" ? "default" : "secondary"}
+                    className={`shrink-0 text-[9px] px-1.5 py-0 ${
+                      tx.status === "Selesai"
+                        ? "bg-emerald-500/10 text-emerald-700 hover:bg-emerald-500/20"
+                        : tx.status === "Pending"
+                          ? "bg-amber-500/10 text-amber-700 hover:bg-amber-500/20"
+                          : "bg-destructive/10 text-destructive hover:bg-destructive/20"
+                    }`}
+                  >
+                    {tx.status}
+                  </Badge>
+                </div>
+                <p className="mt-0.5 text-[10px] text-muted-foreground">{tx.waktu}</p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       <div className="mt-3 text-center">

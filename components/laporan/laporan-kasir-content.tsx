@@ -141,7 +141,7 @@ function CashierTable({ rows }: { rows: KasirRow[] }) {
           {rows.length} kasir aktif pada periode ini
         </p>
       </div>
-      <div className="overflow-x-auto">
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[820px] text-left text-xs">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
@@ -168,6 +168,76 @@ function CashierTable({ rows }: { rows: KasirRow[] }) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<md) ── */}
+      <div className="flex flex-col gap-2.5 p-4 pt-0 md:hidden">
+        {rows.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada aktivitas kasir pada periode ini.
+          </div>
+        ) : (
+          rows.map((row) => {
+            const change = row.revenueChange
+            const positive = change !== null && change >= 0
+            return (
+              <div
+                key={row.id}
+                className="rounded-lg border border-border/50 bg-background p-3"
+              >
+                <div className="flex items-center gap-3">
+                  <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-full bg-sky-500/10 text-[11px] font-bold text-sky-600">
+                    {row.image ? (
+                      <Image
+                        src={row.image}
+                        alt={row.name}
+                        width={40}
+                        height={40}
+                        className="h-full w-full object-cover"
+                      />
+                    ) : (
+                      row.name.slice(0, 1).toUpperCase()
+                    )}
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-xs font-semibold">{row.name}</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      {row.count} transaksi
+                      {row.lastActiveAt
+                        ? ` · Aktif ${new Date(row.lastActiveAt).toLocaleDateString("id-ID", { day: "numeric", month: "short" })}`
+                        : ""}
+                    </p>
+                  </div>
+                  {change !== null ? (
+                    <span
+                      className={`inline-flex shrink-0 items-center gap-0.5 rounded-full px-2 py-0.5 text-[10px] font-bold ${positive ? "bg-emerald-500/10 text-emerald-600" : "bg-rose-500/10 text-rose-600"}`}
+                    >
+                      <HugeiconsIcon
+                        icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
+                        size={10}
+                      />
+                      {Math.abs(change)}%
+                    </span>
+                  ) : null}
+                </div>
+                <div className="mt-2.5 grid grid-cols-3 gap-2 rounded-md bg-muted/40 px-2.5 py-2">
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Omzet</p>
+                    <p className="text-xs font-bold text-primary">{formatRupiah(row.revenue)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Laba</p>
+                    <p className="text-xs font-semibold">{formatRupiah(row.profit)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Rata-rata</p>
+                    <p className="text-xs font-semibold">{formatRupiah(row.avgTicket)}</p>
+                  </div>
+                </div>
+              </div>
+            )
+          })
+        )}
       </div>
     </div>
   )

@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { PengaturanCashierContent } from "@/components/pengaturan/pengaturan-cashier-content"
+import { PengaturanContent } from "@/components/pengaturan/pengaturan-content"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/server/auth-guards"
 
@@ -29,5 +29,5 @@ export default async function CashierPengaturanPage() {
       })
     : null
 
-  return <PengaturanCashierContent currentUser={currentUser} />
+  return <PengaturanContent currentUser={currentUser} users={[]} canManageUsers={false} />
 }

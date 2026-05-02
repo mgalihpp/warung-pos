@@ -5,14 +5,14 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
   SearchIcon,
-  ViewIcon,
-  MoreVerticalCircle01Icon,
   ArrowLeft01Icon,
   ArrowRight01Icon,
   FilterIcon,
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
+import { TransaksiDetailDialog } from "./transaksi-detail-dialog"
+import { TransaksiActionMenu } from "./transaksi-action-menu"
 import { Button } from "@/components/ui/button"
 import {
   Drawer,
@@ -486,7 +486,7 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
       )}
 
       {/* Table */}
-      <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+      <div className="hidden overflow-x-auto rounded-xl border bg-card shadow-sm lg:block">
         <table className="w-full min-w-[900px] text-left">
           <thead>
             <tr className="border-b bg-muted/30">
@@ -558,12 +558,16 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lihat Detail">
-                        <HugeiconsIcon icon={ViewIcon} size={15} />
-                      </button>
-                      <button className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground" title="Lainnya">
-                        <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
-                      </button>
+                      <TransaksiDetailDialog
+                        transactionId={trx.id}
+                        transactionNumber={trx.transactionNumber}
+                        status={trx.status}
+                      />
+                      <TransaksiActionMenu
+                        transactionId={trx.id}
+                        transactionNumber={trx.transactionNumber}
+                        currentStatus={trx.status}
+                      />
                     </div>
                   </td>
                 </tr>
@@ -571,6 +575,75 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<lg) ── */}
+      <div className="flex flex-col gap-3 lg:hidden">
+        {paginatedTransactions.length === 0 ? (
+          <div className="rounded-xl border bg-card px-4 py-10 text-center text-sm text-muted-foreground shadow-sm">
+            {searchQuery || hasActiveFilters
+              ? "Tidak ada transaksi yang cocok dengan filter."
+              : "Belum ada data transaksi."}
+          </div>
+        ) : (
+          paginatedTransactions.map((trx) => (
+            <div
+              key={trx.id}
+              className="rounded-xl border bg-card p-3.5 shadow-sm transition-colors"
+            >
+              {/* Top row: transaction number + status */}
+              <div className="flex items-start justify-between gap-2">
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold leading-tight">{trx.transactionNumber}</p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">{trx.waktu}</p>
+                </div>
+                <span
+                  className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${getStatusBadgeClass(trx.status)}`}
+                >
+                  {trx.status}
+                </span>
+              </div>
+
+              {/* Kasir + Items */}
+              <div className="mt-2.5 flex items-center gap-2">
+                <Avatar className="size-6">
+                  {trx.kasirImage ? (
+                    <AvatarImage src={trx.kasirImage} alt={trx.kasir} />
+                  ) : null}
+                  <AvatarFallback className="bg-blue-500/10 text-[10px] font-bold text-blue-600">
+                    {trx.kasir.charAt(0)}
+                  </AvatarFallback>
+                </Avatar>
+                <span className="text-xs font-medium">{trx.kasir}</span>
+              </div>
+              <p className="mt-1.5 truncate text-xs text-muted-foreground">{trx.item}</p>
+
+              {/* Bottom row: payment method + total + actions */}
+              <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${getMetodeBadgeClass(trx.metode)}`}
+                  >
+                    {trx.metode}
+                  </span>
+                  <span className="text-sm font-bold">{formatRupiah(trx.total)}</span>
+                </div>
+                <div className="relative z-10 flex items-center gap-1">
+                  <TransaksiDetailDialog
+                    transactionId={trx.id}
+                    transactionNumber={trx.transactionNumber}
+                    status={trx.status}
+                  />
+                  <TransaksiActionMenu
+                    transactionId={trx.id}
+                    transactionNumber={trx.transactionNumber}
+                    currentStatus={trx.status}
+                  />
+                </div>
+              </div>
+            </div>
+          ))
+        )}
       </div>
 
       {/* Pagination */}

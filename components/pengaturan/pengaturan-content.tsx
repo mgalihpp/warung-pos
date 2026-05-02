@@ -57,7 +57,10 @@ export type SettingsUser = {
 type PengaturanContentProps = {
   currentUser: SettingsUser | null
   users: SettingsUser[]
+  canManageUsers?: boolean
 }
+
+type PengaturanTab = "profile" | "pengguna" | "tema"
 
 const themeOptions = [
   {
@@ -80,10 +83,17 @@ const themeOptions = [
   },
 ]
 
-export function PengaturanContent({ currentUser, users }: PengaturanContentProps) {
-  const [activeTab, setActiveTab] = React.useState<"profile" | "pengguna" | "tema">("profile")
+export function PengaturanContent({ currentUser, users, canManageUsers = true }: PengaturanContentProps) {
+  const [activeTab, setActiveTab] = React.useState<PengaturanTab>("profile")
   const [isAccessPending, startAccessTransition] = useTransition()
   const router = useRouter()
+  const tabs = [
+    { value: "profile", label: "Profile", icon: UserCircleIcon },
+    ...(canManageUsers
+      ? [{ value: "pengguna" as const, label: "Manajemen Pengguna", icon: CheckmarkCircle02Icon }]
+      : []),
+    { value: "tema", label: "Tema", icon: ComputerDesk01Icon },
+  ] satisfies Array<{ value: PengaturanTab; label: string; icon: typeof UserCircleIcon }>
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -112,22 +122,20 @@ export function PengaturanContent({ currentUser, users }: PengaturanContentProps
       <div>
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Pengaturan</h1>
         <p className="text-sm text-muted-foreground">
-          Kelola profile pengguna, manajemen pengguna, dan tema aplikasi.
+          {canManageUsers
+            ? "Kelola profile pengguna, manajemen pengguna, dan tema aplikasi."
+            : "Kelola profile pengguna dan tema aplikasi."}
         </p>
       </div>
 
       <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-b px-4 lg:mx-0 lg:px-0">
-        {[
-          { value: "profile", label: "Profile", icon: UserCircleIcon },
-          { value: "pengguna", label: "Manajemen Pengguna", icon: CheckmarkCircle02Icon },
-          { value: "tema", label: "Tema", icon: ComputerDesk01Icon },
-        ].map((tab) => {
+        {tabs.map((tab) => {
           const isActive = activeTab === tab.value
           return (
             <button
               key={tab.value}
               type="button"
-              onClick={() => setActiveTab(tab.value as "profile" | "pengguna" | "tema")}
+              onClick={() => setActiveTab(tab.value)}
               className={cn(
                 "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
                 isActive

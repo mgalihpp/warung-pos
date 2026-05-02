@@ -93,7 +93,7 @@ export function LaporanStokContent() {
           </span>
         </div>
 
-        <div className="overflow-x-auto">
+        <div className="hidden overflow-x-auto md:block">
           <table className="w-full min-w-[820px] text-left text-xs">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
@@ -128,6 +128,71 @@ export function LaporanStokContent() {
               )}
             </tbody>
           </table>
+        </div>
+
+        {/* ── Mobile/Tablet Card List (<md) ── */}
+        <div className="flex flex-col gap-2.5 p-4 pt-0 md:hidden">
+          {filtered.length === 0 ? (
+            <div className="py-6 text-center text-xs text-muted-foreground">
+              Tidak ada produk yang cocok.
+            </div>
+          ) : (
+            filtered.map((item) => {
+              const badgeMap: Record<string, string> = { OK: "bg-emerald-500/10 text-emerald-600", LOW: "bg-amber-500/10 text-amber-600", OUT: "bg-rose-500/10 text-rose-600" }
+              const labelMap: Record<string, string> = { OK: "Aman", LOW: "Menipis", OUT: "Habis" }
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-lg border border-border/50 bg-background p-3"
+                >
+                  <div className="flex items-start gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          width={40}
+                          height={40}
+                          className="h-full w-full object-cover"
+                        />
+                      ) : (
+                        <HugeiconsIcon
+                          icon={PackageIcon}
+                          size={16}
+                          className="text-muted-foreground"
+                        />
+                      )}
+                    </div>
+                    <div className="min-w-0 flex-1">
+                      <p className="truncate text-xs font-semibold">{item.name}</p>
+                      <p className="text-[11px] text-muted-foreground">
+                        {item.categoryName} · {item.unit}
+                      </p>
+                    </div>
+                    <span
+                      className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-bold ${badgeMap[item.status] || ""}`}
+                    >
+                      {labelMap[item.status] || item.status}
+                    </span>
+                  </div>
+                  <div className="mt-2.5 grid grid-cols-3 gap-2 rounded-md bg-muted/40 px-2.5 py-2">
+                    <div>
+                      <p className="text-[10px] font-medium text-muted-foreground">Stok</p>
+                      <p className="text-xs font-bold">{formatNumber(item.stock)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-muted-foreground">Harga Jual</p>
+                      <p className="text-xs font-semibold">{formatRupiah(item.sellPrice)}</p>
+                    </div>
+                    <div>
+                      <p className="text-[10px] font-medium text-muted-foreground">Nilai Stok</p>
+                      <p className="text-xs font-bold text-primary">{formatRupiah(item.nilaiStok)}</p>
+                    </div>
+                  </div>
+                </div>
+              )
+            })
+          )}
         </div>
       </div>
     </div>

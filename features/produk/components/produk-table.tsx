@@ -806,7 +806,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
         </div>
       </div>
 
-      <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">
+      <div className="hidden overflow-x-auto rounded-xl border bg-card shadow-sm lg:block">
         <table className="w-full min-w-[860px] text-left">
           <thead>
             <tr className="border-b bg-muted/30">
@@ -906,6 +906,82 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
             })}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<lg) ── */}
+      <div className="flex flex-col gap-3 lg:hidden">
+        {pageProducts.length === 0 ? (
+          <div className="rounded-xl border bg-card px-4 py-10 text-center text-sm text-muted-foreground shadow-sm">
+            Tidak ada produk yang cocok.
+          </div>
+        ) : (
+          pageProducts.map((product) => {
+            const status = getStatus(product)
+            return (
+              <div
+                key={product.id}
+                className="rounded-xl border bg-card p-3.5 shadow-sm transition-colors"
+              >
+                {/* Top row: image + name + status */}
+                <div className="flex items-start gap-3">
+                  {product.image ? (
+                    <div className="size-11 shrink-0 overflow-hidden rounded-lg bg-muted">
+                      <Image
+                        src={product.image}
+                        alt={product.name}
+                        width={44}
+                        height={44}
+                        className="size-full object-contain"
+                      />
+                    </div>
+                  ) : (
+                    <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
+                      <HugeiconsIcon icon={PackageIcon} size={20} />
+                    </div>
+                  )}
+                  <div className="min-w-0 flex-1">
+                    <p className="truncate text-sm font-semibold leading-tight">
+                      {product.name}
+                    </p>
+                    <p className="mt-0.5 text-xs text-muted-foreground">
+                      {product.category}
+                    </p>
+                  </div>
+                  <span
+                    className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${status === "Aktif" ? "bg-primary/10 text-primary" : status === "Stok Menipis" ? "bg-amber-500/10 text-amber-600" : "bg-slate-500/10 text-slate-600"}`}
+                  >
+                    {status}
+                  </span>
+                </div>
+
+                {/* Detail grid */}
+                <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-muted/40 px-3 py-2.5">
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Harga Jual</p>
+                    <p className="text-xs font-bold text-primary">{formatRupiah(product.sellPrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Modal</p>
+                    <p className="text-xs font-semibold">{formatRupiah(product.buyPrice)}</p>
+                  </div>
+                  <div>
+                    <p className="text-[10px] font-medium text-muted-foreground">Stok</p>
+                    <p className="text-xs font-semibold">
+                      {product.stock}{" "}
+                      <span className="font-normal text-muted-foreground">{product.unit}</span>
+                    </p>
+                  </div>
+                </div>
+
+                {/* Actions */}
+                <div className="mt-2.5 flex items-center justify-end gap-1">
+                  <ProductDetailDialog product={product} />
+                  <ProductActionMenu product={product} />
+                </div>
+              </div>
+            )
+          })
+        )}
       </div>
 
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">

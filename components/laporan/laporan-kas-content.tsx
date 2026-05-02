@@ -254,7 +254,7 @@ function RiwayatCard({ rows }: { rows: KasData["riwayat"] }) {
       <div className="border-b p-4">
         <h2 className="text-sm font-semibold">Riwayat Tutup Kas (30 Hari)</h2>
       </div>
-      <div className="overflow-x-auto">
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[640px] text-left text-xs">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
@@ -286,6 +286,35 @@ function RiwayatCard({ rows }: { rows: KasData["riwayat"] }) {
             ))}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<md) ── */}
+      <div className="flex flex-col gap-2 p-4 pt-0 md:hidden">
+        {rows.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada riwayat tutup kas.
+          </div>
+        ) : (
+          rows.map((r) => (
+            <div
+              key={r.tanggal}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold">{r.label}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {r.transaksi} transaksi
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold">{formatRupiah(r.total)}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  Tunai {formatRupiah(r.tunai)}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )

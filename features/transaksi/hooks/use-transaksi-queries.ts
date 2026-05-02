@@ -60,3 +60,51 @@ export function useTransactions() {
     queryFn: fetchTransaksiData,
   })
 }
+
+// ── Detail Types ──
+
+export type TransactionDetailItem = {
+  id: string
+  productId: string
+  productName: string
+  unitPrice: number
+  quantity: number
+  subtotal: number
+  grossProfit: number
+}
+
+export type TransactionDetail = {
+  id: string
+  transactionNumber: string
+  waktu: string
+  kasir: string
+  kasirImage: string | null
+  metode: PaymentMethod
+  status: TransactionStatus
+  subtotal: number
+  total: number
+  amountPaid: number
+  change: number
+  notes: string | null
+  items: TransactionDetailItem[]
+}
+
+// ── Detail Fetcher ──
+
+async function fetchTransactionDetail(id: string): Promise<TransactionDetail> {
+  const res = await fetch(`/api/transaksi/${id}`)
+  if (!res.ok) {
+    throw new Error("Gagal memuat detail transaksi")
+  }
+  return res.json()
+}
+
+// ── Detail Hook ──
+
+export function useTransactionDetail(id: string | null) {
+  return useQuery({
+    queryKey: ["transaksi", "detail", id],
+    queryFn: () => fetchTransactionDetail(id!),
+    enabled: !!id,
+  })
+}

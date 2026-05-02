@@ -450,10 +450,10 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
         <h2 className="text-sm font-semibold">Ringkasan Penjualan Harian</h2>
         <span className="inline-flex w-fit items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
           <HugeiconsIcon icon={Clock01Icon} size={14} />
-          {rows.length > 0 ? `${rows.length} periode` : "Tidak ada data"}
+          {rows.length > 0 ? `${rows.length} hari` : "Tidak ada data"}
         </span>
       </div>
-      <div className="overflow-x-auto">
+      <div className="hidden overflow-x-auto md:block">
         <table className="w-full min-w-[760px] text-left text-xs">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
@@ -498,6 +498,35 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
             )}
           </tbody>
         </table>
+      </div>
+
+      {/* ── Mobile/Tablet Card List (<md) ── */}
+      <div className="flex flex-col gap-2 md:hidden p-4 pt-0">
+        {rows.length === 0 ? (
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada data penjualan
+          </div>
+        ) : (
+          rows.map((row) => (
+            <div
+              key={row.dateKey}
+              className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5"
+            >
+              <div className="min-w-0 flex-1">
+                <p className="text-xs font-semibold">{row.date}</p>
+                <p className="text-[11px] text-muted-foreground">
+                  {row.transaksi} transaksi
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-xs font-bold">{formatRupiah(row.omzet)}</p>
+                <p className="text-[10px] text-muted-foreground">
+                  Laba {formatRupiah(row.laba)}
+                </p>
+              </div>
+            </div>
+          ))
+        )}
       </div>
     </div>
   )
