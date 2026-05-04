@@ -183,7 +183,7 @@ export async function GET(req: NextRequest) {
     // Sales last 7 days (per day, COMPLETED)
     prisma.transaction.findMany({
       where: { status: "COMPLETED", createdAt: { gte: start7d, lt: startTomorrow } },
-      select: { total: true, createdAt: true },
+      select: { total: true, createdAt: true, items: { select: { grossProfit: true } } },
     }),
     // Tx count last 7 days (all status) for sparkline of jumlah transaksi
     prisma.transaction.findMany({
@@ -252,19 +252,27 @@ export async function GET(req: NextRequest) {
           lt: startTomorrow,
         },
       },
-      select: { total: true, createdAt: true },
+      select: { total: true, createdAt: true, items: { select: { grossProfit: true } } },
     }),
   ])
 
   // --- Stats: today's sales sparkline + spark sums ---
   const dayTotals = new Map<string, number>()
+  const dayProfits = new Map<string, number>()
   for (let i = 0; i < 7; i++) {
     const d = addDays(start7d, i)
     dayTotals.set(jakartaDateKey(d), 0)
+    dayProfits.set(jakartaDateKey(d), 0)
   }
   for (const r of sales7dRows) {
     const k = jakartaDateKey(r.createdAt)
-    if (dayTotals.has(k)) dayTotals.set(k, (dayTotals.get(k) ?? 0) + r.total)
+    if (dayTotals.has(k)) {
+      dayTotals.set(k, (dayTotals.get(k) ?? 0) + r.total)
+      dayProfits.set(
+        k,
+        (dayProfits.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+      )
+    }
   }
   const sparkSales = Array.from(dayTotals.values())
 
@@ -314,19 +322,27 @@ export async function GET(req: NextRequest) {
   }
 
   // --- Sales chart series ---
-  type SeriesPoint = { date: string; penjualan: number }
+  type SeriesPoint = { date: string; penjualan: number; laba: number }
   let salesChart: SeriesPoint[] = []
   if (range === "7d" || range === "30d") {
     const days = range === "7d" ? 7 : 30
     const start = range === "7d" ? start7d : addDays(startToday, -29)
     const buckets = new Map<string, number>()
+    const profitBuckets = new Map<string, number>()
     for (let i = 0; i < days; i++) {
       const d = addDays(start, i)
       buckets.set(jakartaDateKey(d), 0)
+      profitBuckets.set(jakartaDateKey(d), 0)
     }
     for (const r of salesChartTx) {
       const k = jakartaDateKey(r.createdAt)
-      if (buckets.has(k)) buckets.set(k, (buckets.get(k) ?? 0) + r.total)
+      if (buckets.has(k)) {
+        buckets.set(k, (buckets.get(k) ?? 0) + r.total)
+        profitBuckets.set(
+          k,
+          (profitBuckets.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+        )
+      }
     }
     const labelFmt = new Intl.DateTimeFormat("id-ID", {
       timeZone: TZ,
@@ -337,10 +353,12 @@ export async function GET(req: NextRequest) {
       // key is yyyy-mm-dd in Jakarta; produce label
       date: labelFmt.format(new Date(`${key}T00:00:00+07:00`)),
       penjualan: total,
+      laba: profitBuckets.get(key) ?? 0,
     }))
   } else {
     // ytd → per month
     const buckets = new Map<string, number>()
+    const profitBuckets = new Map<string, number>()
     const monthsCount = (() => {
       const parts = new Intl.DateTimeFormat("en-CA", {
         timeZone: TZ,
@@ -351,10 +369,17 @@ export async function GET(req: NextRequest) {
     for (let i = 0; i < monthsCount; i++) {
       const d = addMonths(startYear, i)
       buckets.set(jakartaMonthKey(d), 0)
+      profitBuckets.set(jakartaMonthKey(d), 0)
     }
     for (const r of salesChartTx) {
       const k = jakartaMonthKey(r.createdAt)
-      if (buckets.has(k)) buckets.set(k, (buckets.get(k) ?? 0) + r.total)
+      if (buckets.has(k)) {
+        buckets.set(k, (buckets.get(k) ?? 0) + r.total)
+        profitBuckets.set(
+          k,
+          (profitBuckets.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+        )
+      }
     }
     const labelFmt = new Intl.DateTimeFormat("id-ID", {
       timeZone: TZ,
@@ -363,6 +388,7 @@ export async function GET(req: NextRequest) {
     salesChart = Array.from(buckets.entries()).map(([key, total]) => ({
       date: labelFmt.format(new Date(`${key}-01T00:00:00+07:00`)),
       penjualan: total,
+      laba: profitBuckets.get(key) ?? 0,
     }))
   }
 

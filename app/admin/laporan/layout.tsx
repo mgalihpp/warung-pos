@@ -1,4 +1,4 @@
-import { LaporanTabs } from "@/components/laporan/laporan-tabs"
+import { LaporanTabs } from "@/features/laporan/components/laporan-tabs"
 
 export default function LaporanLayout({
   children,

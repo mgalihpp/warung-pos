@@ -1,6 +1,6 @@
 import { redirect } from "next/navigation"
 
-import { PengaturanContent } from "@/components/pengaturan/pengaturan-content"
+import { PengaturanContent } from "@/features/pengaturan/components/pengaturan-content"
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/server/auth-guards"
 

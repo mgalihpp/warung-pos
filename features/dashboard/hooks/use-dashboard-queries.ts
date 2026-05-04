@@ -19,7 +19,7 @@ export type DashboardStats = {
   lowStockCount: Omit<StatBlock, "change">
 }
 
-export type SalesChartPoint = { date: string; penjualan: number }
+export type SalesChartPoint = { date: string; penjualan: number; laba: number }
 
 export type CategoryChartItem = { name: string; value: number; fill: string }
 

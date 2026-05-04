@@ -1,7 +1,6 @@
 "use client"
 
 import Image from "next/image"
-import Link from "next/link"
 import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
 
@@ -15,14 +14,8 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Spinner } from "@/components/ui/spinner"
-import { signIn, signUp, getSession } from "@/lib/auth-client"
+import { signIn, getSession } from "@/lib/auth-client"
 import { getDashboardPath } from "@/lib/auth-routes"
-
-type AuthMode = "login" | "register"
-
-type AuthFormProps = {
-  mode: AuthMode
-}
 
 const fallbackPath = "/cashier"
 
@@ -54,22 +47,13 @@ function getSafeNextPath(next: string | null) {
   return next
 }
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm() {
   const router = useRouter()
   const searchParams = useSearchParams()
   const nextPath = getSafeNextPath(searchParams.get("next"))
-  const isRegister = mode === "register"
   const nextQuery = searchParams.get("next")
   const [error, setError] = React.useState<string | null>(null)
   const [isPending, startTransition] = React.useTransition()
-
-  const switchHref = isRegister
-    ? nextQuery
-      ? `/login?next=${encodeURIComponent(nextQuery)}`
-      : "/login"
-    : nextQuery
-      ? `/register?next=${encodeURIComponent(nextQuery)}`
-      : "/register"
 
   function onSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault()
@@ -78,35 +62,23 @@ export function AuthForm({ mode }: AuthFormProps) {
     const formData = new FormData(event.currentTarget)
     const email = String(formData.get("email") ?? "")
     const password = String(formData.get("password") ?? "")
-    const name = String(formData.get("name") ?? "")
 
     startTransition(async () => {
-      const response = isRegister
-        ? await signUp.email({
-            name,
-            email,
-            password,
-          })
-        : await signIn.email({
-            email,
-            password,
-            rememberMe: true,
-          })
+      const response = await signIn.email({
+        email,
+        password,
+        rememberMe: true,
+      })
 
       if (response.error) {
         setError(getAuthErrorMessage(response.error))
         return
       }
 
-      // After login, determine redirect path based on user role
-      if (!isRegister) {
-        const session = await getSession()
-        const role = session.data?.user?.role
-        const redirectPath = nextQuery ? nextPath : getDashboardPath(role)
-        router.push(redirectPath)
-      } else {
-        router.push(nextPath)
-      }
+      const session = await getSession()
+      const role = session.data?.user?.role
+      const redirectPath = nextQuery ? nextPath : getDashboardPath(role)
+      router.push(redirectPath)
       router.refresh()
     })
   }
@@ -133,29 +105,13 @@ export function AuthForm({ mode }: AuthFormProps) {
               Warung Mama Nia
             </CardTitle>
             <p className="mx-auto max-w-xs text-sm leading-6 text-muted-foreground sm:max-w-none sm:text-base">
-              {isRegister
-                ? "Buat akun baru untuk mulai menggunakan sistem Warung Mama Nia."
-                : "Masuk untuk mulai mengelola transaksi dan operasional toko."}
+              Masuk untuk mulai mengelola transaksi dan operasional toko.
             </p>
           </div>
         </CardHeader>
 
         <CardContent className="space-y-5 px-0 sm:space-y-6 sm:px-6">
           <form className="space-y-5" onSubmit={onSubmit}>
-            {isRegister ? (
-              <div className="space-y-2">
-                <Label htmlFor="name">Nama</Label>
-                <Input
-                  id="name"
-                  name="name"
-                  autoComplete="name"
-                  className="h-11"
-                  placeholder="Masukkan nama lengkap"
-                  required
-                />
-              </div>
-            ) : null}
-
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -175,7 +131,7 @@ export function AuthForm({ mode }: AuthFormProps) {
                 id="password"
                 name="password"
                 type="password"
-                autoComplete={isRegister ? "new-password" : "current-password"}
+                autoComplete="current-password"
                 className="h-11"
                 minLength={8}
                 placeholder="Masukkan kata sandi"
@@ -191,54 +147,14 @@ export function AuthForm({ mode }: AuthFormProps) {
 
             <Button className="h-11 w-full text-sm font-medium sm:text-base" disabled={isPending} type="submit">
               {isPending ? <Spinner className="mr-2 size-5" /> : null}
-              {isPending ? "Memproses..." : isRegister ? "Daftar" : "Masuk"}
+              {isPending ? "Memproses..." : "Masuk"}
             </Button>
           </form>
 
           <div className="pt-1 text-center sm:rounded-xl sm:border sm:border-border/50 sm:bg-muted/50 sm:p-4">
-            {isRegister ? (
-              <>
-                <p className="mb-2 text-sm font-medium text-muted-foreground sm:hidden">
-                  Sudah punya akun?
-                </p>
-                <p className="hidden text-sm text-muted-foreground sm:block">
-                  Sudah punya akun?{" "}
-                  <Link
-                    className="whitespace-nowrap font-medium text-primary underline-offset-4 hover:underline"
-                    href={switchHref}
-                  >
-                    Login
-                  </Link>
-                </p>
-                <Link
-                  className="text-sm font-medium text-primary underline-offset-4 hover:underline sm:hidden"
-                  href={switchHref}
-                >
-                  Login ke akun yang sudah ada
-                </Link>
-              </>
-            ) : (
-              <>
-                <p className="mb-2 text-sm font-medium text-muted-foreground sm:hidden">
-                  Belum punya akun?
-                </p>
-                <p className="hidden text-sm text-muted-foreground sm:block">
-                  Belum punya akun?{" "}
-                  <Link
-                    className="whitespace-nowrap font-medium text-primary underline-offset-4 hover:underline"
-                    href={switchHref}
-                  >
-                    Buat akun baru
-                  </Link>
-                </p>
-                <Link
-                  className="text-sm font-medium text-primary underline-offset-4 hover:underline sm:hidden"
-                  href={switchHref}
-                >
-                  Buat akun baru
-                </Link>
-              </>
-            )}
+            <p className="text-sm text-muted-foreground">
+              Akun kasir dan admin dibuat oleh pemilik melalui menu pengaturan.
+            </p>
           </div>
         </CardContent>
       </Card>

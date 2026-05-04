@@ -1,8 +1,8 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
-import { AppSidebar } from "@/components/dashboard/app-sidebar"
-import { DashboardHeader } from "@/components/dashboard/dashboard-header"
-import { AdminLayoutClient } from "@/components/dashboard/admin-layout-client"
+import { AppSidebar } from "@/features/dashboard/components/app-sidebar"
+import { DashboardHeader } from "@/features/dashboard/components/dashboard-header"
+import { AdminLayoutClient } from "@/features/dashboard/components/admin-layout-client"
 import { cookies } from "next/headers"
 
 export default async function AdminLayout({

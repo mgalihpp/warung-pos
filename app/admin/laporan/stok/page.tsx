@@ -1,4 +1,4 @@
-import { LaporanStokContent } from "@/components/laporan/laporan-stok-content"
+import { LaporanStokContent } from "@/features/laporan/components/laporan-stok-content"
 
 export default function LaporanStokPage() {
   return <LaporanStokContent />

@@ -25,8 +25,12 @@ import type { SalesChartPoint, SalesRange } from "@/features/dashboard/hooks/use
 
 const chartConfig = {
   penjualan: {
-    label: "Penjualan",
+    label: "Omzet",
     color: "var(--color-chart-4)",
+  },
+  laba: {
+    label: "Laba",
+    color: "var(--color-chart-2)",
   },
 } satisfies ChartConfig
 
@@ -40,7 +44,7 @@ export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
   return (
     <div className="flex h-full flex-col rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
       <div className="mb-4 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Grafik Penjualan</h3>
+        <h3 className="text-sm font-semibold">Grafik Omzet & Laba</h3>
         <Select value={range} onValueChange={(v) => onRangeChange(v as SalesRange)}>
           <SelectTrigger className="h-7 w-[130px] text-xs">
             <SelectValue placeholder="Pilih rentang" />
@@ -80,6 +84,11 @@ export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
             <Bar
               dataKey="penjualan"
               fill="var(--color-penjualan)"
+              radius={[6, 6, 0, 0]}
+            />
+            <Bar
+              dataKey="laba"
+              fill="var(--color-laba)"
               radius={[6, 6, 0, 0]}
             />
           </BarChart>

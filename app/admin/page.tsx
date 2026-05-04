@@ -2,17 +2,17 @@
 
 import { useState } from "react"
 
-import { StatCards } from "@/components/dashboard/stat-cards"
-import { SalesChart } from "@/components/dashboard/sales-chart"
-import { CategoryChart } from "@/components/dashboard/category-chart"
-import { PaymentMethods } from "@/components/dashboard/payment-methods"
-import { RecentTransactions } from "@/components/dashboard/recent-transactions"
-import { LowStockPanel } from "@/components/dashboard/low-stock-panel"
-import { BestSellersPanel } from "@/components/dashboard/best-sellers-panel"
+import { StatCards } from "@/features/dashboard/components/stat-cards"
+import { SalesChart } from "@/features/dashboard/components/sales-chart"
+import { CategoryChart } from "@/features/dashboard/components/category-chart"
+import { PaymentMethods } from "@/features/dashboard/components/payment-methods"
+import { RecentTransactions } from "@/features/dashboard/components/recent-transactions"
+import { LowStockPanel } from "@/features/dashboard/components/low-stock-panel"
+import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-panel"
 import {
   QuickActions,
   QuickActionsFab,
-} from "@/components/dashboard/quick-actions"
+} from "@/features/dashboard/components/quick-actions"
 import {
   useDashboard,
   type SalesRange,
