@@ -30,7 +30,7 @@ function buildStats(stats: DashboardStats) {
       value: stats.todaySales.value,
       formatted: true,
       change: todayChange?.text ?? null,
-      changeLabel: "dibanding kemarin",
+      changeLabel: todayChange ? "dibanding kemarin" : "Belum ada pembanding",
       positive: todayChange?.positive ?? true,
       icon: MoneyBag02Icon,
       iconBg: "bg-primary/10",
@@ -43,7 +43,7 @@ function buildStats(stats: DashboardStats) {
       value: stats.todayCount.value,
       formatted: false,
       change: countChange?.text ?? null,
-      changeLabel: "dibanding kemarin",
+      changeLabel: countChange ? "dibanding kemarin" : "Belum ada pembanding",
       positive: countChange?.positive ?? true,
       icon: ShoppingCart01Icon,
       iconBg: "bg-blue-500/10",
@@ -56,7 +56,7 @@ function buildStats(stats: DashboardStats) {
       value: stats.monthSales.value,
       formatted: true,
       change: monthChange?.text ?? null,
-      changeLabel: monthChange ? "dibanding bulan lalu" : stats.monthSales.value > 0 ? "Bulan pertama \ud83c\udf89" : "Belum ada penjualan",
+      changeLabel: monthChange ? "dibanding bulan lalu" : "Belum ada pembanding",
       positive: monthChange?.positive ?? true,
       icon: ChartHistogramIcon,
       iconBg: "bg-emerald-500/10",
@@ -149,7 +149,7 @@ export function StatCards({ stats }: { stats: DashboardStats }) {
             </div>
           </div>
           <div className="mt-3 flex items-center gap-1.5 pl-[3.25rem]">
-            {stat.change ? (
+            {stat.change !== null ? (
               <>
                 <span
                   className={`inline-flex items-center gap-0.5 text-[11px] font-semibold ${stat.positive ? "text-emerald-600" : "text-destructive"}`}
