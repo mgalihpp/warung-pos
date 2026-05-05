@@ -47,6 +47,7 @@ export type LowStockItem = {
   stock: number
   unit: string
   image: string | null
+  status: "LOW" | "OUT"
   urgency: "danger" | "warning"
 }
 
@@ -83,9 +84,10 @@ async function fetchDashboard(range: SalesRange): Promise<DashboardData> {
 
 // ── Hook ──
 
-export function useDashboard(range: SalesRange = "7d") {
+export function useDashboard(range: SalesRange = "7d", initialData?: DashboardData) {
   return useQuery({
     queryKey: ["dashboard", range],
     queryFn: () => fetchDashboard(range),
+    initialData: initialData?.range === range ? initialData : undefined,
   })
 }

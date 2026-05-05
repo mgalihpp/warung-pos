@@ -1,33 +1,25 @@
-"use client"
+import { redirect } from "next/navigation"
 
-import { useProducts } from "@/features/produk/hooks/use-produk-queries"
 import { ProdukHeader } from "@/features/produk/components/produk-header"
 import { ProdukStatCards } from "@/features/produk/components/produk-stat-cards"
 import { ProdukTable } from "@/features/produk/components/produk-table"
 import { ProdukKategoriChart } from "@/features/produk/components/produk-kategori-chart"
 import { ProdukPopuler } from "@/features/produk/components/produk-populer"
-import ProdukLoading from "./loading"
+import { getProdukPageData } from "@/features/produk/server-data"
+import { getSessionUser } from "@/lib/server/auth-guards"
 
-export default function ProdukPage() {
-  const { data, isLoading, error } = useProducts()
+export default async function ProdukPage() {
+  const user = await getSessionUser()
 
-  if (isLoading) {
-    return <ProdukLoading />
+  if (!user) {
+    redirect("/login")
   }
 
-  if (error || !data) {
-    return (
-      <div className="flex flex-col gap-3 p-4 lg:gap-6 lg:p-6">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Manajemen Produk</h1>
-          <p className="text-sm text-muted-foreground">Kelola produk, kategori, dan stok warung Anda</p>
-        </div>
-        <div className="flex flex-1 items-center justify-center py-20">
-          <p className="text-sm text-destructive">Gagal memuat data. Silakan coba lagi.</p>
-        </div>
-      </div>
-    )
+  if (user.role !== "admin") {
+    redirect("/unauthorized")
   }
+
+  const data = await getProdukPageData()
 
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">

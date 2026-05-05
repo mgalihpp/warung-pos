@@ -9,7 +9,6 @@ import {
   SearchIcon,
   Notification03Icon,
   ArrowDown01Icon,
-  Calendar05Icon,
   Settings01Icon,
   Logout01Icon,
   InvoiceIcon,
@@ -41,13 +40,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover"
-
-import { Calendar } from "@/components/ui/calendar"
 import { signOut, useSession } from "@/lib/auth-client"
 import Link from "next/link"
 import { useRouter, usePathname } from "next/navigation"
@@ -63,7 +55,6 @@ type NotificationItem = {
 
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
-  const [date, setDate] = React.useState<Date | undefined>(new Date())
   const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
   const [isLoadingNotifications, setIsLoadingNotifications] = React.useState(true)
   const router = useRouter()
@@ -199,24 +190,8 @@ export function DashboardHeader() {
         </Command>
       </CommandDialog>
 
-      {/* Date Picker via Popover */}
-      <div className="flex items-center">
-        <Popover>
-          <PopoverTrigger asChild>
-            <button className="flex items-center gap-2 rounded-lg p-2 text-sm text-muted-foreground transition-colors hover:bg-muted hover:text-foreground focus:outline-none focus:ring-1 focus:ring-ring xl:px-2.5 xl:py-1.5">
-              <HugeiconsIcon icon={Calendar05Icon} size={18} />
-              <ClockLabel />
-            </button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0" align="end">
-            <Calendar
-              mode="single"
-              selected={date}
-              onSelect={setDate}
-              initialFocus
-            />
-          </PopoverContent>
-        </Popover>
+      <div className="flex items-center rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground">
+        <ClockLabel />
       </div>
 
       <Separator orientation="vertical" className="h-4" />
@@ -328,19 +303,26 @@ export function DashboardHeader() {
 }
 
 const ClockLabel = React.memo(function ClockLabel() {
-  const [now, setNow] = React.useState(() => new Date())
+  const [now, setNow] = React.useState<Date | null>(null)
 
   React.useEffect(() => {
-    // Update once per minute. No need to re-render header every second.
+    const timeout = window.setTimeout(() => setNow(new Date()), 0)
     const interval = window.setInterval(() => {
       setNow(new Date())
-    }, 60_000)
+    }, 1_000)
 
-    return () => window.clearInterval(interval)
+    return () => {
+      window.clearTimeout(timeout)
+      window.clearInterval(interval)
+    }
   }, [])
 
-  const today = format(now, "EEEE, dd MMMM yyyy", { locale: id })
-  const time = format(now, "HH:mm")
+  if (!now) {
+    return <span className="hidden tabular-nums xl:block">--:--:--</span>
+  }
 
-  return <span className="hidden capitalize xl:block">{today} - {time}</span>
+  const today = format(now, "EEEE, dd MMMM yyyy", { locale: id })
+  const time = format(now, "HH:mm:ss")
+
+  return <span className="hidden capitalize tabular-nums xl:block">{today} - {time}</span>
 })

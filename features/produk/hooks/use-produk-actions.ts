@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 
 export type MutationResult = {
   success: boolean
@@ -10,6 +11,7 @@ export type MutationResult = {
 
 export function useCreateProduct() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const mutation = useMutation({
     mutationFn: async (data: Record<string, unknown>): Promise<MutationResult> => {
       const res = await fetch("/api/produk", {
@@ -22,6 +24,7 @@ export function useCreateProduct() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["produk"] })
+        router.refresh()
       }
     },
   })
@@ -34,6 +37,7 @@ export function useCreateProduct() {
 
 export function useUpdateProduct() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   const mutation = useMutation({
     mutationFn: async (data: Record<string, unknown> & { id: string }): Promise<MutationResult> => {
       const res = await fetch(`/api/produk/${data.id}`, {
@@ -46,6 +50,7 @@ export function useUpdateProduct() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["produk"] })
+        router.refresh()
       }
     },
   })
@@ -58,6 +63,7 @@ export function useUpdateProduct() {
 
 export function useDeleteProduct() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: async (id: string): Promise<MutationResult> => {
       const res = await fetch(`/api/produk/${id}`, {
@@ -68,6 +74,7 @@ export function useDeleteProduct() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["produk"] })
+        router.refresh()
       }
     },
   })
@@ -75,6 +82,7 @@ export function useDeleteProduct() {
 
 export function useToggleProductActive() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }): Promise<MutationResult> => {
       const res = await fetch(`/api/produk/${id}`, {
@@ -87,6 +95,7 @@ export function useToggleProductActive() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["produk"] })
+        router.refresh()
       }
     },
   })
@@ -94,6 +103,7 @@ export function useToggleProductActive() {
 
 export function useAdjustStock() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: async ({
       productId,
@@ -116,6 +126,7 @@ export function useAdjustStock() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["produk"] })
+        router.refresh()
       }
     },
   })

@@ -1,32 +1,24 @@
-"use client"
+import { redirect } from "next/navigation"
 
-import { useTransactions } from "@/features/transaksi/hooks/use-transaksi-queries"
 import { TransaksiHeader } from "@/features/transaksi/components/transaksi-header"
 import { TransaksiStatCards } from "@/features/transaksi/components/transaksi-stat-cards"
 import { TransaksiTable } from "@/features/transaksi/components/transaksi-table"
 import { TransaksiAktivitas } from "@/features/transaksi/components/transaksi-aktivitas"
-import TransaksiLoading from "./loading"
+import { getTransaksiPageData } from "@/features/transaksi/server-data"
+import { getSessionUser } from "@/lib/server/auth-guards"
 
-export default function TransaksiPage() {
-  const { data, isLoading, error } = useTransactions()
+export default async function TransaksiPage() {
+  const user = await getSessionUser()
 
-  if (isLoading) {
-    return <TransaksiLoading />
+  if (!user) {
+    redirect("/login")
   }
 
-  if (error || !data) {
-    return (
-      <div className="flex flex-col gap-3 p-4 lg:gap-6 lg:p-6">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Manajemen Transaksi</h1>
-          <p className="text-sm text-muted-foreground">Pantau, cari, dan kelola seluruh transaksi warung Anda</p>
-        </div>
-        <div className="flex flex-1 items-center justify-center py-20">
-          <p className="text-sm text-destructive">Gagal memuat data transaksi. Silakan coba lagi.</p>
-        </div>
-      </div>
-    )
+  if (user.role !== "admin") {
+    redirect("/unauthorized")
   }
+
+  const data = await getTransaksiPageData()
 
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6 xl:pb-6">

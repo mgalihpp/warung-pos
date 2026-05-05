@@ -77,10 +77,11 @@ async function fetchPenjualan(range: LaporanRange): Promise<PenjualanData> {
   return res.json()
 }
 
-export function useLaporanPenjualan(range: LaporanRange = "30d") {
+export function useLaporanPenjualan(range: LaporanRange = "30d", initialData?: PenjualanData) {
   return useQuery({
     queryKey: ["laporan", "penjualan", range],
     queryFn: () => fetchPenjualan(range),
+    initialData: initialData?.range === range ? initialData : undefined,
   })
 }
 

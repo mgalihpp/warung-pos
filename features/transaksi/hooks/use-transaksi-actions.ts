@@ -1,6 +1,7 @@
 "use client"
 
 import { useMutation, useQueryClient } from "@tanstack/react-query"
+import { useRouter } from "next/navigation"
 
 type MutationResult = {
   success: boolean
@@ -12,6 +13,7 @@ type MutationResult = {
 
 export function useDeleteTransaction() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: async (id: string): Promise<MutationResult> => {
       const res = await fetch(`/api/transaksi/${id}`, {
@@ -22,6 +24,7 @@ export function useDeleteTransaction() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["transaksi"] })
+        router.refresh()
       }
     },
   })
@@ -39,6 +42,7 @@ export type UpdateTransactionPayload = {
 
 export function useUpdateTransaction() {
   const queryClient = useQueryClient()
+  const router = useRouter()
   return useMutation({
     mutationFn: async (data: UpdateTransactionPayload): Promise<MutationResult> => {
       const res = await fetch(`/api/transaksi/${data.id}`, {
@@ -56,6 +60,7 @@ export function useUpdateTransaction() {
     onSuccess: (data) => {
       if (data.success) {
         queryClient.invalidateQueries({ queryKey: ["transaksi"] })
+        router.refresh()
       }
     },
   })

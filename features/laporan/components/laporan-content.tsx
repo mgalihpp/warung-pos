@@ -51,9 +51,9 @@ const RANGE_LABEL: Record<LaporanRange, string> = {
   ytd: "tahun ini",
 }
 
-export function LaporanContent() {
-  const [range, setRange] = React.useState<LaporanRange>("30d")
-  const { data, isLoading, error } = useLaporanPenjualan(range)
+export function LaporanContent({ initialData }: { initialData?: PenjualanData }) {
+  const [range, setRange] = React.useState<LaporanRange>(initialData?.range ?? "30d")
+  const { data, isLoading, error } = useLaporanPenjualan(range, initialData)
 
   return (
     <div className="flex min-w-0 flex-col gap-4">

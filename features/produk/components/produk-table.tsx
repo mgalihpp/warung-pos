@@ -43,7 +43,6 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog"
 import {
   Drawer,
@@ -74,7 +73,7 @@ import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import type { ProdukCategory, ProdukItem } from "../types"
 
-const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Nonaktif"]
+const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Stok Habis", "Nonaktif"]
 const sortOptions = [
   "Nama A-Z",
   "Nama Z-A",
@@ -164,8 +163,16 @@ function Field({
 
 function getStatus(product: ProdukItem) {
   if (!product.isActive) return "Nonaktif"
+  if (product.stock <= 0) return "Stok Habis"
   if (product.stock <= product.minStock) return "Stok Menipis"
   return "Aktif"
+}
+
+function getStatusClass(status: string) {
+  if (status === "Aktif") return "bg-primary/10 text-primary ring-primary/20"
+  if (status === "Stok Menipis") return "bg-amber-500/10 text-amber-600 ring-amber-500/20"
+  if (status === "Stok Habis") return "bg-rose-500/10 text-rose-600 ring-rose-500/20"
+  return "bg-slate-500/10 text-slate-600 ring-slate-500/20"
 }
 
 function ProductEditDialog({
@@ -182,141 +189,15 @@ function ProductEditDialog({
   )
 }
 
-function ProductDetailContent({ product }: { product: ProdukItem }) {
+function ProductDetailLink({ product }: { product: ProdukItem }) {
   return (
-    <div className="grid gap-4 py-2">
-      {product.image && (
-        <div className="overflow-hidden rounded-xl bg-muted">
-          <Image
-            src={product.image}
-            alt={product.name}
-            width={400}
-            height={160}
-            className="h-40 w-full object-contain"
-          />
-        </div>
-      )}
-      <div className="grid grid-cols-2 gap-4 rounded-xl border bg-card p-4 shadow-sm">
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Kategori
-          </p>
-          <p className="font-medium">{product.category}</p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Status
-          </p>
-          <div>
-            <span
-              className={`inline-flex items-center rounded-md px-2 py-0.5 text-xs font-medium ring-1 ring-inset ${getStatus(product) === "Aktif" ? "bg-primary/10 text-primary ring-primary/20" : getStatus(product) === "Stok Menipis" ? "bg-amber-500/10 text-amber-600 ring-amber-500/20" : "bg-slate-500/10 text-slate-600 ring-slate-500/20"}`}
-            >
-              {getStatus(product)}
-            </span>
-          </div>
-        </div>
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Harga Beli
-          </p>
-          <p className="font-medium text-muted-foreground">
-            {formatRupiah(product.buyPrice)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Harga Jual
-          </p>
-          <p className="font-semibold text-primary">
-            {formatRupiah(product.sellPrice)}
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Stok / Satuan
-          </p>
-          <p className="font-medium">
-            {product.stock}{" "}
-            <span className="text-muted-foreground">{product.unit}</span>
-          </p>
-        </div>
-        <div className="space-y-1">
-          <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Stok Minimum
-          </p>
-          <p className="font-medium">{product.minStock}</p>
-        </div>
-      </div>
-
-      {product.description && (
-        <div className="rounded-xl border bg-muted/30 p-4">
-          <p className="mb-2 text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
-            Deskripsi
-          </p>
-          <p className="text-sm leading-relaxed text-foreground/80">
-            {product.description}
-          </p>
-        </div>
-      )}
-    </div>
-  )
-}
-
-function ProductDetailDialog({ product }: { product: ProdukItem }) {
-  return (
-    <>
-      <Dialog>
-        <DialogTrigger asChild>
-          <button
-            className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
-            aria-label="Lihat detail"
-          >
-            <HugeiconsIcon icon={ViewIcon} size={15} />
-          </button>
-        </DialogTrigger>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-3 font-heading text-xl font-medium text-foreground">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <HugeiconsIcon icon={PackageIcon} size={20} />
-              </span>
-              <span className="truncate">{product.name}</span>
-            </DialogTitle>
-            <DialogDescription>
-              Detail lengkap informasi produk.
-            </DialogDescription>
-          </DialogHeader>
-          <ProductDetailContent product={product} />
-        </DialogContent>
-      </Dialog>
-
-      <Drawer>
-        <DrawerTrigger asChild>
-          <button
-            className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:hidden"
-            aria-label="Lihat detail"
-          >
-            <HugeiconsIcon icon={ViewIcon} size={15} />
-          </button>
-        </DrawerTrigger>
-        <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
-          <DrawerHeader>
-            <DrawerTitle className="flex items-center gap-3 font-heading text-xl font-medium text-foreground">
-              <span className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <HugeiconsIcon icon={PackageIcon} size={20} />
-              </span>
-              <span className="truncate">{product.name}</span>
-            </DrawerTitle>
-            <DrawerDescription>
-              Detail lengkap informasi produk.
-            </DrawerDescription>
-          </DrawerHeader>
-          <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-4">
-            <ProductDetailContent product={product} />
-          </div>
-        </DrawerContent>
-      </Drawer>
-    </>
+    <Link
+      href={`/admin/produk/${product.id}`}
+      className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+      aria-label="Lihat detail"
+    >
+      <HugeiconsIcon icon={ViewIcon} size={15} />
+    </Link>
   )
 }
 
@@ -889,7 +770,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap ${status === "Aktif" ? "bg-primary/10 text-primary" : status === "Stok Menipis" ? "bg-amber-500/10 text-amber-600" : "bg-slate-500/10 text-slate-600"}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap ${getStatusClass(status)}`}
                     >
                       {status}
                     </span>
@@ -897,7 +778,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
                       <ProductEditDialog product={product} />
-                      <ProductDetailDialog product={product} />
+                      <ProductDetailLink product={product} />
                       <ProductActionMenu product={product} />
                     </div>
                   </td>
@@ -948,7 +829,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
                     </p>
                   </div>
                   <span
-                    className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${status === "Aktif" ? "bg-primary/10 text-primary" : status === "Stok Menipis" ? "bg-amber-500/10 text-amber-600" : "bg-slate-500/10 text-slate-600"}`}
+                    className={`mt-0.5 inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${getStatusClass(status)}`}
                   >
                     {status}
                   </span>
@@ -975,7 +856,7 @@ export function ProdukTable({ products, categories }: ProdukTableProps) {
 
                 {/* Actions */}
                 <div className="mt-2.5 flex items-center justify-end gap-1">
-                  <ProductDetailDialog product={product} />
+                  <ProductDetailLink product={product} />
                   <ProductActionMenu product={product} />
                 </div>
               </div>
