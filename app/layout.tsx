@@ -52,7 +52,7 @@ export default function RootLayout({
         <NextSSRPlugin routerConfig={extractRouterConfig(uploadRouter)} />
         <ThemeProvider>
           {children}
-          <Toaster richColors position="top-right" />
+          <Toaster richColors position="top-center" />
         </ThemeProvider>
       </body>
     </html>
