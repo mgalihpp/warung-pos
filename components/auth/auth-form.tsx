@@ -151,11 +151,6 @@ export function AuthForm() {
             </Button>
           </form>
 
-          <div className="pt-1 text-center sm:rounded-xl sm:border sm:border-border/50 sm:bg-muted/50 sm:p-4">
-            <p className="text-sm text-muted-foreground">
-              Akun kasir dan admin dibuat oleh pemilik melalui menu pengaturan.
-            </p>
-          </div>
         </CardContent>
       </Card>
     </main>

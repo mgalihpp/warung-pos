@@ -1,21 +1,182 @@
-# Next.js template
+# Warung Mama Nia POS
 
-This is a Next.js template with shadcn/ui.
+Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi ini mendukung pengelolaan produk, stok, transaksi kasir, laporan penjualan, dan akses berbasis role untuk admin serta kasir.
 
-## Adding components
+## Fitur Utama
 
-To add components to your app, run the following command:
+- Autentikasi menggunakan Better Auth.
+- Role akses `admin` dan `cashier`.
+- Dashboard admin dan kasir.
+- Manajemen produk, kategori, harga beli, harga jual, stok, dan gambar produk.
+- POS untuk pencatatan transaksi penjualan.
+- Riwayat transaksi dan edit transaksi admin.
+- Laporan kas, kasir, stok, dan penjualan.
+- Audit perubahan stok melalui data `StockAdjustment`.
+- Upload gambar produk menggunakan UploadThing.
+- Dukungan PWA untuk pengalaman penggunaan seperti aplikasi.
+
+## Tech Stack
+
+- Next.js 16 App Router
+- React 19
+- TypeScript
+- Prisma 7
+- PostgreSQL
+- Better Auth
+- Tailwind CSS v4
+- shadcn/ui
+- UploadThing
+- Zustand
+- TanStack React Query
+
+## Prasyarat
+
+- Node.js dan npm.
+- Database PostgreSQL.
+- Akun UploadThing jika ingin menggunakan fitur upload gambar produk.
+
+## Setup Environment
+
+Salin file contoh environment:
 
 ```bash
-npx shadcn@latest add button
+cp .env.example .env
 ```
 
-This will place the ui components in the `components` directory.
+Isi variabel berikut di `.env`:
 
-## Using components
+```env
+DATABASE_URL="postgresql://USER:PASSWORD@HOST:6543/DATABASE?pgbouncer=true"
+DIRECT_URL="postgresql://USER:PASSWORD@HOST:5432/DATABASE"
+ADMIN_EMAIL="admin@example.com"
+ADMIN_PASSWORD="password123"
+ADMIN_NAME="Admin"
+UPLOADTHING_SECRET="sk_live_..."
+UPLOADTHING_APP_ID="..."
+```
 
-To use the components in your app, import them as follows:
+Catatan:
 
-```tsx
-import { Button } from "@/components/ui/button";
+- `DIRECT_URL` digunakan Prisma CLI untuk generate, migration, push, dan seed.
+- Runtime Prisma memakai `DIRECT_URL`, lalu fallback ke `DATABASE_URL` jika `DIRECT_URL` tidak tersedia.
+- `DATABASE_URL` dapat diarahkan ke connection pooler atau transaction mode.
+- Password admin minimal 8 karakter.
+
+## Instalasi
+
+Install dependency:
+
+```bash
+npm install
+```
+
+Generate Prisma Client:
+
+```bash
+npm run db:generate
+```
+
+Sinkronkan schema database. Untuk development cepat, gunakan:
+
+```bash
+npm run db:push
+```
+
+Atau gunakan migration development:
+
+```bash
+npm run db:migrate
+```
+
+Isi data kategori dan produk contoh:
+
+```bash
+npm run db:seed
+```
+
+Buat akun admin dari environment:
+
+```bash
+npm run db:create-admin
+```
+
+## Menjalankan Aplikasi
+
+Jalankan server development:
+
+```bash
+npm run dev
+```
+
+Buka aplikasi di:
+
+```text
+http://localhost:3000
+```
+
+Halaman root akan mengarah ke `/login`.
+
+## Role dan Akses
+
+- Admin diarahkan ke `/admin` dan dapat mengakses halaman admin.
+- Cashier diarahkan ke `/cashier` dan dapat mengakses alur POS kasir.
+- Proteksi route dikontrol dari `proxy.ts` dengan aturan path di `lib/auth-routes.ts`.
+
+## Route Penting
+
+- `/login` - halaman login.
+- `/register` - halaman registrasi.
+- `/admin` - dashboard admin.
+- `/admin/produk` - manajemen produk.
+- `/admin/produk/tambah` - tambah produk.
+- `/admin/pos` - POS dari sisi admin.
+- `/admin/transaksi` - daftar transaksi admin.
+- `/admin/laporan` - ringkasan laporan.
+- `/admin/laporan/kas` - laporan kas.
+- `/admin/laporan/kasir` - laporan kasir.
+- `/admin/laporan/stok` - laporan stok.
+- `/admin/pengaturan` - pengaturan admin.
+- `/cashier` - dashboard kasir.
+- `/cashier/pos` - POS kasir.
+- `/cashier/transaksi` - riwayat transaksi kasir.
+- `/cashier/pengaturan` - pengaturan kasir.
+
+## API Penting
+
+- `/api/auth/[...all]` - endpoint Better Auth.
+- `/api/produk` - data produk admin.
+- `/api/kategori` - data kategori.
+- `/api/transaksi` - transaksi admin.
+- `/api/kasir/produk` - data produk untuk kasir.
+- `/api/kasir/transaksi` - transaksi dari kasir.
+- `/api/laporan/kas` - laporan kas.
+- `/api/laporan/kasir` - laporan kasir.
+- `/api/laporan/penjualan` - laporan penjualan.
+- `/api/laporan/stok` - laporan stok.
+- `/api/uploadthing` - upload gambar produk.
+
+## Script NPM
+
+```bash
+npm run dev
+npm run build
+npm run start
+npm run lint
+npm run typecheck
+npm run format
+npm run db:generate
+npm run db:push
+npm run db:migrate
+npm run db:seed
+npm run db:create-admin
+```
+
+## Validasi
+
+Sebelum deploy atau membuat perubahan besar, jalankan:
+
+```bash
+npm run lint
+npm run typecheck
+npm run build
 ```
