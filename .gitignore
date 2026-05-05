@@ -16,6 +16,9 @@
 /out/
 /.vercel/
 /app/generated/prisma
+/public/sw.js
+/public/workbox-*.js
+/public/swe-worker-*.js
 
 # production
 /build

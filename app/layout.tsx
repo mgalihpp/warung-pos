@@ -19,15 +19,22 @@ const fontMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "Warung Mama Nia",
   description: "Sistem kasir Warung Mama Nia untuk mengelola transaksi dan operasional toko.",
+  manifest: "/manifest.webmanifest",
   icons: {
-    icon: "/logo warung.png",
-    shortcut: "/logo warung.png",
+    icon: "/icons/pwa-icon.svg",
+    shortcut: "/icons/pwa-icon.svg",
     apple: "/logo warung.png",
+  },
+  appleWebApp: {
+    capable: true,
+    title: "Mama Nia POS",
+    statusBarStyle: "default",
   },
 }
 
 export const viewport: Viewport = {
   maximumScale: 1,
+  themeColor: "#18181b",
 }
 
 export default function RootLayout({
