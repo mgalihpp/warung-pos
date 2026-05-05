@@ -66,7 +66,7 @@ export function LaporanKasContent() {
       <SummaryCards summary={data.summary} />
 
       <div className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.4fr)_minmax(320px,1fr)]">
-        <BreakdownCard breakdown={data.breakdown} totalOmzet={data.summary.totalOmzet} />
+        <BreakdownCard breakdown={data.breakdown} totalPenjualan={data.summary.totalPenjualan} />
         <DayTransactionsCard transactions={data.transactions} />
       </div>
 
@@ -78,8 +78,8 @@ export function LaporanKasContent() {
 function SummaryCards({ summary }: { summary: KasData["summary"] }) {
   const cards = [
     {
-      title: "Total Omzet Hari Ini",
-      value: formatRupiah(summary.totalOmzet),
+      title: "Total Penjualan Hari Ini",
+      value: formatRupiah(summary.totalPenjualan),
       icon: DollarCircleIcon,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -134,10 +134,10 @@ function SummaryCards({ summary }: { summary: KasData["summary"] }) {
 
 function BreakdownCard({
   breakdown,
-  totalOmzet,
+  totalPenjualan,
 }: {
   breakdown: KasBreakdownItem[]
-  totalOmzet: number
+  totalPenjualan: number
 }) {
   const iconMap = {
     Tunai: { icon: Money01Icon, tone: "bg-emerald-500/10 text-emerald-600" },
@@ -151,7 +151,7 @@ function BreakdownCard({
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-4 text-sm font-semibold">Rincian Metode Pembayaran</h2>
-      {totalOmzet === 0 ? (
+      {totalPenjualan === 0 ? (
         <div className="py-8 text-center text-xs text-muted-foreground">
           Belum ada penjualan tercatat pada tanggal ini
         </div>

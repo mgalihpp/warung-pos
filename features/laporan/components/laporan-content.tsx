@@ -107,9 +107,9 @@ function RangeSelector({
 function PenjualanDashboard({ data }: { data: PenjualanData }) {
   const stats = [
     {
-      title: "Omzet",
-      value: formatRupiah(data.stats.omzet.value),
-      change: data.stats.omzet.change,
+      title: "Penjualan",
+      value: formatRupiah(data.stats.penjualan.value),
+      change: data.stats.penjualan.change,
       icon: DollarCircleIcon,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",
@@ -223,7 +223,7 @@ function StatCard({
 }
 
 const salesChartConfig = {
-  omzet: { label: "Omzet", color: "var(--color-chart-4)" },
+  penjualan: { label: "Penjualan", color: "var(--color-chart-4)" },
   laba: { label: "Laba", color: "var(--color-chart-2)" },
 } satisfies ChartConfig
 
@@ -232,14 +232,14 @@ function SalesTrendCard({
 }: {
   data: PenjualanData["salesTrend"]
 }) {
-  const total = data.reduce((s, d) => s + d.omzet, 0)
+  const total = data.reduce((s, d) => s + d.penjualan, 0)
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold">Tren Penjualan</h2>
           <p className="mt-1 text-xs text-muted-foreground">
-            Omzet & laba per periode
+            Penjualan & laba per periode
           </p>
         </div>
         <div className="hidden rounded-lg border bg-background px-3 py-2 text-xs shadow-sm sm:block">
@@ -256,7 +256,7 @@ function SalesTrendCard({
             margin={{ left: 2, right: 8, top: 8, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="omzetGradient" x1="0" y1="0" x2="0" y2="1">
+              <linearGradient id="penjualanGradient" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor="var(--color-chart-4)" stopOpacity={0.28} />
                 <stop offset="95%" stopColor="var(--color-chart-4)" stopOpacity={0.02} />
               </linearGradient>
@@ -287,10 +287,10 @@ function SalesTrendCard({
             <ChartTooltip content={<ChartTooltipContent />} />
             <Area
               type="monotone"
-              dataKey="omzet"
+              dataKey="penjualan"
               stroke="var(--color-chart-4)"
               strokeWidth={3}
-              fill="url(#omzetGradient)"
+              fill="url(#penjualanGradient)"
               activeDot={{ r: 4 }}
             />
             <Area
@@ -459,7 +459,7 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
             <tr>
               <th className="px-4 py-3 font-semibold">Tanggal</th>
               <th className="px-4 py-3 text-center font-semibold">Transaksi</th>
-              <th className="px-4 py-3 text-right font-semibold">Omzet</th>
+              <th className="px-4 py-3 text-right font-semibold">Penjualan</th>
               <th className="px-4 py-3 text-right font-semibold">Laba Kotor</th>
               <th className="px-4 py-3 text-right font-semibold">
                 Rata-rata Belanja
@@ -485,7 +485,7 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
                   <td className="px-4 py-2.5 font-medium">{row.date}</td>
                   <td className="px-4 py-2.5 text-center">{row.transaksi}</td>
                   <td className="px-4 py-2.5 text-right font-medium">
-                    {formatRupiah(row.omzet)}
+                    {formatRupiah(row.penjualan)}
                   </td>
                   <td className="px-4 py-2.5 text-right">
                     {formatRupiah(row.laba)}
@@ -519,7 +519,7 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-xs font-bold">{formatRupiah(row.omzet)}</p>
+                <p className="text-xs font-bold">{formatRupiah(row.penjualan)}</p>
                 <p className="text-[10px] text-muted-foreground">
                   Laba {formatRupiah(row.laba)}
                 </p>
@@ -610,14 +610,14 @@ function TopCashiersCard({
 }
 
 function QuickInsightCard({ data }: { data: PenjualanData }) {
-  const bestDay = [...data.salesTrend].sort((a, b) => b.omzet - a.omzet)[0]
+  const bestDay = [...data.salesTrend].sort((a, b) => b.penjualan - a.penjualan)[0]
   const topCategory = data.categoryBreakdown[0]
   const topProduct = data.topProducts[0]
 
   const insights = [
-    bestDay && bestDay.omzet > 0
+    bestDay && bestDay.penjualan > 0
       ? {
-          text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.omzet)})`,
+          text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.penjualan)})`,
           icon: StarIcon,
           tone: "bg-primary/10 text-primary",
         }

@@ -14,10 +14,10 @@ Akan membuat endpoint API baru untuk melayani data transaksi, statistik, dan akt
   - Mengambil data transaksi dari Prisma ORM dengan relasi item (`items`) dan kasir.
   - Melakukan kalkulasi statistik harian:
     - Total Transaksi Hari Ini.
-    - Total Penjualan (Omzet) Hari Ini (khusus transaksi berstatus `COMPLETED`).
+    - Total Penjualan Hari Ini (khusus transaksi berstatus `COMPLETED`).
     - Jumlah Transaksi Pending (status `PENDING`).
     - Rata-rata Nilai Transaksi (Total penjualan / jumlah transaksi `COMPLETED`).
-    - (Opsional: Membandingkan dengan omzet kemarin untuk tren kenaikan/penurunan).
+    - (Opsional: Membandingkan dengan penjualan kemarin untuk tren kenaikan/penurunan).
   - Mengonversi data mentah Prisma menjadi representasi/struktur JSON yang langsung siap dikonsumsi UI (seperti format tanggal lokal Indonesia, menggabungkan nama item transaksi, dll).
 
 ---

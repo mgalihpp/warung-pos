@@ -282,7 +282,7 @@ export async function getDashboardData(range: Range = "7d") {
   }
   const sparkCount = Array.from(dayCounts.values())
 
-  // Omzet bulanan sparkline: per-day totals last 7 days within current month
+  // Penjualan bulanan sparkline: per-day totals last 7 days within current month
   const sparkMonth = sparkSales
 
   // Low stock sparkline: stock values of top 5 lowest (or pad if <5)

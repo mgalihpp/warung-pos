@@ -78,7 +78,7 @@ export function LaporanKasirContent() {
 function SummaryRow({ summary }: { summary: KasirData["summary"] }) {
   const cards = [
     {
-      title: "Total Omzet",
+      title: "Total Penjualan",
       value: formatRupiah(summary.totalRevenue),
       icon: DollarCircleIcon,
       iconBg: "bg-primary/10",
@@ -147,10 +147,10 @@ function CashierTable({ rows }: { rows: KasirRow[] }) {
             <tr>
               <th className="px-4 py-3 font-semibold">Kasir</th>
               <th className="px-4 py-3 text-right font-semibold">Transaksi</th>
-              <th className="px-4 py-3 text-right font-semibold">Omzet</th>
+              <th className="px-4 py-3 text-right font-semibold">Penjualan</th>
               <th className="px-4 py-3 text-right font-semibold">Laba</th>
               <th className="px-4 py-3 text-right font-semibold">Rata-rata</th>
-              <th className="px-4 py-3 text-right font-semibold">Δ Omzet</th>
+              <th className="px-4 py-3 text-right font-semibold">Δ Penjualan</th>
             </tr>
           </thead>
           <tbody>
@@ -222,7 +222,7 @@ function CashierTable({ rows }: { rows: KasirRow[] }) {
                 </div>
                 <div className="mt-2.5 grid grid-cols-3 gap-2 rounded-md bg-muted/40 px-2.5 py-2">
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground">Omzet</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">Penjualan</p>
                     <p className="text-xs font-bold text-primary">{formatRupiah(row.revenue)}</p>
                   </div>
                   <div>

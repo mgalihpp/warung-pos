@@ -14,13 +14,13 @@ export type StatBlock = {
 // ── Penjualan ──
 
 export type PenjualanStats = {
-  omzet: StatBlock
+  penjualan: StatBlock
   labaKotor: StatBlock
   totalTransaksi: StatBlock
   rataBelanja: StatBlock
 }
 
-export type SalesTrendPoint = { date: string; omzet: number; laba: number }
+export type SalesTrendPoint = { date: string; penjualan: number; laba: number }
 
 export type CategoryItem = {
   name: string
@@ -55,7 +55,7 @@ export type DailySummaryRow = {
   dateKey: string
   date: string
   transaksi: number
-  omzet: number
+  penjualan: number
   laba: number
   rataBelanja: number
 }
@@ -159,7 +159,7 @@ export type KasData = {
   dateLabel: string
   isToday: boolean
   summary: {
-    totalOmzet: number
+    totalPenjualan: number
     totalCount: number
     tunaiMasuk: number
     nonTunai: number

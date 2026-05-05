@@ -52,7 +52,7 @@ function buildStats(stats: DashboardStats) {
       chartData: stats.todayCount.spark,
     },
     {
-      title: "Omzet Bulanan",
+      title: "Penjualan Bulanan",
       value: stats.monthSales.value,
       formatted: true,
       change: monthChange?.text ?? null,

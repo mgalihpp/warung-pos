@@ -128,18 +128,18 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     GROUP BY 1
   `
 
-  const omzet = currentAgg._sum.total ?? 0
-  const omzetPrev = prevAgg._sum.total ?? 0
+  const penjualan = currentAgg._sum.total ?? 0
+  const penjualanPrev = prevAgg._sum.total ?? 0
   const labaKotor = currentItemsAgg._sum.grossProfit ?? 0
   const labaKotorPrev = prevItemsAgg._sum.grossProfit ?? 0
   const totalTransaksi = currentAgg._count
   const totalTransaksiPrev = prevAgg._count
-  const rataBelanja = totalTransaksi > 0 ? omzet / totalTransaksi : 0
+  const rataBelanja = totalTransaksi > 0 ? penjualan / totalTransaksi : 0
   const rataBelanjaPrev =
-    totalTransaksiPrev > 0 ? omzetPrev / totalTransaksiPrev : 0
+    totalTransaksiPrev > 0 ? penjualanPrev / totalTransaksiPrev : 0
 
   const stats = {
-    omzet: { value: omzet, change: pctChange(omzet, omzetPrev) },
+    penjualan: { value: penjualan, change: pctChange(penjualan, penjualanPrev) },
     labaKotor: { value: labaKotor, change: pctChange(labaKotor, labaKotorPrev) },
     totalTransaksi: {
       value: totalTransaksi,
@@ -173,17 +173,17 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     }
   }
 
-  const omzetByDay = new Map<string, number>()
+  const penjualanByDay = new Map<string, number>()
   const countByDay = new Map<string, number>()
   for (const k of dayKeys) {
-    omzetByDay.set(k, 0)
+    penjualanByDay.set(k, 0)
     countByDay.set(k, 0)
   }
   for (const t of txCurrent) {
     const fullKey = jakartaDateKey(t.createdAt)
     const k = range === "ytd" ? `${fullKey.slice(0, 7)}-01` : fullKey
-    if (omzetByDay.has(k)) {
-      omzetByDay.set(k, (omzetByDay.get(k) ?? 0) + t.total)
+    if (penjualanByDay.has(k)) {
+      penjualanByDay.set(k, (penjualanByDay.get(k) ?? 0) + t.total)
       countByDay.set(k, (countByDay.get(k) ?? 0) + 1)
     }
   }
@@ -209,7 +209,7 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
       range === "ytd"
         ? labelMonthFmt.format(new Date(`${k}T00:00:00+07:00`))
         : labelDayFmt.format(new Date(`${k}T00:00:00+07:00`)),
-    omzet: omzetByDay.get(k) ?? 0,
+    penjualan: penjualanByDay.get(k) ?? 0,
     laba: labaByDay.get(k) ?? 0,
   }))
 
@@ -218,7 +218,7 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     .reverse()
     .slice(0, 30)
     .map((k) => {
-      const omzetVal = omzetByDay.get(k) ?? 0
+      const penjualanVal = penjualanByDay.get(k) ?? 0
       const trxVal = countByDay.get(k) ?? 0
       return {
         dateKey: k,
@@ -227,9 +227,9 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
             ? labelMonthFmt.format(new Date(`${k}T00:00:00+07:00`))
             : labelDayFmt.format(new Date(`${k}T00:00:00+07:00`)),
         transaksi: trxVal,
-        omzet: omzetVal,
+        penjualan: penjualanVal,
         laba: labaByDay.get(k) ?? 0,
-        rataBelanja: trxVal > 0 ? Math.round(omzetVal / trxVal) : 0,
+        rataBelanja: trxVal > 0 ? Math.round(penjualanVal / trxVal) : 0,
       }
     })
 

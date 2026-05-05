@@ -63,7 +63,7 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  const totalOmzet = paymentRows.reduce((s, r) => s + (r._sum.total ?? 0), 0)
+  const totalPenjualan = paymentRows.reduce((s, r) => s + (r._sum.total ?? 0), 0)
   const totalCount = paymentRows.reduce((s, r) => s + r._count, 0)
 
   const breakdown = (["CASH", "QRIS_MANUAL", "MANUAL_TRANSFER"] as const).map(
@@ -75,7 +75,7 @@ export async function GET(req: NextRequest) {
         method,
         amount,
         count: row?._count ?? 0,
-        percentage: totalOmzet > 0 ? Math.round((amount / totalOmzet) * 100) : 0,
+        percentage: totalPenjualan > 0 ? Math.round((amount / totalPenjualan) * 100) : 0,
       }
     },
   )
@@ -133,10 +133,10 @@ export async function GET(req: NextRequest) {
     dateLabel: dateLabel.format(target),
     isToday: jakartaDateKey(target) === jakartaDateKey(today),
     summary: {
-      totalOmzet,
+      totalPenjualan,
       totalCount,
       tunaiMasuk,
-      nonTunai: totalOmzet - tunaiMasuk,
+      nonTunai: totalPenjualan - tunaiMasuk,
     },
     breakdown,
     transactions,

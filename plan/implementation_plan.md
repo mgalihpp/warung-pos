@@ -37,7 +37,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 #### [NEW] [stat-cards.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/dashboard/stat-cards.tsx)
 - **Penjualan Hari Ini**: Rp 2.450.000 (△12.5%)
 - **Jumlah Transaksi**: 86 (△8.7%)
-- **Omzet Bulanan**: Rp 78.650.000 (△15.3%)
+- **Penjualan Bulanan**: Rp 78.650.000 (△15.3%)
 - **Produk Hampir Habis**: 5 (warning)
 - Masing-masing dengan ikon berwarna dan badge persentase
 

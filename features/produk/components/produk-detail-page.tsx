@@ -155,7 +155,7 @@ export function ProdukDetailPage({ data }: ProdukDetailPageProps) {
       tint: "bg-emerald-500/10 text-emerald-600",
     },
     {
-      title: "Total Omzet",
+      title: "Total Penjualan",
       value: formatRupiah(stats.totalRevenue),
       desc: "Dari seluruh penjualan",
       icon: MoneyBag02Icon,
@@ -665,4 +665,3 @@ function PriceMiniCard({
     </div>
   )
 }
-
