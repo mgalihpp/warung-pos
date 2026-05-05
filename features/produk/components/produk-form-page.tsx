@@ -47,14 +47,18 @@ function Field({
   required,
   children,
   error,
+  asLabel = true,
 }: {
   label: string
   required?: boolean
   children: React.ReactNode
   error?: string[]
+  asLabel?: boolean
 }) {
+  const Wrapper = asLabel ? "label" : "div"
+
   return (
-    <label className="grid gap-1.5 text-xs font-medium">
+    <Wrapper className="grid gap-1.5 text-xs font-medium">
       <span>
         {label}
         {required && <span className="ml-0.5 text-destructive">*</span>}
@@ -65,7 +69,7 @@ function Field({
           {error[0]}
         </span>
       )}
-    </label>
+    </Wrapper>
   )
 }
 
@@ -233,7 +237,7 @@ export function ProdukFormPage(props: ProdukFormPageProps) {
             </h2>
 
             <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Foto Produk">
+              <Field label="Foto Produk" asLabel={false}>
                 <input type="hidden" name="image" value={imageUrl ?? ""} />
                 <ImageUpload value={imageUrl} onChange={setImageUrl} />
               </Field>

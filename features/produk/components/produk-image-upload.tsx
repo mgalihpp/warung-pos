@@ -97,6 +97,7 @@ export function ImageUpload({ value, onChange, disabled }: ImageUploadProps) {
         ref={inputRef}
         type="file"
         accept="image/*"
+        capture="environment"
         className="hidden"
         onChange={handleChange}
         disabled={disabled || isUploading}
