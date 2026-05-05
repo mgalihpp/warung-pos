@@ -1,5 +1,5 @@
 import { PrismaPg } from "@prisma/adapter-pg"
-import { PrismaClient } from "@prisma/client"
+import { PrismaClient } from "../app/generated/prisma"
 import { config } from "dotenv"
 
 config({ quiet: true })
