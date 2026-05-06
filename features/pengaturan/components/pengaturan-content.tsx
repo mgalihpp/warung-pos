@@ -42,6 +42,14 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { cn } from "@/lib/utils"
+import {
+  DEFAULT_PRIMARY_COLOR,
+  getReadableForeground,
+  loadCustomTheme,
+  normalizeHexColor,
+  removeCustomTheme,
+  saveCustomTheme,
+} from "@/lib/custom-theme"
 
 const { useUploadThing } = generateReactHelpers<AppFileRouter>()
 
@@ -81,6 +89,15 @@ const themeOptions = [
     description: "Tampilan gelap untuk malam.",
     icon: Moon02Icon,
   },
+]
+
+const colorPresets = [
+  { label: "Oranye Toko", value: "#c2410c" },
+  { label: "Hijau Sembako", value: "#15803d" },
+  { label: "Biru Kasir", value: "#2563eb" },
+  { label: "Ungu Modern", value: "#7c3aed" },
+  { label: "Merah Maroon", value: "#be123c" },
+  { label: "Coklat Kopi", value: "#92400e" },
 ]
 
 export function PengaturanContent({ currentUser, users, canManageUsers = true }: PengaturanContentProps) {
@@ -350,7 +367,7 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
         </div>
       )}
 
-      {activeTab === "tema" && <TemaTab />}
+      {activeTab === "tema" && <TemaTab canCustomizeColors={canManageUsers} />}
     </div>
   )
 }
@@ -565,51 +582,156 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
   )
 }
 
-export function TemaTab() {
+export function TemaTab({ canCustomizeColors }: { canCustomizeColors: boolean }) {
   const { theme, setTheme } = useTheme()
+  const [primaryColor, setPrimaryColor] = React.useState(() => loadCustomTheme()?.primaryColor ?? DEFAULT_PRIMARY_COLOR)
+
+  function handleColorChange(value: string) {
+    const normalizedColor = normalizeHexColor(value)
+
+    setPrimaryColor(normalizedColor)
+    saveCustomTheme({ primaryColor: normalizedColor })
+  }
+
+  function handleResetTheme() {
+    setPrimaryColor(DEFAULT_PRIMARY_COLOR)
+    removeCustomTheme()
+    toast.success("Warna tema dikembalikan ke bawaan.")
+  }
+
+  const foregroundColor = getReadableForeground(primaryColor)
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Tema Aplikasi</CardTitle>
-        <CardDescription>
-          Sesuaikan tema aplikasi untuk kenyamanan mata selama operasional toko.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {themeOptions.map((option) => {
-            const isActive = (theme ?? "system") === option.value
+    <div className="grid gap-4">
+      <Card>
+        <CardHeader>
+          <CardTitle>Tema Aplikasi</CardTitle>
+          <CardDescription>
+            Sesuaikan mode tampilan untuk kenyamanan mata selama operasional toko.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {themeOptions.map((option) => {
+              const isActive = (theme ?? "system") === option.value
 
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setTheme(option.value)}
-                className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
-                  isActive ? "border-primary bg-primary/10" : "bg-card"
-                }`}
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <HugeiconsIcon icon={option.icon} size={20} />
-                  </div>
-                  {isActive && (
-                    <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setTheme(option.value)}
+                  className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
+                    isActive ? "border-primary bg-primary/10" : "bg-card"
+                  }`}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <HugeiconsIcon icon={option.icon} size={20} />
                     </div>
-                  )}
-                </div>
-                <p className="font-semibold">{option.label}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {option.description}
-                </p>
-              </button>
-            )
-          })}
-        </div>
-      </CardContent>
-    </Card>
+                    {isActive && (
+                      <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-semibold">{option.label}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {option.description}
+                  </p>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
+      </Card>
+
+      {canCustomizeColors ? (
+      <Card>
+        <CardHeader>
+          <CardTitle>Warna Toko</CardTitle>
+          <CardDescription>
+            Pilih warna utama aplikasi. Untuk sementara warna ini tersimpan di browser perangkat ini saja.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_320px]">
+          <div className="space-y-5">
+            <FieldGroup label="Warna utama">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+                <Input
+                  type="color"
+                  value={primaryColor}
+                  onChange={(event) => handleColorChange(event.target.value)}
+                  className="h-12 w-full cursor-pointer p-1 sm:w-24"
+                  aria-label="Pilih warna utama aplikasi"
+                />
+                <Input
+                  value={primaryColor}
+                  onChange={(event) => setPrimaryColor(event.target.value)}
+                  onBlur={(event) => handleColorChange(event.target.value)}
+                  className="font-mono uppercase"
+                  aria-label="Kode warna utama aplikasi"
+                />
+                <Button type="button" variant="outline" onClick={handleResetTheme} className="sm:w-auto">
+                  Reset
+                </Button>
+              </div>
+            </FieldGroup>
+
+            <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+              {colorPresets.map((preset) => {
+                const isSelected = primaryColor === preset.value
+
+                return (
+                  <button
+                    key={preset.value}
+                    type="button"
+                    onClick={() => handleColorChange(preset.value)}
+                    className={cn(
+                      "flex items-center gap-3 rounded-2xl border bg-card p-3 text-left text-sm transition-colors hover:bg-muted/50",
+                      isSelected && "border-primary bg-primary/10",
+                    )}
+                  >
+                    <span
+                      className="size-8 shrink-0 rounded-xl border shadow-sm"
+                      style={{ backgroundColor: preset.value }}
+                    />
+                    <span className="min-w-0 flex-1">
+                      <span className="block truncate font-medium">{preset.label}</span>
+                      <span className="block font-mono text-xs uppercase text-muted-foreground">{preset.value}</span>
+                    </span>
+                    {isSelected && <HugeiconsIcon icon={CheckmarkCircle02Icon} size={18} className="text-primary" />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="rounded-3xl border bg-muted/30 p-4">
+            <div
+              className="rounded-2xl p-5 shadow-sm"
+              style={{ backgroundColor: primaryColor, color: foregroundColor }}
+            >
+              <p className="text-xs font-semibold uppercase tracking-wide opacity-80">Preview Tema</p>
+              <p className="mt-2 text-lg font-bold">Warung Mama Nia</p>
+              <p className="mt-1 text-sm opacity-85">Tombol, sidebar, tab aktif, dan highlight akan mengikuti warna ini.</p>
+              <div className="mt-4 inline-flex rounded-full bg-white/20 px-3 py-1 text-xs font-semibold">
+                Kasir Siap Jualan
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+      ) : (
+        <Card>
+          <CardHeader>
+            <CardTitle>Warna Toko</CardTitle>
+            <CardDescription>
+              Warna utama aplikasi hanya bisa diubah oleh admin/pemilik toko.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+      )}
+    </div>
   )
 }
 

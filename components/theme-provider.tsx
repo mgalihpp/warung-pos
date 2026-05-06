@@ -3,6 +3,7 @@
 import * as React from "react"
 import { ThemeProvider as NextThemesProvider, useTheme } from "next-themes"
 import { QueryProvider } from "./query-provider"
+import { applyCustomTheme, loadCustomTheme } from "@/lib/custom-theme"
 
 function ThemeProvider({
   children,
@@ -18,10 +19,23 @@ function ThemeProvider({
     >
       <QueryProvider>
         <ThemeHotkey />
+        <CustomThemeLoader />
         {children}
       </QueryProvider>
     </NextThemesProvider>
   )
+}
+
+function CustomThemeLoader() {
+  React.useEffect(() => {
+    const customTheme = loadCustomTheme()
+
+    if (customTheme) {
+      applyCustomTheme(customTheme)
+    }
+  }, [])
+
+  return null
 }
 
 function isTypingTarget(target: EventTarget | null) {
