@@ -282,7 +282,7 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     const meta = productMap.get(r.productId)
     return {
       id: r.productId,
-      name: meta?.name ?? "Produk",
+      name: meta?.name ?? "Barang",
       unit: meta?.unit ?? "",
       image: meta?.image ?? null,
       sold: r._sum.quantity ?? 0,

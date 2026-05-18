@@ -358,7 +358,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
   for (const item of newItems) {
     const product = productMap.get(item.productId)
     if (!product) {
-      validationErrors.push(`Produk "${item.productId}" tidak ditemukan`)
+      validationErrors.push(`Barang "${item.productId}" tidak ditemukan`)
     }
   }
   if (validationErrors.length > 0) {

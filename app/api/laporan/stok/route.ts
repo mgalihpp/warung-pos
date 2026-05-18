@@ -44,7 +44,7 @@ export async function GET() {
     }
   })
 
-  const totalProduk = items.length
+  const totalBarang = items.length
   const stokMenipis = items.filter((i) => i.status === "LOW").length
   const stokHabis = items.filter((i) => i.status === "OUT").length
   const nilaiStok = items.reduce((s, i) => s + i.nilaiStok, 0)
@@ -54,7 +54,7 @@ export async function GET() {
   ).map(([id, name]) => ({ id, name }))
 
   return NextResponse.json({
-    stats: { totalProduk, stokMenipis, stokHabis, nilaiStok },
+    stats: { totalBarang, stokMenipis, stokHabis, nilaiStok },
     items,
     categories,
   })

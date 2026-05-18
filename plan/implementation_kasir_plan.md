@@ -8,7 +8,7 @@ Mengubah halaman kasir POS dari mockup statis (hardcoded data) menjadi sistem ka
 |---|---|
 | Route kasir | `/cashier` ada (placeholder), `/cashier/pos` & `/cashier/transaksi` kosong |
 | Komponen POS | 7 file di `components/pos/` — **semua statis** (data hardcoded dari `pos-data.ts`) |
-| API | Hanya ada `/api/produk` (admin-only) & `/api/kategori` (admin-only) |
+| API | Hanya ada `/api/barang` (admin-only) & `/api/kategori` (admin-only) |
 | Database | Schema lengkap: Product, Category, Transaction, TransactionItem, StockAdjustment |
 | Auth | Better Auth dengan role `admin` & `cashier`, session-based |
 | Stack | Next.js 16, TanStack Query, Prisma 7, Zod 4, Tailwind 4, Shadcn UI |
@@ -22,12 +22,12 @@ Mengubah halaman kasir POS dari mockup statis (hardcoded data) menjadi sistem ka
 > **Fitur struk/receipt** — Struk akan ditampilkan dalam dialog setelah pembayaran berhasil, dengan opsi cetak via `window.print()`. Tidak ada integrasi printer termal khusus di fase ini.
 
 > [!WARNING]
-> **Stok auto-decrement** — Ketika transaksi berhasil, stok produk akan otomatis dikurangi di database dan StockAdjustment record dibuat. Pastikan ini sesuai ekspektasi.
+> **Stok auto-decrement** — Ketika transaksi berhasil, stok barang akan otomatis dikurangi di database dan StockAdjustment record dibuat. Pastikan ini sesuai ekspektasi.
 
 ## Open Questions
 
 > [!IMPORTANT]
-> 1. **Pencarian produk** — Apakah cukup pencarian teks biasa, atau perlu fitur barcode scanning (kamera HP)?
+> 1. **Pencarian barang** — Apakah cukup pencarian teks biasa, atau perlu fitur barcode scanning (kamera HP)?
 > 2. **Catatan transaksi** — Apakah kasir perlu menambahkan catatan/notes per transaksi?
 > 3. **Riwayat transaksi kasir** — Apakah halaman `/cashier/transaksi` (riwayat transaksi milik kasir sendiri) perlu diimplementasikan sekarang, atau fokus POS dulu?
 > 4. **Quick amount buttons** — Apakah perlu tombol nominal cepat (Rp50.000, Rp100.000, dll) untuk input uang tunai?
@@ -40,12 +40,12 @@ Mengubah halaman kasir POS dari mockup statis (hardcoded data) menjadi sistem ka
 
 Membuat API route baru yang bisa diakses oleh role `cashier` (dan `admin`).
 
-#### [NEW] [route.ts](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/app/api/kasir/produk/route.ts)
+#### [NEW] [route.ts](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/app/api/kasir/barang/route.ts)
 
-- `GET /api/kasir/produk` — Fetch semua produk aktif + kategori untuk kasir
+- `GET /api/kasir/barang` — Fetch semua barang aktif + kategori untuk kasir
 - Auth: session required, role `cashier` atau `admin`
 - Response: `{ products: [...], categories: [...] }`
-- Hanya return produk `isActive: true` & `stock > 0`
+- Hanya return barang `isActive: true` & `stock > 0`
 - Include relasi category untuk filter
 
 #### [NEW] [route.ts](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/app/api/kasir/transaksi/route.ts)
@@ -62,11 +62,11 @@ Membuat API route baru yang bisa diakses oleh role `cashier` (dan `admin`).
   }
   ```
 - Logic:
-  1. Validate semua item (produk aktif, stok cukup)
+  1. Validate semua item (barang aktif, stok cukup)
   2. Generate invoice number `INV-YYYYMMDD-XXXX`
   3. Hitung subtotal, total, change
   4. Create Transaction + TransactionItems dalam `$transaction`
-  5. Decrement stok produk
+  5. Decrement stok barang
   6. Create StockAdjustment records (type: `OUT`)
   7. Return transaction data + items untuk receipt
 
@@ -135,10 +135,10 @@ Mengubah semua komponen statis menjadi fungsional.
 
 #### [MODIFY] [pos-page-client.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/pos/pos-page-client.tsx)
 
-- Integrate TanStack Query: `useQuery` untuk fetch `/api/kasir/produk`
+- Integrate TanStack Query: `useQuery` untuk fetch `/api/kasir/barang`
 - State management: pencarian, kategori aktif, filtered products
 - Connect ke Zustand cart store
-- Search bar + category filter yang benar-benar memfilter produk
+- Search bar + category filter yang benar-benar memfilter barang
 - Loading/error/empty states
 - Hapus semua hardcoded data
 
@@ -157,9 +157,9 @@ Mengubah semua komponen statis menjadi fungsional.
 
 - Props: `products`, `onAddToCart`
 - Klik kartu / tombol "Tambah" → `addItem` dari cart store
-- Visual feedback saat produk ditambahkan (toast/animation)
-- Badge quantity di kartu jika produk sudah ada di keranjang
-- Tampilkan gambar produk jika ada (dari UploadThing URL)
+- Visual feedback saat barang ditambahkan (toast/animation)
+- Badge quantity di kartu jika barang sudah ada di keranjang
+- Tampilkan gambar barang jika ada (dari UploadThing URL)
 
 #### [MODIFY] [pos-cart.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/pos/pos-cart.tsx)
 
@@ -197,9 +197,9 @@ Mengubah semua komponen statis menjadi fungsional.
 
 #### [NEW] [pos-search-bar.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/pos/pos-search-bar.tsx)
 
-- Input pencarian produk dengan debounce
+- Input pencarian barang dengan debounce
 - Icon search + clear button
-- Filter produk berdasarkan nama (case-insensitive)
+- Filter barang berdasarkan nama (case-insensitive)
 
 ---
 
@@ -248,7 +248,7 @@ Mengubah semua komponen statis menjadi fungsional.
 ```mermaid
 graph TD
     A["/cashier/pos (Server)"] --> B["PosPageClient (Client)"]
-    B --> C["useQuery: /api/kasir/produk"]
+    B --> C["useQuery: /api/kasir/barang"]
     B --> D["Zustand Cart Store"]
     
     C --> E["PosProductGrid"]
@@ -287,9 +287,9 @@ npm run lint
 ### Manual / Browser Verification
 
 1. **Login sebagai kasir** → redirect ke `/cashier/pos`
-2. **Produk tampil** dari database (bukan hardcoded)
-3. **Filter kategori** memfilter grid produk
-4. **Pencarian** memfilter produk real-time
+2. **Barang tampil** dari database (bukan hardcoded)
+3. **Filter kategori** memfilter grid barang
+4. **Pencarian** memfilter barang real-time
 5. **Tambah ke keranjang** → qty bertambah, badge muncul di kartu
 6. **Ubah qty** di keranjang (increment/decrement/hapus)
 7. **Pilih metode bayar** → CASH/QRIS/Transfer

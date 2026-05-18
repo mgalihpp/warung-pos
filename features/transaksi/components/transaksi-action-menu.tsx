@@ -78,7 +78,7 @@ export function TransaksiActionMenu({
         </DropdownMenuContent>
       </DropdownMenu>
 
-      {/* Delete Confirmation — matches produk delete dialog */}
+      {/* Delete Confirmation — matches barang delete dialog */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-[400px]">
           <AlertDialogHeader>
@@ -95,7 +95,7 @@ export function TransaksiActionMenu({
               {currentStatus === "Selesai" && (
                 <>
                   <br /><br />
-                  *Stok produk yang terkait akan otomatis dikembalikan.
+                  *Stok barang yang terkait akan otomatis dikembalikan.
                 </>
               )}
             </AlertDialogDescription>

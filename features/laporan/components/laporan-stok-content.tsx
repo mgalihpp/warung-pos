@@ -61,7 +61,7 @@ export function LaporanStokContent() {
                 type="text"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}
-                placeholder="Cari produk..."
+                placeholder="Cari barang..."
                 className="w-full rounded-lg border bg-background py-2 pr-3 pl-9 text-sm outline-none focus:border-primary"
               />
             </div>
@@ -89,7 +89,7 @@ export function LaporanStokContent() {
             </select>
           </div>
           <span className="text-xs text-muted-foreground">
-            {filtered.length} dari {data.items.length} produk
+            {filtered.length} dari {data.items.length} barang
           </span>
         </div>
 
@@ -97,7 +97,7 @@ export function LaporanStokContent() {
           <table className="w-full min-w-[820px] text-left text-xs">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
-                <th className="px-4 py-3 font-semibold">Produk</th>
+                <th className="px-4 py-3 font-semibold">Barang</th>
                 <th className="px-4 py-3 font-semibold">Kategori</th>
                 <th className="px-4 py-3 text-right font-semibold">Stok</th>
                 <th className="px-4 py-3 text-right font-semibold">Min</th>
@@ -120,7 +120,7 @@ export function LaporanStokContent() {
                     colSpan={8}
                     className="px-4 py-10 text-center text-muted-foreground"
                   >
-                    Tidak ada produk yang cocok.
+                    Tidak ada barang yang cocok.
                   </td>
                 </tr>
               ) : (
@@ -134,7 +134,7 @@ export function LaporanStokContent() {
         <div className="flex flex-col gap-2.5 p-4 pt-0 md:hidden">
           {filtered.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">
-              Tidak ada produk yang cocok.
+              Tidak ada barang yang cocok.
             </div>
           ) : (
             filtered.map((item) => {
@@ -202,8 +202,8 @@ export function LaporanStokContent() {
 function StatGrid({ stats }: { stats: StokData["stats"] }) {
   const cards = [
     {
-      title: "Total Produk Aktif",
-      value: formatNumber(stats.totalProduk),
+      title: "Total Barang Aktif",
+      value: formatNumber(stats.totalBarang),
       icon: PackageIcon,
       iconBg: "bg-primary/10",
       iconColor: "text-primary",

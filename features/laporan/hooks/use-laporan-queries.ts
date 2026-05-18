@@ -88,7 +88,7 @@ export function useLaporanPenjualan(range: LaporanRange = "30d", initialData?: P
 // ── Stok ──
 
 export type StokStats = {
-  totalProduk: number
+  totalBarang: number
   stokMenipis: number
   stokHabis: number
   nilaiStok: number

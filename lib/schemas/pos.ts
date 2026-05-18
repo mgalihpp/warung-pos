@@ -4,7 +4,7 @@ export const createTransactionSchema = z.object({
   items: z
     .array(
       z.object({
-        productId: z.string().min(1, "ID produk wajib diisi"),
+        productId: z.string().min(1, "ID barang wajib diisi"),
         quantity: z.number().int().min(1, "Minimal 1 item"),
       })
     )

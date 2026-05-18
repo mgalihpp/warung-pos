@@ -539,9 +539,9 @@ function TopProductsCard({
 }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold">Produk Terlaris</h2>
+      <h2 className="mb-3 text-sm font-semibold">Barang Terlaris</h2>
       {items.length === 0 ? (
-        <EmptyState message="Belum ada produk terjual" small />
+        <EmptyState message="Belum ada barang terjual" small />
       ) : (
         <div className="space-y-3">
           {items.map((item, index) => (
@@ -631,7 +631,7 @@ function QuickInsightCard({ data }: { data: PenjualanData }) {
       : null,
     topProduct
       ? {
-          text: `Produk terlaris: ${topProduct.name}`,
+          text: `Barang terlaris: ${topProduct.name}`,
           icon: ChartLineData01Icon,
           tone: "bg-emerald-500/10 text-emerald-600",
         }

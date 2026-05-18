@@ -23,7 +23,7 @@ export function PosSearchBar({ value, onChange, className }: PosSearchBarProps) 
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
-        placeholder="Cari produk..."
+        placeholder="Cari barang..."
         className={cn(
           "w-full bg-card border pl-9 pr-9 text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors rounded-lg py-2 text-sm",
           className

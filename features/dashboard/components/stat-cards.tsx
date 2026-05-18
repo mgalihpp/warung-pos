@@ -65,7 +65,7 @@ function buildStats(stats: DashboardStats) {
       chartData: stats.monthSales.spark,
     },
     {
-      title: "Produk Hampir Habis",
+      title: "Barang Hampir Habis",
       value: stats.lowStockCount.value,
       formatted: false,
       change: null,

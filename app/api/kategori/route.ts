@@ -2,7 +2,7 @@ import { NextResponse } from "next/server"
 
 import { requireAdmin } from "@/lib/server/auth-guards"
 import { prisma } from "@/lib/prisma"
-import { categorySchema } from "@/lib/schemas/produk"
+import { categorySchema } from "@/lib/schemas/barang"
 
 function slugify(value: string) {
   return value

@@ -90,7 +90,7 @@ erDiagram
 
 ### 1. `Category` — Kategori Barang
 
-Mengelola kategori produk (Sembako, Sabun, Rokok, Minuman, Snack, dll).
+Mengelola kategori barang (Sembako, Sabun, Rokok, Minuman, Snack, dll).
 
 | Field | Type | Constraint | Keterangan |
 |---|---|---|---|
@@ -133,9 +133,9 @@ Model utama inventori. Menyimpan data barang lengkap dengan harga beli, harga ju
 - One-to-Many → `StockAdjustment`
 
 **Index:**
-- `@@index([categoryId])` — Query produk per kategori
-- `@@index([name])` — Pencarian produk di POS
-- `@@index([isActive])` — Filter produk aktif
+- `@@index([categoryId])` — Query barang per kategori
+- `@@index([name])` — Pencarian barang di POS
+- `@@index([isActive])` — Filter barang aktif
 
 ---
 
@@ -179,8 +179,8 @@ Detail barang yang dibeli dalam setiap transaksi.
 |---|---|---|---|
 | `id` | `String` | `@id @default(cuid())` | Primary key |
 | `transactionId` | `String` | `FK → Transaction` | Relasi ke transaksi |
-| `productId` | `String` | `FK → Product` | Relasi ke produk |
-| `productName` | `String` | — | Nama produk saat transaksi (denormalized) |
+| `productId` | `String` | `FK → Product` | Relasi ke barang |
+| `productName` | `String` | — | Nama barang saat transaksi (denormalized) |
 | `unitPrice` | `Float` | — | Harga jual per unit saat transaksi |
 | `quantity` | `Int` | — | Jumlah yang dibeli |
 | `subtotal` | `Float` | — | `unitPrice × quantity` |
@@ -195,7 +195,7 @@ Detail barang yang dibeli dalam setiap transaksi.
 
 **Index:**
 - `@@index([transactionId])` — Query items per transaksi
-- `@@index([productId])` — Analisis penjualan per produk
+- `@@index([productId])` — Analisis penjualan per barang
 
 ---
 
@@ -206,7 +206,7 @@ Mencatat setiap perubahan stok barang, baik karena penjualan, restok, atau korek
 | Field | Type | Constraint | Keterangan |
 |---|---|---|---|
 | `id` | `String` | `@id @default(cuid())` | Primary key |
-| `productId` | `String` | `FK → Product` | Produk yang stoknya berubah |
+| `productId` | `String` | `FK → Product` | Barang yang stoknya berubah |
 | `userId` | `String` | `FK → User` | User yang melakukan perubahan |
 | `type` | `String` | — | Tipe: `IN` (restok), `OUT` (penjualan), `CORRECTION` (koreksi manual) |
 | `quantity` | `Int` | — | Jumlah perubahan (positif) |
@@ -224,7 +224,7 @@ Mencatat setiap perubahan stok barang, baik karena penjualan, restok, atau korek
 - Many-to-One → `User`
 
 **Index:**
-- `@@index([productId])` — Riwayat stok per produk
+- `@@index([productId])` — Riwayat stok per barang
 - `@@index([userId])` — Riwayat perubahan stok per user
 - `@@index([createdAt])` — Timeline perubahan stok
 
@@ -260,8 +260,8 @@ Setelah schema di-push, akan dibuat seed script (`prisma/seed.ts`) dengan data a
 | Obat & Kesehatan | obat-kesehatan |
 | ATK & Lainnya | atk-lainnya |
 
-### Produk Contoh (beberapa per kategori)
-Beberapa produk sampel per kategori dengan data harga beli, harga jual, stok, dan satuan yang realistis.
+### Barang Contoh (beberapa per kategori)
+Beberapa barang sampel per kategori dengan data harga beli, harga jual, stok, dan satuan yang realistis.
 
 ---
 
@@ -277,7 +277,7 @@ Menambahkan 5 model baru (`Category`, `Product`, `Transaction`, `TransactionItem
 
 #### [NEW] [seed.ts](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/prisma/seed.ts)
 
-Script untuk mengisi data awal: kategori default dan beberapa produk contoh.
+Script untuk mengisi data awal: kategori default dan beberapa barang contoh.
 
 #### [MODIFY] [package.json](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/package.json)
 

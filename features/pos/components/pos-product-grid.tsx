@@ -193,7 +193,7 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
   if (products.length === 0) {
     return (
       <div className="flex flex-1 items-center justify-center text-sm text-muted-foreground">
-        Tidak ada produk ditemukan
+        Tidak ada barang ditemukan
       </div>
     )
   }

@@ -1,18 +1,18 @@
 # Warung Mama Nia POS
 
-Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi ini mendukung pengelolaan produk, stok, transaksi kasir, laporan penjualan, dan akses berbasis role untuk admin serta kasir.
+Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi ini mendukung pengelolaan barang, stok, transaksi kasir, laporan penjualan, dan akses berbasis role untuk admin serta kasir.
 
 ## Fitur Utama
 
 - Autentikasi menggunakan Better Auth.
 - Role akses `admin` dan `cashier`.
 - Dashboard admin dan kasir.
-- Manajemen produk, kategori, harga beli, harga jual, stok, dan gambar produk.
+- Manajemen barang, kategori, harga beli, harga jual, stok, dan gambar barang.
 - POS untuk pencatatan transaksi penjualan.
 - Riwayat transaksi dan edit transaksi admin.
 - Laporan kas, kasir, stok, dan penjualan.
 - Audit perubahan stok melalui data `StockAdjustment`.
-- Upload gambar produk menggunakan UploadThing.
+- Upload gambar barang menggunakan UploadThing.
 - Dukungan PWA untuk pengalaman penggunaan seperti aplikasi.
 
 ## Tech Stack
@@ -33,7 +33,7 @@ Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi 
 
 - Node.js dan npm.
 - Database PostgreSQL.
-- Akun UploadThing jika ingin menggunakan fitur upload gambar produk.
+- Akun UploadThing jika ingin menggunakan fitur upload gambar barang.
 
 ## Setup Environment
 
@@ -88,7 +88,7 @@ Atau gunakan migration development:
 npm run db:migrate
 ```
 
-Isi data kategori dan produk contoh:
+Isi data kategori dan barang contoh:
 
 ```bash
 npm run db:seed
@@ -127,8 +127,8 @@ Halaman root akan mengarah ke `/login`.
 - `/login` - halaman login.
 - `/register` - halaman registrasi.
 - `/admin` - dashboard admin.
-- `/admin/produk` - manajemen produk.
-- `/admin/produk/tambah` - tambah produk.
+- `/admin/barang` - manajemen barang.
+- `/admin/barang/tambah` - tambah barang.
 - `/admin/pos` - POS dari sisi admin.
 - `/admin/transaksi` - daftar transaksi admin.
 - `/admin/laporan` - ringkasan laporan.
@@ -144,16 +144,16 @@ Halaman root akan mengarah ke `/login`.
 ## API Penting
 
 - `/api/auth/[...all]` - endpoint Better Auth.
-- `/api/produk` - data produk admin.
+- `/api/barang` - data barang admin.
 - `/api/kategori` - data kategori.
 - `/api/transaksi` - transaksi admin.
-- `/api/kasir/produk` - data produk untuk kasir.
+- `/api/kasir/barang` - data barang untuk kasir.
 - `/api/kasir/transaksi` - transaksi dari kasir.
 - `/api/laporan/kas` - laporan kas.
 - `/api/laporan/kasir` - laporan kasir.
 - `/api/laporan/penjualan` - laporan penjualan.
 - `/api/laporan/stok` - laporan stok.
-- `/api/uploadthing` - upload gambar produk.
+- `/api/uploadthing` - upload gambar barang.
 
 ## Script NPM
 

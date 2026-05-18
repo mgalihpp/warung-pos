@@ -134,7 +134,7 @@ export function DashboardHeader() {
             className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 sm:px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
           >
             <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
-            <span className="hidden flex-1 truncate text-left sm:block">Cari produk, transaksi, pelanggan...</span>
+            <span className="hidden flex-1 truncate text-left sm:block">Cari barang, transaksi, pelanggan...</span>
             <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
             <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
           </button>

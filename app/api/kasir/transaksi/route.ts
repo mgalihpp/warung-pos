@@ -59,7 +59,7 @@ export async function POST(request: Request) {
   for (const item of items) {
     const product = productMap.get(item.productId)
     if (!product) {
-      validationErrors.push(`Produk "${item.productId}" tidak ditemukan atau tidak aktif`)
+      validationErrors.push(`Barang "${item.productId}" tidak ditemukan atau tidak aktif`)
       continue
     }
     if (product.stock < item.quantity) {

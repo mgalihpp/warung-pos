@@ -33,7 +33,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { formatRupiah } from "@/lib/format-currency"
 
-// ── Field helper (matches produk-form-page) ──
+// ── Field helper (matches barang-form-page) ──
 
 function Field({
   label,
@@ -464,7 +464,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
         </div>
       </div>
 
-      {/* Delete confirmation — matches produk delete dialog */}
+      {/* Delete confirmation — matches barang delete dialog */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-[400px]">
           <AlertDialogHeader>
@@ -481,7 +481,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               {data.status === "Selesai" && (
                 <>
                   <br /><br />
-                  *Stok produk yang terkait akan otomatis dikembalikan.
+                  *Stok barang yang terkait akan otomatis dikembalikan.
                 </>
               )}
             </AlertDialogDescription>

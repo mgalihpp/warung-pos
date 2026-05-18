@@ -23,7 +23,7 @@ Akan membuat endpoint API baru untuk melayani data transaksi, statistik, dan akt
 ---
 
 ### Frontend Data Fetching Layer
-Akan membuat custom hook untuk membungkus panggilan fetch ke API transaksi dengan TanStack Query, konsisten dengan halaman Produk.
+Akan membuat custom hook untuk membungkus panggilan fetch ke API transaksi dengan TanStack Query, konsisten dengan halaman Barang.
 
 #### [NEW] `components/transaksi/use-transaksi-queries.ts`
 - **Tujuan**: Menyediakan hook `useTransactions()` dan mendefinisikan *types* TypeScript yang diperlukan.

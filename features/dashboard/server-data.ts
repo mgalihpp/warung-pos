@@ -483,7 +483,7 @@ export async function getDashboardData(range: Range = "7d") {
     return {
       rank: i + 1,
       id: b.productId,
-      name: info?.name ?? "(Produk dihapus)",
+      name: info?.name ?? "(Barang dihapus)",
       unit: info?.unit ?? "pcs",
       image: info?.image ?? null,
       sold: b._sum.quantity ?? 0,

@@ -53,7 +53,7 @@ function buildStats(stats: TransactionStats): StatItem[] {
       iconColor: "text-emerald-600",
     },
     {
-      title: "Produk Terjual Hari Ini",
+      title: "Barang Terjual Hari Ini",
       value: String(stats.soldProductsCount),
       description: "Total item dari transaksi selesai",
       icon: PackageIcon,

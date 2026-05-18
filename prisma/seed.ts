@@ -58,7 +58,7 @@ const categories = [
 ]
 
 // ============================================================================
-// Produk Contoh (per kategori)
+// Barang Contoh (per kategori)
 // ============================================================================
 
 interface ProductSeed {
@@ -389,8 +389,8 @@ async function main() {
     console.log(`   ✓ ${created.name}`)
   }
 
-  // 2. Upsert Produk
-  console.log("\n📦 Seeding produk...")
+  // 2. Upsert Barang
+  console.log("\n📦 Seeding barang...")
   for (const prod of products) {
     const categoryId = categoryMap.get(prod.categorySlug)
     if (!categoryId) {
@@ -435,7 +435,7 @@ async function main() {
 
   console.log("\n✅ Seeding selesai!")
   console.log(`   → ${categories.length} kategori`)
-  console.log(`   → ${products.length} produk`)
+  console.log(`   → ${products.length} barang`)
 }
 
 main()

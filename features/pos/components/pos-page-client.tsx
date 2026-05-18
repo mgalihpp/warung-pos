@@ -31,11 +31,11 @@ import { PosReceiptDialog, type TransactionReceipt } from "./pos-receipt-dialog"
 import { PosRecentTransactions } from "./pos-recent-transactions"
 import { PosSearchBar } from "./pos-search-bar"
 
-type MobileTab = "produk" | "keranjang"
+type MobileTab = "barang" | "keranjang"
 
 export function PosPageClient() {
   const queryClient = useQueryClient()
-  const [mobileTab, setMobileTab] = useState<MobileTab>("produk")
+  const [mobileTab, setMobileTab] = useState<MobileTab>("barang")
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
@@ -53,10 +53,10 @@ export function PosPageClient() {
   const notes = useCartStore((s) => s.notes)
 
   const { data, isLoading } = useQuery({
-    queryKey: ["kasir", "produk"],
+    queryKey: ["kasir", "barang"],
     queryFn: async () => {
-      const res = await fetch("/api/kasir/produk")
-      if (!res.ok) throw new Error("Gagal memuat produk")
+      const res = await fetch("/api/kasir/barang")
+      if (!res.ok) throw new Error("Gagal memuat barang")
       return res.json()
     },
   })
@@ -94,7 +94,7 @@ export function PosPageClient() {
     },
     onSuccess: (result) => {
       setReceiptData(result.transaction)
-      queryClient.invalidateQueries({ queryKey: ["kasir", "produk"] })
+      queryClient.invalidateQueries({ queryKey: ["kasir", "barang"] })
       queryClient.invalidateQueries({ queryKey: ["kasir", "transaksi-recent"] })
     },
     onError: (error) => {
@@ -131,7 +131,7 @@ export function PosPageClient() {
   const handleNewTransaction = () => {
     setReceiptData(null)
     clearCart()
-    setMobileTab("produk")
+    setMobileTab("barang")
   }
 
   useEffect(() => {
@@ -147,9 +147,9 @@ export function PosPageClient() {
 
     return () => {
       window.clearTimeout(timeout)
-      document.body.dataset.posMobileTab = "produk"
+      document.body.dataset.posMobileTab = "barang"
       window.dispatchEvent(
-        new CustomEvent("pos-mobile-tab-change", { detail: { tab: "produk" } })
+        new CustomEvent("pos-mobile-tab-change", { detail: { tab: "barang" } })
       )
     }
   }, [mobileTab])
@@ -203,10 +203,10 @@ export function PosPageClient() {
       {/* Mobile Layout */}
       <div className="flex h-full flex-col overflow-hidden bg-muted/40 xl:hidden">
         <div className="relative flex-1 overflow-hidden">
-          {/* Tab: Produk */}
+          {/* Tab: Barang */}
           <div
             className={`absolute inset-0 flex flex-col gap-3 transition-transform duration-300 ${
-              mobileTab === "produk"
+              mobileTab === "barang"
                 ? "translate-x-0"
                 : "pointer-events-none -translate-x-full"
             }`}
@@ -226,7 +226,7 @@ export function PosPageClient() {
                           <SelectValue placeholder="Pilih kategori" />
                         </SelectTrigger>
                         <SelectContent>
-                          <SelectItem value="all">Semua Produk</SelectItem>
+                          <SelectItem value="all">Semua Barang</SelectItem>
                           {categories.map((c) => (
                             <SelectItem key={c.id} value={c.id}>
                               {c.name}
@@ -253,7 +253,7 @@ export function PosPageClient() {
                     <input
                       autoFocus
                       type="text"
-                      placeholder="Cari produk..."
+                      placeholder="Cari barang..."
                       className="h-full flex-1 bg-transparent px-3 text-[13px] outline-none"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
@@ -307,7 +307,7 @@ export function PosPageClient() {
           >
             <div className="flex shrink-0 items-center gap-3 border-b bg-card px-4 py-3">
               <button
-                onClick={() => setMobileTab("produk")}
+                onClick={() => setMobileTab("barang")}
                 className="flex size-8 shrink-0 items-center justify-center rounded-lg border transition-colors hover:bg-accent"
               >
                 <HugeiconsIcon icon={ArrowLeft01Icon} size={16} />

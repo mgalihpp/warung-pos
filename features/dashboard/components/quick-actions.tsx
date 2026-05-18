@@ -31,8 +31,8 @@ const actions = [
     fabClass: "border bg-card text-foreground hover:bg-muted",
   },
   {
-    href: "/admin/produk/tambah",
-    label: "Tambah Produk",
+    href: "/admin/barang/tambah",
+    label: "Tambah Barang",
     icon: PackageIcon,
     cardClass:
       "bg-yellow-500/10 text-yellow-600 hover:bg-yellow-500/20 dark:text-yellow-500",

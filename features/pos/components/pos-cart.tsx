@@ -129,7 +129,7 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                 className="mb-2 opacity-30"
               />
               <p className="text-sm font-medium">Keranjang kosong</p>
-              <p className="mt-1 text-xs">Tambahkan produk dari daftar</p>
+              <p className="mt-1 text-xs">Tambahkan barang dari daftar</p>
             </div>
           ) : (
             <div className="flex flex-col gap-1.5">

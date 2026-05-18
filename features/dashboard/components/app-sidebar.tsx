@@ -11,6 +11,7 @@ import {
   ChartHistogramIcon,
   Settings01Icon,
   CashierIcon,
+  TagsIcon,
 } from "@hugeicons/core-free-icons"
 import {
   Sidebar,
@@ -26,7 +27,8 @@ import {
 const menuItems = [
   { title: "Dashboard", href: "/admin", icon: DashboardSquare01Icon },
   { title: "Kasir", href: "/admin/pos", icon: CashierIcon },
-  { title: "Produk", href: "/admin/produk", icon: PackageIcon },
+  { title: "Barang", href: "/admin/barang", icon: PackageIcon },
+  { title: "Kategori", href: "/admin/kategori", icon: TagsIcon },
   { title: "Transaksi", href: "/admin/transaksi", icon: InvoiceIcon },
   { title: "Laporan", href: "/admin/laporan", icon: ChartHistogramIcon },
   { title: "Pengaturan", href: "/admin/pengaturan", icon: Settings01Icon },

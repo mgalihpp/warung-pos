@@ -10,7 +10,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 - Buat layout admin baru dengan `SidebarProvider` + `Sidebar` + `SidebarInset`
 - Sidebar hijau (#1B8332) berisi:
   - Logo "POS Warung Sembako" + ikon keranjang
-  - Menu navigasi: Dashboard, Kasir, Produk, Stok, Transaksi, Pelanggan, Laporan, Pengaturan
+  - Menu navigasi: Dashboard, Kasir, Barang, Stok, Transaksi, Pelanggan, Laporan, Pengaturan
   - Card promo "Kelola warung lebih mudah..."
   - Footer: versi v1.0.0
 
@@ -24,7 +24,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 ### Top Bar
 
 #### [NEW] [dashboard-header.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/dashboard/dashboard-header.tsx)
-- Search bar dengan placeholder "Cari produk, transaksi, pelanggan..."
+- Search bar dengan placeholder "Cari barang, transaksi, pelanggan..."
 - Keyboard shortcut badge `Ctrl + K`
 - Tanggal hari ini (formatted Indonesia)
 - Bell notification icon dengan badge
@@ -38,7 +38,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 - **Penjualan Hari Ini**: Rp 2.450.000 (△12.5%)
 - **Jumlah Transaksi**: 86 (△8.7%)
 - **Penjualan Bulanan**: Rp 78.650.000 (△15.3%)
-- **Produk Hampir Habis**: 5 (warning)
+- **Barang Hampir Habis**: 5 (warning)
 - Masing-masing dengan ikon berwarna dan badge persentase
 
 ---
@@ -61,7 +61,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 
 #### [NEW] [quick-actions.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/dashboard/quick-actions.tsx)
 - Tombol "Tambah Transaksi" (hijau, prominent)
-- Tombol "Cetak Struk" dan "Tambah Produk"
+- Tombol "Cetak Struk" dan "Tambah Barang"
 - Section "Metode Pembayaran" (Tunai, QRIS, Transfer) dengan breakdown persentase
 
 ---
@@ -80,12 +80,12 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 
 #### [NEW] [low-stock-panel.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/dashboard/low-stock-panel.tsx)
 - "Stok Menipis" dengan badge jumlah (5)
-- List produk: gambar, nama, sisa stok, badge warna
+- List barang: gambar, nama, sisa stok, badge warna
 - Link "Lihat Semua"
 
 #### [NEW] [best-sellers-panel.tsx](file:///d:/Download/Documents/gunadarma/gundar/PI/aplikasi/warung-sembako-pos/components/dashboard/best-sellers-panel.tsx)
-- "Produk Terlaris" 
-- List produk: ranking, gambar, nama, jumlah terjual, total penjualan
+- "Barang Terlaris" 
+- List barang: ranking, gambar, nama, jumlah terjual, total penjualan
 - Link "Lihat Semua"
 
 ---
@@ -108,7 +108,7 @@ Membuat halaman dashboard utama sesuai dengan screenshot yang diberikan. Dashboa
 
 ### Product Images
 
-Akan generate gambar produk (beras, gula pasir, minyak goreng, telur, mie instan) untuk ditampilkan di panel stok menipis dan produk terlaris.
+Akan generate gambar barang (beras, gula pasir, minyak goreng, telur, mie instan) untuk ditampilkan di panel stok menipis dan barang terlaris.
 
 ## Verification Plan
 

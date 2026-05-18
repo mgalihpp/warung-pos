@@ -10,11 +10,13 @@ import {
   InvoiceIcon,
   ChartHistogramIcon,
   CashierIcon,
+  TagsIcon,
 } from "@hugeicons/core-free-icons"
 
 const navItems = [
   { href: "/admin", label: "Dashboard", icon: DashboardSquare01Icon },
-  { href: "/admin/produk", label: "Produk", icon: PackageIcon },
+  { href: "/admin/barang", label: "Barang", icon: PackageIcon },
+  { href: "/admin/kategori", label: "Kategori", icon: TagsIcon },
   { href: "/admin/pos", label: "Kasir", icon: CashierIcon },
   { href: "/admin/transaksi", label: "Transaksi", icon: InvoiceIcon },
   { href: "/admin/laporan", label: "Laporan", icon: ChartHistogramIcon },

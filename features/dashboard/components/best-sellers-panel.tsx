@@ -8,9 +8,9 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Produk Terlaris</h3>
+        <h3 className="text-sm font-semibold">Barang Terlaris</h3>
         <Link
-          href="/admin/produk"
+          href="/admin/barang"
           className="text-xs font-medium text-primary hover:underline"
         >
           Lihat Semua
