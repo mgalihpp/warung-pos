@@ -1,5 +1,6 @@
 "use client"
 
+import { memo, useMemo } from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
@@ -9,7 +10,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import Image from "next/image"
 import { formatRupiah } from "@/lib/format-currency"
-import { useCartStore, useCartItemQuantity } from "@/features/pos/hooks/use-cart"
+import { useCartStore } from "@/features/pos/hooks/use-cart"
 
 export type PosProduct = {
   id: string
@@ -28,12 +29,20 @@ type PosProductGridProps = {
   isLoading?: boolean
 }
 
-function getVisibleCartTarget() {
-  const targets = document.querySelectorAll<HTMLElement>(
-    "[data-pos-cart-icon-target], [data-pos-cart-target]"
-  )
+type AddCartItem = (product: {
+  id: string
+  name: string
+  sellPrice: number
+  buyPrice: number
+  unit: string
+  stock: number
+  image: string | null
+}) => void
 
-  return Array.from(targets).find((target) => {
+function getVisibleCartTarget() {
+  const selectors = ["[data-pos-cart-icon-target]", "[data-pos-cart-target]"]
+
+  const isVisible = (target: HTMLElement) => {
     const rect = target.getBoundingClientRect()
     const style = window.getComputedStyle(target)
 
@@ -47,7 +56,13 @@ function getVisibleCartTarget() {
       style.display !== "none" &&
       style.visibility !== "hidden"
     )
-  })
+  }
+
+  for (const selector of selectors) {
+    const target = Array.from(document.querySelectorAll<HTMLElement>(selector)).find(isVisible)
+
+    if (target) return target
+  }
 }
 
 function animateProductToCart(source: HTMLElement) {
@@ -58,7 +73,8 @@ function animateProductToCart(source: HTMLElement) {
 
   const sourceRect = source.getBoundingClientRect()
   const targetRect = target.getBoundingClientRect()
-  const clone = source.cloneNode(true) as HTMLElement
+  const sourceImage = source.querySelector<HTMLImageElement>("img")
+  const clone = document.createElement("div")
 
   clone.style.position = "fixed"
   clone.style.left = `${sourceRect.left}px`
@@ -70,6 +86,15 @@ function animateProductToCart(source: HTMLElement) {
   clone.style.borderRadius = "16px"
   clone.style.overflow = "hidden"
   clone.style.boxShadow = "0 18px 45px rgba(0, 0, 0, 0.2)"
+  clone.style.backgroundColor = "var(--muted)"
+  clone.style.backgroundPosition = "center"
+  clone.style.backgroundRepeat = "no-repeat"
+  clone.style.backgroundSize = "cover"
+
+  if (sourceImage?.currentSrc || sourceImage?.src) {
+    clone.style.backgroundImage = `url("${sourceImage.currentSrc || sourceImage.src}")`
+  }
+
   document.body.appendChild(clone)
 
   const targetX = targetRect.left + targetRect.width / 2
@@ -89,20 +114,32 @@ function animateProductToCart(source: HTMLElement) {
       ],
       { duration: 900, easing: "cubic-bezier(0.2, 0.85, 0.18, 1)" }
     )
-    .finished.finally(() => clone.remove())
+    .finished.finally(() => {
+      clone.remove()
+    })
 }
 
-function ProductCard({ product }: { product: PosProduct }) {
-  const addItem = useCartStore((s) => s.addItem)
-  const qtyInCart = useCartItemQuantity(product.id)
+function shouldAnimateCart() {
+  return true
+}
 
+const ProductCard = memo(function ProductCard({
+  product,
+  qtyInCart,
+  addItem,
+}: {
+  product: PosProduct
+  qtyInCart: number
+  addItem: AddCartItem
+}) {
   const handleAdd = (event: React.MouseEvent<HTMLElement>) => {
     if (isOutOfStock) return
 
-    const card = event.currentTarget.closest<HTMLElement>("[data-pos-product-card]") ?? event.currentTarget
-    const image = card.querySelector<HTMLElement>("[data-pos-product-image]")
-
-    if (image) animateProductToCart(image)
+    const canAnimate = shouldAnimateCart()
+    const image = canAnimate
+      ? (event.currentTarget.closest<HTMLElement>("[data-pos-product-card]") ?? event.currentTarget)
+          .querySelector<HTMLElement>("[data-pos-product-image]")
+      : null
 
     addItem({
       id: product.id,
@@ -113,6 +150,10 @@ function ProductCard({ product }: { product: PosProduct }) {
       stock: product.stock,
       image: product.image,
     })
+
+    if (canAnimate && image) {
+      window.requestAnimationFrame(() => animateProductToCart(image))
+    }
   }
 
   const isInCart = qtyInCart > 0
@@ -306,7 +347,7 @@ function ProductCard({ product }: { product: PosProduct }) {
       </div>
     </>
   )
-}
+}, (prev, next) => prev.product === next.product && prev.qtyInCart === next.qtyInCart && prev.addItem === next.addItem)
 
 function ProductSkeleton() {
   return (
@@ -335,6 +376,18 @@ function ProductSkeleton() {
 }
 
 export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
+  const addItem = useCartStore((s) => s.addItem)
+  const cartItems = useCartStore((s) => s.items)
+  const cartQuantities = useMemo(() => {
+    const quantities = new Map<string, number>()
+
+    for (const item of cartItems) {
+      quantities.set(item.productId, item.quantity)
+    }
+
+    return quantities
+  }, [cartItems])
+
   if (isLoading) {
     return (
       <div className="relative min-h-0 flex-1">
@@ -373,13 +426,13 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
         {/* Desktop: Grid layout */}
         <div className="hidden grid-cols-2 gap-3 min-[1399px]:grid-cols-4 xl:grid xl:gap-4">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} qtyInCart={cartQuantities.get(product.id) ?? 0} addItem={addItem} />
           ))}
         </div>
         {/* Mobile/Tablet: Vertical list layout */}
         <div className="flex flex-col gap-2 xl:hidden">
           {products.map((product) => (
-            <ProductCard key={product.id} product={product} />
+            <ProductCard key={product.id} product={product} qtyInCart={cartQuantities.get(product.id) ?? 0} addItem={addItem} />
           ))}
         </div>
       </div>

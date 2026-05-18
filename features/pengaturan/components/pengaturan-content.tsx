@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useTheme } from "next-themes"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowRight01Icon,
   CheckmarkCircle02Icon,
   ComputerDesk01Icon,
   Moon02Icon,
@@ -13,17 +14,19 @@ import {
   Sun03Icon,
   UserCircleIcon,
   LockPasswordIcon,
+  Logout03Icon,
   Camera01Icon,
   Delete02Icon,
 } from "@hugeicons/core-free-icons"
 import { generateReactHelpers } from "@uploadthing/react"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
-import { useSession } from "@/lib/auth-client"
+import { authClient, useSession } from "@/lib/auth-client"
 import { updateProfile, changePassword, updateAvatar, updateUserAccess } from "@/app/admin/pengaturan/actions"
 import type { AppFileRouter } from "@/app/api/uploadthing/core"
+import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -55,6 +58,7 @@ export type SettingsUser = {
 
 type PengaturanContentProps = {
   currentUser: SettingsUser | null
+  basePath?: "/admin/pengaturan" | "/cashier/pengaturan"
 }
 
 type PengaturanPenggunaContentProps = {
@@ -83,7 +87,7 @@ const themeOptions = [
   },
 ]
 
-export function PengaturanContent({ currentUser }: PengaturanContentProps) {
+export function PengaturanContent({ currentUser, basePath = "/admin/pengaturan" }: PengaturanContentProps) {
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -92,7 +96,7 @@ export function PengaturanContent({ currentUser }: PengaturanContentProps) {
     banned: false,
   }
 
-  return <ProfileTab displayUser={displayUser} />
+  return <ProfileTab displayUser={displayUser} basePath={basePath} />
 }
 
 export function PengaturanPenggunaContent({ currentUser, users }: PengaturanPenggunaContentProps) {
@@ -317,14 +321,24 @@ export function PengaturanTemaContent() {
   return <TemaTab />
 }
 
-export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
+export function ProfileTab({
+  displayUser,
+  basePath,
+}: {
+  displayUser: SettingsUser
+  basePath: "/admin/pengaturan" | "/cashier/pengaturan"
+}) {
   const [isPending, startTransition] = useTransition()
   const [isPwPending, startPwTransition] = useTransition()
+  const [mobileView, setMobileView] = React.useState<"menu" | "profile" | "password">("menu")
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(displayUser.image ?? null)
+  const [isProfileChanged, setIsProfileChanged] = React.useState(false)
+  const [isPasswordReady, setIsPasswordReady] = React.useState(false)
   const avatarInputRef = React.useRef<HTMLInputElement>(null)
   const pwFormRef = React.useRef<HTMLFormElement>(null)
   const router = useRouter()
   const { refetch: refetchSession } = useSession()
+  const isCashierSettings = basePath === "/cashier/pengaturan"
 
   async function syncSessionAndRoute() {
     await refetchSession()
@@ -373,11 +387,29 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
       const result = await updateProfile(formData)
       if (result.success) {
         toast.success(result.message)
+        setIsProfileChanged(false)
         await syncSessionAndRoute()
       } else {
         toast.error(result.message)
       }
     })
+  }
+
+  function handleProfileChange(e: React.FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget)
+    setIsProfileChanged(
+      formData.get("name") !== displayUser.name ||
+      formData.get("email") !== displayUser.email
+    )
+  }
+
+  function handlePasswordChange(e: React.FormEvent<HTMLFormElement>) {
+    const formData = new FormData(e.currentTarget)
+    setIsPasswordReady(
+      Boolean(formData.get("currentPassword")) &&
+      Boolean(formData.get("newPassword")) &&
+      Boolean(formData.get("confirmPassword"))
+    )
   }
 
   function handlePasswordSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -388,15 +420,202 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
       if (result.success) {
         toast.success(result.message)
         pwFormRef.current?.reset()
+        setIsPasswordReady(false)
       } else {
         toast.error(result.message)
       }
     })
   }
 
+  React.useEffect(() => {
+    const title = mobileView === "profile"
+      ? "Profil Akun"
+      : mobileView === "password"
+        ? "Keamanan Akun"
+        : null
+
+    if (title) {
+      document.body.dataset.pengaturanDetailTitle = title
+    } else {
+      delete document.body.dataset.pengaturanDetailTitle
+    }
+
+    window.dispatchEvent(new Event("pengaturan-detail-change"))
+
+    const handleBackRequest = () => setMobileView("menu")
+    window.addEventListener("pengaturan-detail-back", handleBackRequest)
+
+    return () => {
+      delete document.body.dataset.pengaturanDetailTitle
+      window.dispatchEvent(new Event("pengaturan-detail-change"))
+      window.removeEventListener("pengaturan-detail-back", handleBackRequest)
+    }
+  }, [mobileView])
+
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
+    <div className={cn("flex flex-col gap-4", isCashierSettings && "lg:mx-auto lg:w-full lg:max-w-4xl")}>
+      <div className="space-y-4 lg:hidden">
+        {mobileView === "menu" && (
+          <>
+            <section className="relative overflow-hidden rounded-[2rem] bg-primary p-4 text-primary-foreground shadow-lg shadow-primary/20">
+              <div className="absolute -right-10 -top-12 size-32 rounded-full bg-primary-foreground/10" />
+              <div className="absolute -bottom-16 left-10 size-40 rounded-full bg-primary-foreground/10" />
+
+              <div className="relative flex items-center gap-4">
+                <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-primary-foreground/30 bg-primary-foreground/15 text-primary-foreground shadow-sm">
+                  {avatarUrl ? (
+                    <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                  ) : (
+                    <HugeiconsIcon icon={UserCircleIcon} size={34} />
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-lg font-black leading-tight">{displayUser.name}</p>
+                  <p className="truncate text-xs font-medium text-primary-foreground/75">{displayUser.email}</p>
+                  <div className="mt-2 flex flex-wrap gap-2">
+                    <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[11px] font-bold ring-1 ring-primary-foreground/15">
+                      {formatRole(displayUser.role)}
+                    </span>
+                    <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[11px] font-bold ring-1 ring-primary-foreground/15">
+                      {displayUser.banned ? "Nonaktif" : "Aktif"}
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </section>
+
+            <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+              <SettingsRow
+                icon={UserCircleIcon}
+                title="Profil Akun"
+                description="Ubah nama, email, dan foto profil."
+                onClick={() => setMobileView("profile")}
+              />
+              <div className="mx-4 border-t" />
+              <SettingsRow
+                href={`${basePath}/tema`}
+                icon={ComputerDesk01Icon}
+                title="Tema Tampilan"
+                description="Ubah mode terang, gelap, atau sistem."
+              />
+              <div className="mx-4 border-t" />
+              <SettingsRow
+                icon={LockPasswordIcon}
+                title="Keamanan Akun"
+                description="Ganti password akun kasir."
+                onClick={() => setMobileView("password")}
+              />
+            </section>
+
+            <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+              <SettingsRow
+                icon={Logout03Icon}
+                title="Logout"
+                description="Keluar dari akun kasir saat ini."
+                variant="destructive"
+                onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
+              />
+            </section>
+          </>
+        )}
+
+        {mobileView === "profile" && (
+          <section className="space-y-4">
+            <div className="rounded-[2rem] border bg-card p-4 shadow-sm">
+              <div className="flex flex-col items-center py-2 text-center">
+                <div className="relative mb-3">
+                  <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-[2rem] bg-primary/10 text-primary ring-4 ring-primary/10">
+                    {avatarUrl ? (
+                      <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                    ) : (
+                      <HugeiconsIcon icon={UserCircleIcon} size={48} />
+                    )}
+                  </div>
+                  <button
+                    type="button"
+                    disabled={isUploading}
+                    onClick={() => avatarInputRef.current?.click()}
+                    className="absolute -right-1 bottom-1 flex size-9 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-lg transition-transform active:scale-95 disabled:opacity-50"
+                  >
+                    {isUploading ? (
+                      <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground border-t-transparent" />
+                    ) : (
+                      <HugeiconsIcon icon={Camera01Icon} size={17} />
+                    )}
+                  </button>
+                </div>
+                <p className="text-base font-black text-foreground">{displayUser.name}</p>
+                <p className="text-xs text-muted-foreground">{displayUser.email}</p>
+              </div>
+
+              <form onSubmit={handleProfileSubmit} onChange={handleProfileChange} className="mt-4 grid gap-3">
+                <MobileInput label="Nama Pengguna">
+                  <Input name="name" defaultValue={displayUser.name} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                </MobileInput>
+
+                <MobileInput label="Email Akun">
+                  <Input name="email" type="email" defaultValue={displayUser.email} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                </MobileInput>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <MobileInput label="Role">
+                    <Input value={formatRole(displayUser.role)} disabled className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  </MobileInput>
+                  <MobileInput label="Status">
+                    <Input value={displayUser.banned ? "Nonaktif" : "Aktif"} disabled className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  </MobileInput>
+                </div>
+
+                <div className="grid gap-2 pt-2">
+                  <Button type="submit" disabled={isPending || !isProfileChanged} className="h-12 rounded-2xl font-black">
+                    {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                  </Button>
+                  {avatarUrl && (
+                    <Button type="button" variant="ghost" className="h-11 rounded-2xl text-destructive" onClick={handleAvatarRemove}>
+                      Hapus Foto Profil
+                    </Button>
+                  )}
+                </div>
+              </form>
+            </div>
+          </section>
+        )}
+
+        {mobileView === "password" && (
+          <section className="space-y-4">
+            <div className="rounded-[2rem] border bg-card p-4 shadow-sm">
+              <div className="mb-5 flex items-center gap-3 rounded-3xl bg-primary/10 p-3 text-primary">
+                <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
+                  <HugeiconsIcon icon={LockPasswordIcon} size={21} />
+                </div>
+                <p className="text-xs font-semibold leading-relaxed text-primary">
+                  Ubah Password
+                </p>
+              </div>
+
+              <form ref={pwFormRef} onSubmit={handlePasswordSubmit} onChange={handlePasswordChange} className="grid gap-3">
+                <MobileInput label="Password Saat Ini">
+                  <Input name="currentPassword" type="password" autoComplete="current-password" required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                </MobileInput>
+
+                <MobileInput label="Password Baru">
+                  <Input name="newPassword" type="password" autoComplete="new-password" minLength={8} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                </MobileInput>
+
+                <MobileInput label="Konfirmasi Password Baru">
+                  <Input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                </MobileInput>
+
+                <Button type="submit" disabled={isPwPending || !isPasswordReady} className="mt-2 h-12 rounded-2xl font-black">
+                  {isPwPending ? "Mengubah..." : "Update Password"}
+                </Button>
+              </form>
+            </div>
+          </section>
+        )}
+      </div>
+
+      <Card className="hidden lg:block">
         <CardHeader>
           <CardTitle>Profile Pengguna</CardTitle>
           <CardDescription>
@@ -459,7 +678,7 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
             </div>
           </div>
 
-          <form onSubmit={handleProfileSubmit} className="grid gap-4 md:grid-cols-2">
+          <form onSubmit={handleProfileSubmit} onChange={handleProfileChange} className="grid gap-4 md:grid-cols-2">
             <FieldGroup label="Nama Pengguna">
               <Input name="name" defaultValue={displayUser.name} required />
             </FieldGroup>
@@ -477,7 +696,7 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={isPending}>
+              <Button type="submit" disabled={isPending || !isProfileChanged}>
                 {isPending ? "Menyimpan..." : "Simpan Profile"}
               </Button>
             </div>
@@ -485,7 +704,7 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
         </CardContent>
       </Card>
 
-      <Card>
+      <Card className="hidden lg:block">
         <CardHeader>
           <div className="flex items-center gap-3">
             <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
@@ -500,7 +719,7 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
           </div>
         </CardHeader>
         <CardContent>
-          <form ref={pwFormRef} onSubmit={handlePasswordSubmit} className="grid gap-4 md:grid-cols-2">
+          <form ref={pwFormRef} onSubmit={handlePasswordSubmit} onChange={handlePasswordChange} className="grid gap-4 md:grid-cols-2">
             <div className="md:col-span-2">
               <FieldGroup label="Password Saat Ini">
                 <Input name="currentPassword" type="password" autoComplete="current-password" required />
@@ -516,7 +735,7 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={isPwPending} variant="outline">
+              <Button type="submit" disabled={isPwPending || !isPasswordReady}>
                 {isPwPending ? "Mengubah..." : "Ganti Password"}
               </Button>
             </div>
@@ -527,11 +746,130 @@ export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {
   )
 }
 
-export function TemaTab() {
-  const { theme, setTheme } = useTheme()
+function SettingsRow({
+  href,
+  icon,
+  title,
+  description,
+  onClick,
+  variant = "default",
+}: {
+  href?: string
+  icon: typeof UserCircleIcon
+  title: string
+  description: string
+  onClick?: () => void
+  variant?: "default" | "destructive"
+}) {
+  const isDestructive = variant === "destructive"
+  const content = (
+    <>
+      <div className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${isDestructive ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
+        <HugeiconsIcon icon={icon} size={20} />
+      </div>
+      <div className="min-w-0 flex-1">
+        <p className={`text-sm font-bold ${isDestructive ? "text-destructive" : "text-foreground"}`}>{title}</p>
+        <p className="truncate text-xs text-muted-foreground">{description}</p>
+      </div>
+      <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="shrink-0 text-muted-foreground" />
+    </>
+  )
+
+  if (href) {
+    return (
+      <Link href={href} className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60">
+        {content}
+      </Link>
+    )
+  }
 
   return (
-    <Card>
+    <button
+      type="button"
+      className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60"
+      onClick={onClick}
+    >
+      {content}
+    </button>
+  )
+}
+
+function MobileInput({
+  label,
+  children,
+}: {
+  label: string
+  children: React.ReactNode
+}) {
+  return (
+    <label className="grid gap-1.5 text-xs font-bold text-foreground">
+      <span className="px-1">{label}</span>
+      {children}
+    </label>
+  )
+}
+
+export function TemaTab() {
+  const { theme, setTheme } = useTheme()
+  const pathname = usePathname()
+  const router = useRouter()
+  const basePath = pathname.startsWith("/cashier") ? "/cashier/pengaturan" : "/admin/pengaturan"
+
+  React.useEffect(() => {
+    if (!pathname.startsWith("/cashier")) {
+      return
+    }
+
+    document.body.dataset.pengaturanDetailTitle = "Tema Tampilan"
+    window.dispatchEvent(new Event("pengaturan-detail-change"))
+
+    const handleBackRequest = () => router.push(basePath)
+    window.addEventListener("pengaturan-detail-back", handleBackRequest)
+
+    return () => {
+      delete document.body.dataset.pengaturanDetailTitle
+      window.dispatchEvent(new Event("pengaturan-detail-change"))
+      window.removeEventListener("pengaturan-detail-back", handleBackRequest)
+    }
+  }, [basePath, pathname, router])
+
+  return (
+    <>
+      <div className="space-y-4 lg:hidden">
+        <section className="overflow-hidden rounded-3xl border bg-card shadow-sm">
+          {themeOptions.map((option, index) => {
+            const isActive = (theme ?? "system") === option.value
+
+            return (
+              <button
+                key={option.value}
+                type="button"
+                onClick={() => setTheme(option.value)}
+                className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60"
+              >
+                <div className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"}`}>
+                  <HugeiconsIcon icon={option.icon} size={21} />
+                </div>
+                <div className={`min-w-0 flex-1 ${index < themeOptions.length - 1 ? "border-b pb-4" : ""}`}>
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="text-sm font-black text-foreground">{option.label}</p>
+                      <p className="truncate text-xs text-muted-foreground">{option.description}</p>
+                    </div>
+                    {isActive && (
+                      <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={15} />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </button>
+            )
+          })}
+        </section>
+      </div>
+
+      <Card className="hidden lg:block">
       <CardHeader>
         <CardTitle>Tema Aplikasi</CardTitle>
         <CardDescription>
@@ -571,7 +909,8 @@ export function TemaTab() {
           })}
         </div>
       </CardContent>
-    </Card>
+      </Card>
+    </>
   )
 }
 

@@ -29,5 +29,5 @@ export default async function CashierPengaturanPage() {
       })
     : null
 
-  return <PengaturanContent currentUser={currentUser} />
+  return <PengaturanContent currentUser={currentUser} basePath="/cashier/pengaturan" />
 }

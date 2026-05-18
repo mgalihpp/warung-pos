@@ -36,7 +36,7 @@ type PosMobileTab = "barang" | "keranjang" | "pembayaran"
 
 type MobileHeaderConfig = {
   title: string
-  icon: typeof ShoppingCart01Icon
+  icon?: typeof ShoppingCart01Icon
 }
 
 const posMobileTabs = ["barang", "keranjang", "pembayaran"] as const
@@ -63,6 +63,16 @@ function subscribeTransaksiDetail(onStoreChange: () => void) {
   return () => window.removeEventListener("transaksi-detail-change", onStoreChange)
 }
 
+function getPengaturanDetailSnapshot(): string | null {
+  return document.body.dataset.pengaturanDetailTitle ?? null
+}
+
+function subscribePengaturanDetail(onStoreChange: () => void) {
+  window.addEventListener("pengaturan-detail-change", onStoreChange)
+
+  return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
+}
+
 const navItems = [
   { href: "/cashier/pos", label: "Kasir", icon: ShoppingCart01Icon },
   { href: "/cashier/transaksi", label: "Riwayat", icon: Invoice01Icon },
@@ -81,6 +91,11 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
     subscribeTransaksiDetail,
     getTransaksiDetailSnapshot,
     () => false
+  )
+  const pengaturanDetailTitle = useSyncExternalStore(
+    subscribePengaturanDetail,
+    getPengaturanDetailSnapshot,
+    () => null
   )
 
   const displayName = session?.user?.name ?? userName
@@ -102,19 +117,26 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
   const posMobileHeader = posMobileHeaders[posMobileTab]
 
   const isTransaksiPage = pathname.startsWith("/cashier/transaksi")
+  const isPengaturanPage = pathname.startsWith("/cashier/pengaturan")
 
   const mobileHeader = isTransaksiPage
     ? isTransaksiDetail
       ? { title: "Detail Transaksi", icon: Invoice01Icon }
       : { title: "Transaksi", icon: Invoice01Icon }
-    : pathname.startsWith("/cashier/pengaturan")
-      ? { title: "Pengaturan", icon: Settings01Icon }
+    : isPengaturanPage
+      ? { title: pengaturanDetailTitle ?? "Pengaturan", icon: pengaturanDetailTitle ? undefined : Settings01Icon }
       : posMobileHeader
 
   const isPosSubStep = pathname === "/cashier/pos" && posMobileTab !== "barang"
-  const showBackArrow = isPosSubStep || (isTransaksiPage && isTransaksiDetail)
+  const isPengaturanDetail = isPengaturanPage && !!pengaturanDetailTitle
+  const showBackArrow = isPosSubStep || (isTransaksiPage && isTransaksiDetail) || isPengaturanDetail
 
   const handleMobileHeaderAction = () => {
+    if (isPengaturanDetail) {
+      window.dispatchEvent(new Event("pengaturan-detail-back"))
+      return
+    }
+
     if (isTransaksiPage && isTransaksiDetail) {
       window.dispatchEvent(new Event("transaksi-detail-back"))
       return
@@ -142,11 +164,13 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
             <HugeiconsIcon icon={showBackArrow ? ArrowLeft01Icon : Menu01Icon} size={20} />
           </button>
           <div className="flex items-center gap-2">
-            <HugeiconsIcon
-              icon={mobileHeader.icon}
-              size={20}
-              className="text-primary-foreground"
-            />
+            {mobileHeader.icon ? (
+              <HugeiconsIcon
+                icon={mobileHeader.icon}
+                size={20}
+                className="text-primary-foreground"
+              />
+            ) : null}
             <span className="text-base font-bold text-primary-foreground">
               {mobileHeader.title}
             </span>

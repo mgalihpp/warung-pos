@@ -152,7 +152,7 @@ export function PosPageClient() {
   return (
     <>
       {/* ===== DESKTOP LAYOUT ===== */}
-      <div className="hidden h-full gap-4 overflow-hidden bg-muted/40 p-4 xl:flex">
+      <div className="hidden h-full gap-4 overflow-hidden bg-background p-4 xl:flex">
         <div className="flex flex-1 flex-col gap-3 overflow-hidden">
           <div className="relative shrink-0">
             <div className="flex h-11 w-fit items-center overflow-hidden rounded-xl border bg-card shadow-sm">
@@ -178,7 +178,7 @@ export function PosPageClient() {
       </div>
 
       {/* ===== MOBILE/TABLET LAYOUT (3-tab) ===== */}
-      <div className="flex h-full flex-col overflow-hidden bg-muted/40 xl:hidden">
+      <div className="flex h-full flex-col overflow-hidden bg-background xl:hidden">
         <div className="relative flex-1 overflow-hidden">
 
           {/* TAB 1: BARANG */}

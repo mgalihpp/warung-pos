@@ -41,41 +41,60 @@ type CartStore = {
   clearCart: () => void
 }
 
+type AddableProduct = Parameters<CartStore["addItem"]>[0]
+
+let queuedProducts: AddableProduct[] = []
+let queuedFrame: number | null = null
+
+function addProductToItems(items: CartItem[], product: AddableProduct) {
+  const existing = items.find((item) => item.productId === product.id)
+
+  if (existing) {
+    if (existing.quantity >= existing.maxStock) return items
+
+    return items.map((item) =>
+      item.productId === product.id
+        ? { ...item, quantity: item.quantity + 1 }
+        : item
+    )
+  }
+
+  return [
+    ...items,
+    {
+      productId: product.id,
+      name: product.name,
+      price: product.sellPrice,
+      costPrice: product.buyPrice,
+      unit: product.unit,
+      quantity: 1,
+      maxStock: product.stock,
+      image: product.image,
+    },
+  ]
+}
+
 export const useCartStore = create<CartStore>((set) => ({
   items: [],
   paymentMethod: "CASH",
   amountPaid: 0,
   notes: "",
 
-  addItem: (product) =>
-    set((state) => {
-      const existing = state.items.find((item) => item.productId === product.id)
-      if (existing) {
-        if (existing.quantity >= existing.maxStock) return state
-        return {
-          items: state.items.map((item) =>
-            item.productId === product.id
-              ? { ...item, quantity: item.quantity + 1 }
-              : item
-          ),
-        }
-      }
-      return {
-        items: [
-          ...state.items,
-          {
-            productId: product.id,
-            name: product.name,
-            price: product.sellPrice,
-            costPrice: product.buyPrice,
-            unit: product.unit,
-            quantity: 1,
-            maxStock: product.stock,
-            image: product.image,
-          },
-        ],
-      }
-    }),
+  addItem: (product) => {
+    queuedProducts.push(product)
+
+    if (queuedFrame !== null) return
+
+    queuedFrame = window.requestAnimationFrame(() => {
+      const products = queuedProducts
+      queuedProducts = []
+      queuedFrame = null
+
+      set((state) => ({
+        items: products.reduce(addProductToItems, state.items),
+      }))
+    })
+  },
 
   removeItem: (productId) =>
     set((state) => ({
