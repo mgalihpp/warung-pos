@@ -13,6 +13,8 @@ import {
   Alert02Icon,
   Copy01Icon,
   Delete02Icon,
+  ChartUpIcon,
+  Dollar01Icon,
   Edit02Icon,
   ExchangeIcon,
   MoneyBag02Icon,
@@ -109,6 +111,13 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
   const [isDuplicating, setIsDuplicating] = React.useState(false)
   const deleteMutation = useDeleteProduct()
 
+  React.useEffect(() => {
+    const openDeleteDialog = () => setDeleteOpen(true)
+
+    window.addEventListener("barang-delete-request", openDeleteDialog)
+    return () => window.removeEventListener("barang-delete-request", openDeleteDialog)
+  }, [])
+
   async function handleDuplicate() {
     setIsDuplicating(true)
     try {
@@ -171,9 +180,96 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
   ]
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 p-4 pb-24 lg:gap-6 lg:p-6">
-      {/* Header */}
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+    <div className="min-w-0">
+      {/* Mobile / Tablet */}
+      <div className="lg:hidden">
+        <div className="relative aspect-[9/10] w-full overflow-hidden bg-muted/40">
+          {product.image ? (
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center">
+              <HugeiconsIcon icon={PackageIcon} size={72} className="text-muted-foreground" />
+            </div>
+          )}
+        </div>
+
+        <div className="space-y-4 px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4">
+          <div className="flex items-start justify-between gap-3">
+            <div className="min-w-0">
+              <h1 className="truncate text-2xl font-bold tracking-tight">{product.name}</h1>
+              <div className="mt-2 flex items-center gap-2">
+                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                  {product.category}
+                </span>
+              </div>
+            </div>
+
+            <span
+              className={cn(
+                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold",
+                statusBadgeClass(status)
+              )}
+            >
+              {status === "Stok Habis" ? "Habis" : status}
+            </span>
+          </div>
+
+          <section className="rounded-2xl border bg-card p-4 shadow-sm">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700">
+                <HugeiconsIcon icon={MoneyBag02Icon} size={16} />
+              </span>
+              Informasi Harga
+            </div>
+
+            <div className="divide-y">
+              <div className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <HugeiconsIcon icon={Tag01Icon} size={18} className="text-blue-600" />
+                  Harga Jual
+                </div>
+                <div className="text-base font-bold text-primary">{formatRupiah(product.sellPrice)}</div>
+              </div>
+              <div className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <HugeiconsIcon icon={Dollar01Icon} size={18} className="text-emerald-700" />
+                  Harga Dasar
+                </div>
+                <div className="text-base font-semibold">{formatRupiah(product.buyPrice)}</div>
+              </div>
+              <div className="flex items-center justify-between gap-3 py-3">
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <HugeiconsIcon icon={ChartUpIcon} size={18} className="text-emerald-700" />
+                  Profit
+                </div>
+                <div className="text-base font-bold text-emerald-700">
+                  {formatRupiah(product.sellPrice - product.buyPrice)}
+                </div>
+              </div>
+            </div>
+          </section>
+        </div>
+
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <Button asChild className="h-12 w-full rounded-2xl gap-2">
+            <Link href={`/admin/barang/${product.id}/edit`}>
+              <HugeiconsIcon icon={Edit02Icon} size={18} />
+              Edit Barang
+            </Link>
+          </Button>
+        </div>
+      </div>
+
+      {/* Desktop */}
+      <div className="hidden lg:flex min-w-0 flex-col gap-4 p-4 pb-24 lg:gap-6 lg:p-6">
+        {/* Header */}
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div className="flex items-start gap-3">
           <Button
             asChild
@@ -563,6 +659,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               </div>
             )}
           </section>
+      </div>
       </div>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>

@@ -65,7 +65,6 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
   const mutation = mode === "create" ? createMutation : updateMutation
   const errors = mutation.data?.success === false ? (mutation.data.errors ?? null) : null
   const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
   const productCount = category?.productCount ?? 0
 
   function collectFormData(): Record<string, unknown> & { id?: string } {
@@ -126,7 +125,7 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
 
   return (
     <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      <div className="mx-auto flex w-full max-w-3xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto hidden w-full max-w-3xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
             {mode === "create" ? "Tambah Kategori" : "Edit Kategori"}
@@ -167,10 +166,10 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
           autoComplete="off"
           className="flex min-w-0 flex-1 flex-col gap-6"
         >
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <HugeiconsIcon icon={TagsIcon} size={14} />
+          <div className="rounded-2xl border bg-card p-5 shadow-sm lg:rounded-xl">
+            <h2 className="mb-4 flex items-center gap-3 text-base font-semibold lg:gap-2 lg:text-sm">
+              <span className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 lg:size-7 lg:rounded-lg lg:bg-primary/10 lg:text-primary">
+                <HugeiconsIcon icon={TagsIcon} size={18} className="lg:size-3.5" />
               </span>
               Informasi Kategori
             </h2>
@@ -181,17 +180,20 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
                   name="name"
                   required
                   defaultValue={category?.name}
-                  placeholder="Contoh: Beras, Minuman, Rokok"
-                  className="bg-input/30"
+                  placeholder="Nama kategori"
+                  className="h-14 rounded-xl bg-input/30 text-base lg:h-9 lg:rounded-md lg:text-sm"
                 />
               </Field>
 
               {category && (
+                <div className="hidden lg:block">
                 <Field label="Slug">
                   <Input value={category.slug} readOnly className="bg-muted/50 text-muted-foreground" />
                 </Field>
+                </div>
               )}
 
+              <div className="hidden lg:block">
               <Field label="Deskripsi (opsional)" error={errors?.description}>
                 <Textarea
                   name="description"
@@ -200,55 +202,24 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
                   placeholder="Catatan singkat untuk kategori ini..."
                 />
               </Field>
+              </div>
+              <input type="hidden" name="description" value={category?.description ?? ""} />
             </div>
           </div>
         </form>
       </div>
 
       <div className="lg:hidden">
-        {isMobileMenuOpen && <div className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px]" />}
-        <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6">
-          <div
-            className={`flex flex-col items-end gap-3 transition-all duration-200 ${isMobileMenuOpen ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
-            onClick={() => setIsMobileMenuOpen(false)}
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <Button
+            type="button"
+            className="h-12 w-full rounded-2xl gap-2"
+            onClick={() => formRef.current?.requestSubmit()}
+            disabled={mutation.isPending}
           >
-            <Button
-              type="button"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => formRef.current?.requestSubmit()}
-              disabled={mutation.isPending}
-            >
-              <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-              {mutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => router.push("/admin/kategori")}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-              Batal
-            </Button>
-            {mode === "edit" && (
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12 rounded-full border-destructive/30 px-5 text-destructive shadow-lg hover:bg-destructive/5 hover:text-destructive disabled:opacity-50"
-                onClick={() => setDeleteOpen(true)}
-                disabled={productCount > 0}
-              >
-                <HugeiconsIcon icon={Delete02Icon} size={16} />
-                Hapus
-              </Button>
-            )}
-          </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${isMobileMenuOpen ? "border bg-card text-foreground" : "bg-primary text-primary-foreground"}`}
-          >
-            <HugeiconsIcon icon={FloppyDiskIcon} size={22} className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`} />
-          </button>
+            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+            {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Perbarui Kategori"}
+          </Button>
         </div>
       </div>
 

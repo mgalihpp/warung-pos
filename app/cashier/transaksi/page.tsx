@@ -32,7 +32,11 @@ export default async function CashierTransaksiPage() {
       </div>
 
       <div className="block min-h-0 flex-1 lg:hidden">
-        <CashierTransaksiMobile transactions={data.transactions} stats={data.stats} />
+        <CashierTransaksiMobile
+          transactions={data.transactions}
+          stats={data.stats}
+          detailBasePath="/cashier/transaksi"
+        />
       </div>
     </div>
   )

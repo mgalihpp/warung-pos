@@ -203,11 +203,6 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
-                    <Button asChild variant="ghost" className="hidden rounded-md p-1.5 text-muted-foreground hover:bg-muted hover:text-foreground lg:inline-flex">
-                      <Link href={`/admin/kategori/${category.id}/edit`} aria-label="Edit kategori">
-                        <HugeiconsIcon icon={Edit02Icon} size={15} />
-                      </Link>
-                    </Button>
                     <CategoryActionMenu category={category} />
                   </div>
                 </td>

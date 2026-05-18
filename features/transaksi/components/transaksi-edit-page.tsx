@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -87,6 +88,7 @@ function reverseMapPaymentMethod(uiLabel: string): "CASH" | "QRIS_MANUAL" | "MAN
 type EditItem = {
   productId: string
   productName: string
+  productImage: string | null
   unitPrice: number
   quantity: number
 }
@@ -107,6 +109,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
     data.items.map((item) => ({
       productId: item.productId,
       productName: item.productName,
+      productImage: item.productImage,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
     })),
@@ -117,7 +120,12 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
   const [amountPaid, setAmountPaid] = React.useState(data.amountPaid)
   const [notes, setNotes] = React.useState(data.notes || "")
   const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+
+  React.useEffect(() => {
+    const handleDeleteRequest = () => setDeleteOpen(true)
+    window.addEventListener("transaksi-delete-request", handleDeleteRequest)
+    return () => window.removeEventListener("transaksi-delete-request", handleDeleteRequest)
+  }, [])
 
   const subtotal = items.reduce((sum, item) => sum + item.unitPrice * item.quantity, 0)
   const change = Math.max(0, amountPaid - subtotal)
@@ -171,9 +179,9 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <div className="flex h-full min-w-0 flex-col gap-4 overflow-y-auto bg-slate-50 p-4 lg:bg-transparent lg:gap-6 lg:p-6">
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mx-auto flex w-full max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto hidden w-full max-w-4xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
             Edit Transaksi
@@ -182,7 +190,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
             {data.transactionNumber} — Ubah item, metode bayar, atau catatan
           </p>
         </div>
-        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+        <div className="flex flex-wrap items-center gap-2">
           <Button
             type="button"
             variant="outline"
@@ -218,7 +226,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
         {/* Left column: Items + Notes */}
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           {/* Daftar Item */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm lg:rounded-xl lg:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <HugeiconsIcon icon={InvoiceIcon} size={14} />
@@ -230,8 +238,17 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               {items.map((item, index) => (
                 <div
                   key={`${item.productId}-${index}`}
-                  className="flex items-center gap-3 rounded-lg border bg-background p-3"
+                  className="flex flex-col items-stretch gap-3 rounded-xl border bg-background p-3 sm:flex-row sm:items-center lg:rounded-lg"
                 >
+                  <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-muted">
+                    {item.productImage ? (
+                      <Image src={item.productImage} alt={item.productName} fill sizes="48px" className="object-cover" />
+                    ) : (
+                      <div className="flex size-full items-center justify-center text-muted-foreground">
+                        <HugeiconsIcon icon={InvoiceIcon} size={20} />
+                      </div>
+                    )}
+                  </div>
                   <div className="min-w-0 flex-1">
                     <p className="truncate text-sm font-semibold">{item.productName}</p>
                     <p className="text-xs text-muted-foreground">
@@ -240,7 +257,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
                   </div>
 
                   {/* Quantity controls */}
-                  <div className="flex items-center gap-1.5">
+                  <div className="flex items-center justify-between gap-1.5 sm:justify-start">
                     <button
                       type="button"
                       onClick={() => updateQuantity(index, -1)}
@@ -266,8 +283,8 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
                   </div>
 
                   {/* Subtotal + remove */}
-                  <div className="flex items-center gap-2">
-                    <span className="w-24 text-right text-sm font-bold tabular-nums">
+                  <div className="flex items-center justify-between gap-2 border-t pt-3 sm:border-t-0 sm:pt-0">
+                    <span className="text-right text-sm font-bold tabular-nums sm:w-24">
                       {formatRupiah(item.unitPrice * item.quantity)}
                     </span>
                     {items.length > 1 && (
@@ -286,7 +303,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
           </div>
 
           {/* Catatan */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm lg:rounded-xl lg:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
               <span className="flex size-7 items-center justify-center rounded-lg bg-amber-500/10 text-amber-600">
                 <HugeiconsIcon icon={NoteIcon} size={14} />
@@ -305,7 +322,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
         {/* Right column: Payment + Summary */}
         <div className="w-full space-y-6 lg:w-[340px]">
           {/* Metode Bayar */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm lg:rounded-xl lg:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
               <span className="flex size-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
                 <HugeiconsIcon icon={CreditCardIcon} size={14} />
@@ -350,7 +367,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
           </div>
 
           {/* Ringkasan */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-sm lg:rounded-xl lg:p-5">
             <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
               <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
                 <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
@@ -367,20 +384,20 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
-                <span className="font-medium text-foreground">{formatRupiah(subtotal)}</span>
+                <span className="break-words text-right font-medium text-foreground">{formatRupiah(subtotal)}</span>
               </div>
               <div className="flex justify-between border-t border-border/50 pt-3 text-base font-bold">
                 <span>Total</span>
-                <span className="text-primary">{formatRupiah(subtotal)}</span>
+                <span className="break-words text-right text-primary">{formatRupiah(subtotal)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Dibayar</span>
-                <span className="font-medium text-foreground">{formatRupiah(amountPaid)}</span>
+                <span className="break-words text-right font-medium text-foreground">{formatRupiah(amountPaid)}</span>
               </div>
               <div className="flex justify-between text-muted-foreground">
                 <span>Kembalian</span>
                 <span
-                  className={`font-medium ${isPaymentShort ? "text-destructive" : "text-foreground"
+                  className={`break-words text-right font-medium ${isPaymentShort ? "text-destructive" : "text-foreground"
                     }`}
                 >
                   {isPaymentShort
@@ -411,56 +428,18 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
         </div>
       </div>
 
-      {/* Floating Action Button for Mobile/Tablet */}
-      <div className="lg:hidden">
-        {isMobileMenuOpen && (
-          <div
-            className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px]"
-          />
-        )}
-        <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6">
-          <div
-            className={`flex flex-col items-end gap-3 transition-all duration-200 ${isMobileMenuOpen ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
-            onClick={() => setIsMobileMenuOpen(false)}
+      {/* Mobile/Tablet bottom actions */}
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+        <div className="mx-auto max-w-md">
+          <Button
+            type="button"
+            className="h-12 w-full rounded-xl"
+            onClick={handleSubmit}
+            disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
           >
-            <Button
-              type="button"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={handleSubmit}
-              disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
-            >
-              <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-              {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => router.push(basePath)}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-              Batal
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-full border-destructive/30 px-5 text-destructive shadow-lg hover:bg-destructive/5 hover:text-destructive"
-              onClick={() => setDeleteOpen(true)}
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={16} />
-              Hapus
-            </Button>
-          </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${isMobileMenuOpen ? "border bg-card text-foreground" : "bg-primary text-primary-foreground"}`}
-          >
-            <HugeiconsIcon
-              icon={FloppyDiskIcon}
-              size={22}
-              className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`}
-            />
-          </button>
+            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+            {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+          </Button>
         </div>
       </div>
 
@@ -500,8 +479,14 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               className="w-full sm:w-auto"
               disabled={deleteMutation.isPending}
               onClick={() => {
-                deleteMutation.mutate(data.id)
-                setDeleteOpen(false)
+                deleteMutation.mutate(data.id, {
+                  onSuccess: (result) => {
+                    if (result.success) {
+                      setDeleteOpen(false)
+                      router.push(basePath)
+                    }
+                  },
+                })
               }}
             >
               {deleteMutation.isPending ? "Menghapus..." : "Hapus"}

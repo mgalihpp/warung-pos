@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useSyncExternalStore } from "react"
+import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -8,9 +9,11 @@ import {
   CashierIcon,
   ChartHistogramIcon,
   DashboardSquare01Icon,
+  Delete02Icon,
   InvoiceIcon,
   Menu01Icon,
   PackageIcon,
+  PlusSignIcon,
   ShoppingCart01Icon,
   Store01Icon,
   TagsIcon,
@@ -29,7 +32,7 @@ type MobileHeaderConfig = {
 const posMobileTabs = ["barang", "keranjang", "pembayaran"] as const
 
 const adminMobileHeaders = [
-  { href: "/admin/barang", title: "Barang", icon: PackageIcon },
+  { href: "/admin/barang", title: "Manajemen Barang", icon: PackageIcon },
   { href: "/admin/kategori", title: "Kategori", icon: TagsIcon },
   { href: "/admin/transaksi", title: "Transaksi", icon: InvoiceIcon },
   { href: "/admin/laporan", title: "Laporan", icon: ChartHistogramIcon },
@@ -58,6 +61,16 @@ function subscribePengaturanDetail(onStoreChange: () => void) {
   return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
 }
 
+function getTransaksiDetailSnapshot(): boolean {
+  return document.body.dataset.transaksiDetail === "true"
+}
+
+function subscribeTransaksiDetail(onStoreChange: () => void) {
+  window.addEventListener("transaksi-detail-change", onStoreChange)
+
+  return () => window.removeEventListener("transaksi-detail-change", onStoreChange)
+}
+
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
   const router = useRouter()
@@ -73,6 +86,11 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     getPengaturanDetailSnapshot,
     () => null
   )
+  const isTransaksiDetail = useSyncExternalStore(
+    subscribeTransaksiDetail,
+    getTransaksiDetailSnapshot,
+    () => false
+  )
 
   const userName = session?.user?.name ?? "Admin"
   const userEmail = session?.user?.email ?? undefined
@@ -83,6 +101,18 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     keranjang: { title: "Checkout", icon: ShoppingCart01Icon },
     pembayaran: { title: "Pembayaran", icon: InvoiceIcon },
   }
+
+  const isBarangList = pathname === "/admin/barang/daftar"
+  const isBarangTambah = pathname === "/admin/barang/tambah"
+  const isBarangEdit = /^\/admin\/barang\/[^/]+\/edit$/.test(pathname)
+  const isBarangDetail = /^\/admin\/barang\/[^/]+$/.test(pathname) && !isBarangList && !isBarangTambah
+  const isKategoriPage = pathname === "/admin/kategori"
+  const isKategoriTambah = pathname === "/admin/kategori/tambah"
+  const isKategoriEdit = /^\/admin\/kategori\/[^/]+\/edit$/.test(pathname)
+  const isTransaksiPage = pathname === "/admin/transaksi"
+  const isTransaksiDetailPage = /^\/admin\/transaksi\/[^/]+$/.test(pathname) && !(/^\/admin\/transaksi\/[^/]+\/edit$/.test(pathname))
+  const isTransaksiEdit = /^\/admin\/transaksi\/[^/]+\/edit$/.test(pathname)
+  const transaksiEditId = isTransaksiEdit ? pathname.match(/^\/admin\/transaksi\/([^/]+)\/edit$/)?.[1] : null
 
   const isPosPage = pathname === "/admin/pos"
   const isPengaturanPage = pathname.startsWith("/admin/pengaturan")
@@ -99,15 +129,53 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
         ? { title: "Tema Tampilan" }
       : { title: pengaturanDetailTitle ?? "Pengaturan" }
 
-  const mobileHeader: MobileHeaderConfig = isPosPage
-    ? posMobileHeaders[posMobileTab]
-    : isPengaturanPage
-      ? pengaturanHeader
-      : activeAdminHeader
-        ? { title: activeAdminHeader.title }
-        : { title: "Dashboard" }
+  const mobileHeader: MobileHeaderConfig = (() => {
+    if (isPosPage) return posMobileHeaders[posMobileTab]
+    if (isPengaturanPage) return pengaturanHeader
+    if (isBarangList) return { title: "Daftar Barang" }
+    if (isBarangTambah) return { title: "Tambah Barang" }
+    if (isBarangEdit) return { title: "Edit Barang" }
+    if (isBarangDetail) return { title: "Detail Barang" }
+    if (isKategoriTambah) return { title: "Tambah Kategori" }
+    if (isKategoriEdit) return { title: "Edit Kategori" }
+    if (isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail)) return { title: "Detail Transaksi" }
+    if (isTransaksiEdit) return { title: "Edit Transaksi" }
+    if (activeAdminHeader) return { title: activeAdminHeader.title }
+
+    return { title: "Dashboard" }
+  })()
 
   const handleMobileHeaderAction = () => {
+    if (isBarangDetail) {
+      router.push("/admin/barang/daftar")
+      return
+    }
+
+    if (pathname.startsWith("/admin/barang") && pathname !== "/admin/barang") {
+      router.push("/admin/barang")
+      return
+    }
+
+    if (pathname.startsWith("/admin/kategori")) {
+      router.push(pathname === "/admin/kategori" ? "/admin/barang" : "/admin/kategori")
+      return
+    }
+
+    if (isTransaksiPage && isTransaksiDetail) {
+      window.dispatchEvent(new Event("transaksi-detail-back"))
+      return
+    }
+
+    if (isTransaksiDetailPage) {
+      router.push("/admin/transaksi")
+      return
+    }
+
+    if (isTransaksiEdit && transaksiEditId) {
+      router.push(`/admin/transaksi/${transaksiEditId}`)
+      return
+    }
+
     if (isPengaturanDetail) {
       window.dispatchEvent(new Event("pengaturan-detail-back"))
       return
@@ -137,7 +205,10 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             onClick={handleMobileHeaderAction}
             className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
           >
-            <HugeiconsIcon icon={isPengaturanDetail || isPengaturanSubPage || isPosSubStep ? ArrowLeft01Icon : Menu01Icon} size={20} />
+            <HugeiconsIcon
+                icon={(pathname.startsWith("/admin/barang") && pathname !== "/admin/barang") || pathname.startsWith("/admin/kategori") || (isTransaksiPage && isTransaksiDetail) || isTransaksiDetailPage || isTransaksiEdit || isPengaturanDetail || isPengaturanSubPage || isPosSubStep ? ArrowLeft01Icon : Menu01Icon}
+                size={20}
+              />
           </button>
 
           <div className="flex items-center gap-2">
@@ -147,7 +218,43 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             <span className="text-base font-bold text-primary-foreground">{mobileHeader.title}</span>
           </div>
 
-          <div className="w-8" />
+          {isBarangDetail ? (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("barang-delete-request"))}
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              aria-label="Hapus barang"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={20} />
+            </button>
+          ) : isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail) || isTransaksiEdit ? (
+            <button
+              type="button"
+              onClick={() => window.dispatchEvent(new Event("transaksi-delete-request"))}
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              aria-label="Hapus transaksi"
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={20} />
+            </button>
+          ) : isBarangList ? (
+            <Link
+              href="/admin/barang/tambah"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              aria-label="Tambah barang"
+            >
+              <HugeiconsIcon icon={PlusSignIcon} size={20} />
+            </Link>
+          ) : isKategoriPage ? (
+            <Link
+              href="/admin/kategori/tambah"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              aria-label="Tambah kategori"
+            >
+              <HugeiconsIcon icon={PlusSignIcon} size={20} />
+            </Link>
+          ) : (
+            <div className="w-8" />
+          )}
         </div>
       </header>
 

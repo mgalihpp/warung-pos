@@ -1,4 +1,5 @@
 import { Skeleton } from "@/components/ui/skeleton"
+import { BarangMobileLandingSkeleton } from "@/features/barang/components/barang-mobile-skeletons"
 
 function StatSkeleton() {
   return <Skeleton className="h-20 rounded-xl lg:h-24" />
@@ -31,7 +32,9 @@ function TableRowSkeleton() {
 
 export default function BarangLoading() {
   return (
-    <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
+    <>
+      <BarangMobileLandingSkeleton />
+      <div className="hidden lg:flex min-w-0 flex-col gap-3 p-4 lg:gap-6 lg:p-6">
       <div className="space-y-2 lg:space-y-3">
         <Skeleton className="h-8 w-56 rounded-full lg:h-9 lg:w-72" />
         <Skeleton className="h-4 w-full max-w-xl rounded-full" />
@@ -134,6 +137,7 @@ export default function BarangLoading() {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

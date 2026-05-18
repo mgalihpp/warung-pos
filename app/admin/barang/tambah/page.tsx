@@ -2,6 +2,7 @@
 
 import { useProducts } from "@/features/barang/hooks/use-barang-queries"
 import { BarangFormPage } from "@/features/barang/components/barang-form-page"
+import { BarangMobileFormSkeleton } from "@/features/barang/components/barang-mobile-skeletons"
 
 export default function TambahBarangPage() {
   const { data, isLoading } = useProducts()
@@ -15,7 +16,9 @@ export default function TambahBarangPage() {
 
 function BarangFormPageSkeleton() {
   return (
-    <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
+    <>
+      <BarangMobileFormSkeleton />
+      <div className="hidden lg:flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       <div className="space-y-2">
         <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
         <div className="h-4 w-72 animate-pulse rounded-lg bg-muted" />
@@ -34,6 +37,7 @@ function BarangFormPageSkeleton() {
           <div className="h-96 animate-pulse rounded-xl bg-muted" />
         </div>
       </div>
-    </div>
+      </div>
+    </>
   )
 }

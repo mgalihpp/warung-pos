@@ -42,7 +42,9 @@ export function PosPageClient() {
   const [searchQuery, setSearchQuery] = useState("")
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(null)
+  const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
+    null
+  )
 
   const cartItems = useCartStore((s) => s.items)
   const clearCart = useCartStore((s) => s.clearCart)
@@ -82,7 +84,7 @@ export function PosPageClient() {
         throw new Error(
           result.errors
             ? JSON.stringify(result.errors)
-            : result.error ?? "Gagal memproses transaksi"
+            : (result.error ?? "Gagal memproses transaksi")
         )
       }
       return result
@@ -106,8 +108,12 @@ export function PosPageClient() {
   const filteredProducts = useMemo(() => {
     const products = (data?.products ?? []) as PosProduct[]
     return products.filter((p) => {
-      const matchCategory = activeCategory ? p.categoryId === activeCategory : true
-      const matchSearch = p.name.toLowerCase().includes(searchQuery.toLowerCase())
+      const matchCategory = activeCategory
+        ? p.categoryId === activeCategory
+        : true
+      const matchSearch = p.name
+        .toLowerCase()
+        .includes(searchQuery.toLowerCase())
       return matchCategory && matchSearch
     })
   }, [data?.products, activeCategory, searchQuery])
@@ -125,13 +131,19 @@ export function PosPageClient() {
 
   useEffect(() => {
     document.body.dataset.posMobileTab = mobileTab
-    const event = new CustomEvent("pos-mobile-tab-change", { detail: { tab: mobileTab } })
+    const event = new CustomEvent("pos-mobile-tab-change", {
+      detail: { tab: mobileTab },
+    })
     window.dispatchEvent(event)
-    const timeout = window.setTimeout(() => { window.dispatchEvent(event) }, 0)
+    const timeout = window.setTimeout(() => {
+      window.dispatchEvent(event)
+    }, 0)
     return () => {
       window.clearTimeout(timeout)
       document.body.dataset.posMobileTab = "barang"
-      window.dispatchEvent(new CustomEvent("pos-mobile-tab-change", { detail: { tab: "barang" } }))
+      window.dispatchEvent(
+        new CustomEvent("pos-mobile-tab-change", { detail: { tab: "barang" } })
+      )
     }
   }, [mobileTab])
 
@@ -146,7 +158,8 @@ export function PosPageClient() {
 
     window.addEventListener("pos-mobile-tab-request", handleTabRequest)
 
-    return () => window.removeEventListener("pos-mobile-tab-request", handleTabRequest)
+    return () =>
+      window.removeEventListener("pos-mobile-tab-request", handleTabRequest)
   }, [])
 
   return (
@@ -157,15 +170,30 @@ export function PosPageClient() {
           <div className="relative shrink-0">
             <div className="flex h-11 w-fit items-center overflow-hidden rounded-xl border bg-card shadow-sm">
               <div className="h-full w-[320px] shrink-0">
-                <PosSearchBar value={searchQuery} onChange={setSearchQuery} className="h-full rounded-none border-0 bg-transparent focus:ring-0" />
+                <PosSearchBar
+                  value={searchQuery}
+                  onChange={setSearchQuery}
+                  className="h-full rounded-none border-0 bg-transparent focus:ring-0"
+                />
               </div>
               <div className="h-6 w-px shrink-0 bg-border" />
               <div className="flex h-full w-[200px] shrink-0 items-center">
-                <Select value={activeCategory || "all"} onValueChange={(val) => setActiveCategory(val === "all" ? null : val)}>
-                  <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0"><SelectValue placeholder="Semua Kategori" /></SelectTrigger>
+                <Select
+                  value={activeCategory || "all"}
+                  onValueChange={(val) =>
+                    setActiveCategory(val === "all" ? null : val)
+                  }
+                >
+                  <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0">
+                    <SelectValue placeholder="Semua Kategori" />
+                  </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="all">Semua Kategori</SelectItem>
-                    {categories.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                    {categories.map((c) => (
+                      <SelectItem key={c.id} value={c.id}>
+                        {c.name}
+                      </SelectItem>
+                    ))}
                   </SelectContent>
                 </Select>
               </div>
@@ -174,15 +202,19 @@ export function PosPageClient() {
           <PosProductGrid products={filteredProducts} isLoading={isLoading} />
           <PosRecentTransactions />
         </div>
-        <PosCart onPayment={handlePayment} isProcessing={payMutation.isPending} />
+        <PosCart
+          onPayment={handlePayment}
+          isProcessing={payMutation.isPending}
+        />
       </div>
 
       {/* ===== MOBILE/TABLET LAYOUT (3-tab) ===== */}
       <div className="flex h-full flex-col overflow-hidden bg-background xl:hidden">
         <div className="relative flex-1 overflow-hidden">
-
           {/* TAB 1: BARANG */}
-          <div className={`absolute inset-0 flex flex-col transition-transform duration-300 ${mobileTab === "barang" ? "translate-x-0" : "pointer-events-none -translate-x-full"}`}>
+          <div
+            className={`absolute inset-0 flex flex-col transition-transform duration-300 ${mobileTab === "barang" ? "translate-x-0" : "pointer-events-none -translate-x-full"}`}
+          >
             {/* Low Stock Banner */}
             {lowStockCount > 0 && (
               <div className="mx-3 mt-3 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
@@ -191,9 +223,15 @@ export function PosPageClient() {
                 </div>
                 <div className="min-w-0 flex-1">
                   <p className="text-sm font-bold">Stok Hampir Habis!</p>
-                  <p className="text-xs opacity-90">{lowStockCount} produk perlu restock</p>
+                  <p className="text-xs opacity-90">
+                    {lowStockCount} barang perlu restock
+                  </p>
                 </div>
-                <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="opacity-70" />
+                <HugeiconsIcon
+                  icon={ArrowRight01Icon}
+                  size={18}
+                  className="opacity-70"
+                />
               </div>
             )}
 
@@ -211,13 +249,19 @@ export function PosPageClient() {
                   <span className="rounded-md bg-primary-foreground/20 px-2 py-0.5 text-[11px] font-bold">
                     {itemCount} Item
                   </span>
-                  <span className="text-xs font-medium opacity-80">Total Belanja</span>
+                  <span className="text-xs font-medium opacity-80">
+                    Total Belanja
+                  </span>
                 </div>
                 <p className="mt-0.5 text-xl font-extrabold tracking-tight">
                   {formatRupiah(cartTotal)}
                 </p>
               </div>
-              <HugeiconsIcon icon={ArrowRight01Icon} size={20} className="opacity-70" />
+              <HugeiconsIcon
+                icon={ArrowRight01Icon}
+                size={20}
+                className="opacity-70"
+              />
             </button>
 
             {/* Search & Filter */}
@@ -233,20 +277,33 @@ export function PosPageClient() {
                     </button>
                     <div className="h-6 w-px bg-border" />
                     <div className="relative h-full flex-1">
-                      <Select value={activeCategory || "all"} onValueChange={(val) => setActiveCategory(val === "all" ? null : val)}>
+                      <Select
+                        value={activeCategory || "all"}
+                        onValueChange={(val) =>
+                          setActiveCategory(val === "all" ? null : val)
+                        }
+                      >
                         <SelectTrigger className="mt-1 h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                           <SelectValue placeholder="Semua Kategori" />
                         </SelectTrigger>
                         <SelectContent>
                           <SelectItem value="all">Semua Kategori</SelectItem>
-                          {categories.map((c) => (<SelectItem key={c.id} value={c.id}>{c.name}</SelectItem>))}
+                          {categories.map((c) => (
+                            <SelectItem key={c.id} value={c.id}>
+                              {c.name}
+                            </SelectItem>
+                          ))}
                         </SelectContent>
                       </Select>
                     </div>
                   </>
                 ) : (
                   <div className="flex h-full flex-1 items-center px-2">
-                    <HugeiconsIcon icon={Search01Icon} size={16} className="ml-2 shrink-0 text-muted-foreground" />
+                    <HugeiconsIcon
+                      icon={Search01Icon}
+                      size={16}
+                      className="ml-2 shrink-0 text-muted-foreground"
+                    />
                     <input
                       autoFocus
                       type="text"
@@ -256,7 +313,10 @@ export function PosPageClient() {
                       onChange={(e) => setSearchQuery(e.target.value)}
                     />
                     <button
-                      onClick={() => { setIsMobileSearchActive(false); setSearchQuery("") }}
+                      onClick={() => {
+                        setIsMobileSearchActive(false)
+                        setSearchQuery("")
+                      }}
                       className="flex h-full w-10 items-center justify-center text-muted-foreground hover:text-foreground"
                     >
                       <HugeiconsIcon icon={Cancel01Icon} size={16} />
@@ -270,25 +330,33 @@ export function PosPageClient() {
           </div>
 
           {/* TAB 2: CHECKOUT/KERANJANG */}
-          <div className={`absolute inset-0 flex flex-col bg-background transition-transform duration-300 ${mobileTab === "keranjang" ? "translate-x-0" : mobileTab === "barang" ? "pointer-events-none translate-x-full" : "pointer-events-none -translate-x-full"}`}>
+          <div
+            className={`absolute inset-0 flex flex-col bg-background transition-transform duration-300 ${mobileTab === "keranjang" ? "translate-x-0" : mobileTab === "barang" ? "pointer-events-none translate-x-full" : "pointer-events-none -translate-x-full"}`}
+          >
             <div className="min-h-0 flex-1">
               <PosMobileCheckout onProceed={() => setMobileTab("pembayaran")} />
             </div>
           </div>
 
           {/* TAB 3: PEMBAYARAN */}
-          <div className={`absolute inset-0 flex flex-col bg-background transition-transform duration-300 ${mobileTab === "pembayaran" ? "translate-x-0" : "pointer-events-none translate-x-full"}`}>
+          <div
+            className={`absolute inset-0 flex flex-col bg-background transition-transform duration-300 ${mobileTab === "pembayaran" ? "translate-x-0" : "pointer-events-none translate-x-full"}`}
+          >
             <div className="min-h-0 flex-1">
-              <PosMobilePayment onPayment={handlePayment} isProcessing={payMutation.isPending} />
+              <PosMobilePayment
+                onPayment={handlePayment}
+                isProcessing={payMutation.isPending}
+              />
             </div>
           </div>
-
         </div>
       </div>
 
       <PosReceiptDialog
         open={!!receiptData}
-        onOpenChange={(open) => { if (!open) handleNewTransaction() }}
+        onOpenChange={(open) => {
+          if (!open) handleNewTransaction()
+        }}
         transaction={receiptData}
         onNewTransaction={handleNewTransaction}
       />

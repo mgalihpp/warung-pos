@@ -2,15 +2,29 @@
 
 import * as React from "react"
 import Image from "next/image"
+import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  Alert02Icon,
+  PencilEdit02Icon,
   InformationCircleIcon,
   PackageIcon,
   Wallet02Icon,
   ShoppingBag02Icon,
 } from "@hugeicons/core-free-icons"
 import { useTransactionDetail } from "../hooks/use-transaksi-queries"
+import { useDeleteTransaction } from "../hooks/use-transaksi-actions"
 import type { TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { formatRupiah } from "@/lib/format-currency"
 
 function getStatusBadgeClass(status: TransactionStatus) {
@@ -67,11 +81,16 @@ function DetailSkeleton() {
 type Props = {
   transactionId: string
   onBack: () => void
+  actionBasePath?: string
 }
 
-export function CashierTransaksiDetailMobile({ transactionId, onBack }: Props) {
+export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBasePath }: Props) {
+  const router = useRouter()
   const containerRef = React.useRef<HTMLDivElement>(null)
   const { data, isLoading, error } = useTransactionDetail(transactionId)
+  const deleteMutation = useDeleteTransaction()
+  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const canManage = !!actionBasePath
 
   React.useLayoutEffect(() => {
     const frame = window.requestAnimationFrame(() => {
@@ -90,14 +109,19 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack }: Props) {
     window.dispatchEvent(new Event("transaksi-detail-change"))
 
     const handleBackRequest = () => onBack()
+    const handleDeleteRequest = () => {
+      if (canManage) setDeleteOpen(true)
+    }
     window.addEventListener("transaksi-detail-back", handleBackRequest)
+    window.addEventListener("transaksi-delete-request", handleDeleteRequest)
 
     return () => {
       delete document.body.dataset.transaksiDetail
       window.dispatchEvent(new Event("transaksi-detail-change"))
       window.removeEventListener("transaksi-detail-back", handleBackRequest)
+      window.removeEventListener("transaksi-delete-request", handleDeleteRequest)
     }
-  }, [onBack])
+  }, [canManage, onBack])
 
   if (isLoading || !data) {
     return <DetailSkeleton />
@@ -112,7 +136,7 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack }: Props) {
   }
 
   return (
-    <div ref={containerRef} className="space-y-4 pb-6">
+    <div ref={containerRef} className={canManage ? "space-y-4 pb-28" : "space-y-4 pb-6"}>
       {/* ── Informasi Transaksi ── */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
@@ -214,6 +238,72 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack }: Props) {
           ))}
         </div>
       </div>
+
+      {canManage ? (
+        <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+          <div className="mx-auto flex max-w-md">
+            <Button
+              type="button"
+              className="h-12 w-full rounded-xl"
+              onClick={() => router.push(`${actionBasePath}/${transactionId}/edit`)}
+            >
+              <HugeiconsIcon icon={PencilEdit02Icon} size={18} />
+              Edit
+            </Button>
+          </div>
+        </div>
+      ) : null}
+
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="sm:max-w-[400px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <HugeiconsIcon icon={Alert02Icon} size={20} />
+              Hapus Transaksi?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="pt-2 leading-relaxed">
+              Anda yakin ingin menghapus transaksi{" "}
+              <strong className="font-semibold text-foreground">
+                {data.transactionNumber}
+              </strong>
+              ? Tindakan ini permanen.
+              {data.status === "Selesai" && (
+                <>
+                  <br /><br />
+                  *Stok barang yang terkait akan otomatis dikembalikan.
+                </>
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="gap-2 pt-4">
+            <AlertDialogCancel
+              onClick={() => setDeleteOpen(false)}
+              className="mt-0 w-full sm:w-auto"
+            >
+              Batal
+            </AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              disabled={deleteMutation.isPending}
+              onClick={() => {
+                deleteMutation.mutate(data.id, {
+                  onSuccess: (result) => {
+                    if (result.success) {
+                      setDeleteOpen(false)
+                      onBack()
+                    }
+                  },
+                })
+              }}
+            >
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }

@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Calendar02Icon,
@@ -72,9 +73,12 @@ function getPeriodDateRange(period: Period) {
 type Props = {
   transactions: TransactionItem[]
   stats: TransactionStats
+  actionBasePath?: string
+  detailBasePath?: string
 }
 
-export function CashierTransaksiMobile({ transactions }: Props) {
+export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }: Props) {
+  const router = useRouter()
   const [selectedTransactionId, setSelectedTransactionId] = React.useState<string | null>(null)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [period, setPeriod] = React.useState<Period>('month')
@@ -127,12 +131,13 @@ export function CashierTransaksiMobile({ transactions }: Props) {
       <CashierTransaksiDetailMobile
         transactionId={selectedTransactionId}
         onBack={() => setSelectedTransactionId(null)}
+        actionBasePath={actionBasePath}
       />
     )
   }
 
   return (
-    <div className="flex h-full min-h-0 flex-col gap-4 overflow-hidden">
+    <div className="flex h-full min-h-0 flex-col gap-4">
       {/* ── Summary Card (blue gradient) ── */}
       <div className="relative overflow-hidden rounded-2xl bg-primary p-4 text-primary-foreground shadow-lg">
         {/* Top: Periode */}
@@ -202,7 +207,7 @@ export function CashierTransaksiMobile({ transactions }: Props) {
               <HugeiconsIcon icon={MoneyReceiveSquareIcon} size={14} />
               <p className="text-[10px] font-medium">Total Penjualan</p>
             </div>
-            <p className="mt-1 truncate text-xl font-bold tracking-tight min-[360px]:text-2xl">
+            <p className="mt-1 break-words text-lg font-bold tracking-tight min-[360px]:text-xl min-[420px]:text-2xl">
               {formatRupiah(filteredTransactions.reduce((sum, t) => sum + t.total, 0))}
             </p>
           </div>
@@ -236,7 +241,14 @@ export function CashierTransaksiMobile({ transactions }: Props) {
             <button
               key={trx.id}
               type="button"
-              onClick={() => setSelectedTransactionId(trx.id)}
+              onClick={() => {
+                if (detailBasePath) {
+                  router.push(`${detailBasePath}/${trx.id}`)
+                  return
+                }
+
+                setSelectedTransactionId(trx.id)
+              }}
               className="flex w-full items-center gap-3.5 rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
             >
               {/* Left: Money icon */}
@@ -247,7 +259,7 @@ export function CashierTransaksiMobile({ transactions }: Props) {
               {/* Center content */}
               <div className="min-w-0 flex-1">
                 {/* Amount */}
-                <p className="text-base font-bold text-slate-800">{formatRupiah(trx.total)}</p>
+                <p className="break-words text-base font-bold text-slate-800">{formatRupiah(trx.total)}</p>
 
                 {/* Payment badge */}
                 <span className={`mt-1 inline-flex rounded px-1.5 py-0.5 text-[10px] font-bold ${getMetodeBadgeClass(trx.metode)}`}>
@@ -270,3 +282,5 @@ export function CashierTransaksiMobile({ transactions }: Props) {
     </div>
   )
 }
+
+export const CashierTransaksiMobile = TransaksiMobile

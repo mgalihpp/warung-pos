@@ -3,7 +3,7 @@
 import Link from "next/link"
 import Image from "next/image"
 import { useState, useSyncExternalStore } from "react"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowLeft01Icon,
@@ -80,6 +80,7 @@ const navItems = [
 
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
+  const router = useRouter()
   const { data: session } = useSession()
   const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
   const posMobileTab = useSyncExternalStore<PosMobileTab>(
@@ -117,10 +118,11 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
   const posMobileHeader = posMobileHeaders[posMobileTab]
 
   const isTransaksiPage = pathname.startsWith("/cashier/transaksi")
+  const isTransaksiDetailPage = /^\/cashier\/transaksi\/[^/]+$/.test(pathname)
   const isPengaturanPage = pathname.startsWith("/cashier/pengaturan")
 
   const mobileHeader = isTransaksiPage
-    ? isTransaksiDetail
+    ? isTransaksiDetailPage || isTransaksiDetail
       ? { title: "Detail Transaksi" }
       : { title: "Transaksi" }
     : isPengaturanPage
@@ -129,7 +131,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
   const isPosSubStep = pathname === "/cashier/pos" && posMobileTab !== "barang"
   const isPengaturanDetail = isPengaturanPage && !!pengaturanDetailTitle
-  const showBackArrow = isPosSubStep || (isTransaksiPage && isTransaksiDetail) || isPengaturanDetail
+  const showBackArrow = isPosSubStep || isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail) || isPengaturanDetail
 
   const handleMobileHeaderAction = () => {
     if (isPengaturanDetail) {
@@ -139,6 +141,11 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
     if (isTransaksiPage && isTransaksiDetail) {
       window.dispatchEvent(new Event("transaksi-detail-back"))
+      return
+    }
+
+    if (isTransaksiDetailPage) {
+      router.push("/cashier/transaksi")
       return
     }
 

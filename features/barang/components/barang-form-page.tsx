@@ -109,7 +109,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
     product?.image ?? null
   )
   const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
+  // no mobile action menu anymore (replaced by fixed bottom bar)
 
   function collectFormData(): Record<string, unknown> & { id?: string } {
     const fd = new FormData(formRef.current!)
@@ -169,7 +169,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
   return (
     <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
       {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mx-auto flex w-full max-w-5xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+      <div className="mx-auto hidden w-full max-w-5xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
         <div>
           <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
             {mode === "create" ? "Tambah Barang" : "Edit Barang"}
@@ -365,58 +365,22 @@ export function BarangFormPage(props: BarangFormPageProps) {
         </form>
       </div>
 
-      {/* Floating Action Button for Mobile/Tablet */}
+      {/* Bottom Bar for Mobile/Tablet */}
       <div className="lg:hidden">
-        {isMobileMenuOpen && (
-          <div
-            className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px]"
-          />
-        )}
-        <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6">
-          <div
-            className={`flex flex-col items-end gap-3 transition-all duration-200 ${isMobileMenuOpen ? "pointer-events-auto translate-y-0 scale-100 opacity-100" : "pointer-events-none translate-y-4 scale-95 opacity-0"}`}
-            onClick={() => setIsMobileMenuOpen(false)}
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
+          <Button
+            type="button"
+            className="h-12 w-full rounded-2xl gap-2"
+            onClick={() => formRef.current?.requestSubmit()}
+            disabled={mutation.isPending}
           >
-            <Button
-              type="button"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => formRef.current?.requestSubmit()}
-              disabled={mutation.isPending}
-            >
-              <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-              {mutation.isPending ? "Menyimpan..." : "Simpan"}
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => router.push("/admin/barang")}
-            >
-              <HugeiconsIcon icon={Cancel01Icon} size={16} />
-              Batal
-            </Button>
-            {mode === "edit" && (
-              <Button
-                type="button"
-                variant="outline"
-                className="h-12 rounded-full border-destructive/30 px-5 text-destructive shadow-lg hover:bg-destructive/5 hover:text-destructive"
-                onClick={() => setDeleteOpen(true)}
-              >
-                <HugeiconsIcon icon={Delete02Icon} size={16} />
-                Hapus
-              </Button>
-            )}
-          </div>
-          <button
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${isMobileMenuOpen ? "border bg-card text-foreground" : "bg-primary text-primary-foreground"}`}
-          >
-            <HugeiconsIcon
-              icon={FloppyDiskIcon}
-              size={22}
-              className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`}
-            />
-          </button>
+            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+            {mutation.isPending
+              ? "Menyimpan..."
+              : mode === "create"
+                ? "Simpan Barang"
+                : "Simpan Barang"}
+          </Button>
         </div>
       </div>
 
