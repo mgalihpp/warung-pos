@@ -121,10 +121,10 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
   const mobileHeader = isTransaksiPage
     ? isTransaksiDetail
-      ? { title: "Detail Transaksi", icon: Invoice01Icon }
-      : { title: "Transaksi", icon: Invoice01Icon }
+      ? { title: "Detail Transaksi" }
+      : { title: "Transaksi" }
     : isPengaturanPage
-      ? { title: pengaturanDetailTitle ?? "Pengaturan", icon: pengaturanDetailTitle ? undefined : Settings01Icon }
+      ? { title: pengaturanDetailTitle ?? "Pengaturan" }
       : posMobileHeader
 
   const isPosSubStep = pathname === "/cashier/pos" && posMobileTab !== "barang"

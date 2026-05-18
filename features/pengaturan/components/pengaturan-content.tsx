@@ -6,6 +6,7 @@ import Image from "next/image"
 import { useTheme } from "next-themes"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  Alert02Icon,
   ArrowRight01Icon,
   CheckmarkCircle02Icon,
   ComputerDesk01Icon,
@@ -17,6 +18,9 @@ import {
   Logout03Icon,
   Camera01Icon,
   Delete02Icon,
+  Edit02Icon,
+  MoreVerticalCircle01Icon,
+  UserSettings01Icon,
 } from "@hugeicons/core-free-icons"
 import { generateReactHelpers } from "@uploadthing/react"
 import Link from "next/link"
@@ -24,9 +28,23 @@ import { usePathname, useRouter } from "next/navigation"
 import { toast } from "sonner"
 
 import { authClient, useSession } from "@/lib/auth-client"
-import { updateProfile, changePassword, updateAvatar, updateUserAccess } from "@/app/admin/pengaturan/actions"
+import {
+  updateProfile,
+  changePassword,
+  updateAvatar,
+  updateUserAccess,
+  deleteUserAccount,
+} from "@/app/admin/pengaturan/actions"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
 import type { AppFileRouter } from "@/app/api/uploadthing/core"
-import { cn } from "@/lib/utils"
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
 import {
@@ -44,6 +62,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
+import {
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 
 const { useUploadThing } = generateReactHelpers<AppFileRouter>()
 
@@ -87,7 +119,10 @@ const themeOptions = [
   },
 ]
 
-export function PengaturanContent({ currentUser, basePath = "/admin/pengaturan" }: PengaturanContentProps) {
+export function PengaturanContent({
+  currentUser,
+  basePath = "/admin/pengaturan",
+}: PengaturanContentProps) {
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -99,9 +134,26 @@ export function PengaturanContent({ currentUser, basePath = "/admin/pengaturan" 
   return <ProfileTab displayUser={displayUser} basePath={basePath} />
 }
 
-export function PengaturanPenggunaContent({ currentUser, users }: PengaturanPenggunaContentProps) {
+export function PengaturanPenggunaContent({
+  currentUser,
+  users,
+}: PengaturanPenggunaContentProps) {
   const [isAccessPending, startAccessTransition] = useTransition()
+  const [selectedUser, setSelectedUser] = React.useState<SettingsUser | null>(null)
+  const [deleteUser, setDeleteUser] = React.useState<SettingsUser | null>(null)
+  const [isDesktopSheet, setIsDesktopSheet] = React.useState(false)
+  const [isDeletePending, startDeleteTransition] = useTransition()
   const router = useRouter()
+
+  React.useEffect(() => {
+    const mediaQuery = window.matchMedia("(min-width: 1024px)")
+    const syncDesktopSheet = () => setIsDesktopSheet(mediaQuery.matches)
+
+    syncDesktopSheet()
+    mediaQuery.addEventListener("change", syncDesktopSheet)
+
+    return () => mediaQuery.removeEventListener("change", syncDesktopSheet)
+  }, [])
 
   function handleUserAccessSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -111,6 +163,7 @@ export function PengaturanPenggunaContent({ currentUser, users }: PengaturanPeng
       const result = await updateUserAccess(formData)
       if (result.success) {
         toast.success(result.message)
+        setSelectedUser(null)
         router.refresh()
       } else {
         toast.error(result.message)
@@ -118,207 +171,356 @@ export function PengaturanPenggunaContent({ currentUser, users }: PengaturanPeng
     })
   }
 
+  function handleDeleteUser() {
+    if (!deleteUser) return
+
+    const formData = new FormData()
+    formData.set("userId", deleteUser.id)
+
+    startDeleteTransition(async () => {
+      const result = await deleteUserAccount(formData)
+      if (result.success) {
+        toast.success(result.message)
+        setDeleteUser(null)
+        router.refresh()
+      } else {
+        toast.error(result.message)
+      }
+    })
+  }
+
+  function handleDeleteFromSheet(user: SettingsUser) {
+    setSelectedUser(null)
+    window.setTimeout(() => setDeleteUser(user), 180)
+  }
+
   return (
     <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between gap-3">
-            <div>
-              <h2 className="text-lg font-semibold tracking-tight">Manajemen Pengguna</h2>
-              <p className="text-sm text-muted-foreground">
-                Ubah role dan status akun berdasarkan field yang sudah ada di tabel user.
-              </p>
-            </div>
+      <div className="hidden items-center justify-between gap-3 lg:flex">
+        <div>
+          <h2 className="text-lg font-semibold tracking-tight">
+            Manajemen Akun
+          </h2>
+          <p className="text-sm text-muted-foreground">
+            Tambah akun, ubah role, status, dan reset password.
+          </p>
+        </div>
 
-            <Button asChild className="hidden gap-2 lg:inline-flex">
-              <Link href="/admin/pengaturan/tambah-akun">
-                <HugeiconsIcon icon={PlusSignIcon} size={16} />
-                Tambah Akun
-              </Link>
-            </Button>
-          </div>
+        <Button asChild className="hidden gap-2 lg:inline-flex">
+          <Link href="/admin/pengaturan/tambah-akun">
+            <HugeiconsIcon icon={PlusSignIcon} size={16} />
+            Tambah Akun
+          </Link>
+        </Button>
+      </div>
 
-          <Card>
-            <CardContent className="px-3 pt-3 sm:px-6 sm:pt-6">
-              <div className="overflow-hidden rounded-2xl border lg:hidden">
-                <div className="border-b bg-muted/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  Pengguna
-                </div>
+      <Card className="py-3 sm:py-4 lg:py-6">
+        <CardContent className="px-3 sm:px-4 lg:px-6">
+          <div className="lg:hidden">
+            <div className="overflow-hidden rounded-2xl bg-muted/30">
+              <div className="divide-y">
+                {users.map((user) => {
+                  const isCurrentUser = currentUser?.id === user.id
 
-                <div className="divide-y">
-                  {users.map((user) => (
-                    <form key={user.id} onSubmit={handleUserAccessSubmit} className="grid gap-3 p-4">
-                      <input type="hidden" name="userId" value={user.id} />
-
-                      <div className="flex min-w-0 items-start gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
-                          {getInitials(user.name)}
-                        </div>
-                        <div className="min-w-0 flex-1">
-                          <p className="truncate text-sm font-semibold leading-5">{user.name}</p>
-                          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                          <div className="mt-2 flex flex-wrap gap-2">
-                            <Badge variant="outline">{formatRole(user.role)}</Badge>
-                            <Badge variant={user.banned ? "secondary" : "default"}>
-                              {user.banned ? "Nonaktif" : "Aktif"}
-                            </Badge>
-                            {currentUser?.id === user.id && <Badge variant="outline">Akun Anda</Badge>}
-                          </div>
-                        </div>
-                      </div>
-
-                      <div className="grid gap-3 min-[420px]:grid-cols-2">
-                        <label className="grid gap-1.5 text-sm">
-                          <span className="text-xs font-medium text-muted-foreground">Role</span>
-                          <Select
-                            name="role"
-                            defaultValue={user.role === "admin" ? "admin" : "cashier"}
-                            disabled={currentUser?.id === user.id}
-                          >
-                            <SelectTrigger className="h-10 w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="admin">Admin</SelectItem>
-                              <SelectItem value="cashier">Kasir</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </label>
-
-                        <label className="grid gap-1.5 text-sm">
-                          <span className="text-xs font-medium text-muted-foreground">Status</span>
-                          <Select
-                            name="status"
-                            defaultValue={user.banned ? "inactive" : "active"}
-                            disabled={currentUser?.id === user.id}
-                          >
-                            <SelectTrigger className="h-10 w-full">
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="active">Aktif</SelectItem>
-                              <SelectItem value="inactive">Nonaktif</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </label>
-                      </div>
-
-                      {currentUser?.id === user.id && (
-                        <p className="text-xs text-muted-foreground">Akun Anda hanya bisa diubah dari halaman Profile.</p>
-                      )}
-
-                      <Button
-                        type="submit"
-                        size="sm"
-                        variant="outline"
-                        className="w-full"
-                        disabled={isAccessPending || currentUser?.id === user.id}
-                      >
-                        Simpan
-                      </Button>
-                    </form>
-                  ))}
-                </div>
-              </div>
-
-              <div className="hidden overflow-hidden rounded-2xl border lg:block">
-                <div className="grid grid-cols-[1fr_180px_140px_120px] gap-4 border-b bg-muted/40 px-4 py-3 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                  <span>Pengguna</span>
-                  <span>Role</span>
-                  <span>Status</span>
-                  <span className="text-right">Aksi</span>
-                </div>
-
-                <div className="divide-y">
-                  {users.map((user) => (
-                    <form
+                  return (
+                    <button
                       key={user.id}
-                      onSubmit={handleUserAccessSubmit}
-                      className="grid grid-cols-[1fr_180px_140px_120px] items-center gap-4 px-4 py-4"
+                      type="button"
+                      onClick={() => !isCurrentUser && setSelectedUser(user)}
+                      disabled={isCurrentUser}
+                      className="flex w-full items-center gap-3 px-4 py-3 text-left transition-colors active:bg-muted/60 disabled:cursor-default disabled:opacity-100"
                     >
-                      <input type="hidden" name="userId" value={user.id} />
+                      <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl border border-primary/20 bg-primary/10 text-xs font-black text-primary">
+                        {getInitials(user.name)}
+                      </div>
 
-                      <div className="flex min-w-0 items-center gap-3">
-                        <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
-                          {getInitials(user.name)}
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-start justify-between gap-3">
+                          <div className="min-w-0">
+                            <p className="truncate text-sm font-black text-foreground">
+                              {user.name}
+                            </p>
+                            <p className="truncate text-xs text-muted-foreground">
+                              {user.email}
+                            </p>
+                          </div>
+
+                          {!isCurrentUser && (
+                            <HugeiconsIcon
+                              icon={ArrowRight01Icon}
+                              size={18}
+                              className="mt-1 shrink-0 text-muted-foreground"
+                            />
+                          )}
                         </div>
-                        <div className="min-w-0">
-                          <p className="truncate text-sm font-semibold">{user.name}</p>
-                          <p className="truncate text-xs text-muted-foreground">{user.email}</p>
-                          {currentUser?.id === user.id && (
-                            <Badge className="mt-2" variant="outline">
+
+                        <div className="mt-2 flex flex-wrap gap-1.5">
+                          <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+                            {formatRole(user.role)}
+                          </span>
+                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}>
+                            {user.banned ? "Nonaktif" : "Aktif"}
+                          </span>
+                          {isCurrentUser && (
+                            <span className="rounded-full bg-muted px-2.5 py-1 text-[11px] font-bold text-muted-foreground">
                               Akun Anda
-                            </Badge>
+                            </span>
                           )}
                         </div>
                       </div>
-
-                      <label className="grid gap-1.5 text-sm">
-                        <span className="sr-only">Role</span>
-                        <Select
-                          name="role"
-                          defaultValue={user.role === "admin" ? "admin" : "cashier"}
-                          disabled={currentUser?.id === user.id}
-                        >
-                          <SelectTrigger className="h-10 w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="cashier">Kasir</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </label>
-
-                      <label className="grid gap-1.5 text-sm">
-                        <span className="sr-only">Status</span>
-                        <Select
-                          name="status"
-                          defaultValue={user.banned ? "inactive" : "active"}
-                          disabled={currentUser?.id === user.id}
-                        >
-                          <SelectTrigger className="h-10 w-full">
-                            <SelectValue />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="active">Aktif</SelectItem>
-                            <SelectItem value="inactive">Nonaktif</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </label>
-
-                      <div className="flex items-center justify-end">
-                        <Button
-                          type="submit"
-                          size="sm"
-                          variant="outline"
-                          disabled={isAccessPending || currentUser?.id === user.id}
-                        >
-                          Simpan
-                        </Button>
-                      </div>
-                    </form>
-                  ))}
-                </div>
+                    </button>
+                  )
+                })}
               </div>
-            </CardContent>
-          </Card>
-
-          <div className="lg:hidden">
-            <Button
-              asChild
-              className="fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 size-14 rounded-full shadow-lg sm:right-6"
-              aria-label="Tambah akun"
-            >
-              <Link href="/admin/pengaturan/tambah-akun">
-                <HugeiconsIcon icon={PlusSignIcon} size={28} />
-              </Link>
-            </Button>
+            </div>
           </div>
+
+          <div className="hidden overflow-hidden rounded-2xl border lg:block">
+            <div className="grid grid-cols-[1fr_180px_140px_120px] gap-4 border-b bg-muted/40 px-4 py-3 text-xs font-semibold tracking-wide text-muted-foreground uppercase">
+              <span>Akun</span>
+              <span>Role</span>
+              <span>Status</span>
+              <span className="text-right">Aksi</span>
+            </div>
+
+            <div className="divide-y">
+              {users.map((user) => {
+                const isCurrentUser = currentUser?.id === user.id
+
+                return (
+                <div
+                  key={user.id}
+                  className="grid grid-cols-[1fr_180px_140px_120px] items-center gap-4 px-4 py-4"
+                >
+                  <div className="flex min-w-0 items-center gap-3">
+                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
+                      {getInitials(user.name)}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-semibold">
+                        {user.name}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {user.email}
+                      </p>
+                      {isCurrentUser && (
+                        <Badge className="mt-2" variant="outline">
+                          Akun Anda
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+
+                  <div>
+                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+                      {formatRole(user.role)}
+                    </span>
+                  </div>
+
+                  <div>
+                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}>
+                      {user.banned ? "Nonaktif" : "Aktif"}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-end">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <button
+                          type="button"
+                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                          aria-label="Aksi akun"
+                          disabled={isCurrentUser}
+                        >
+                          <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
+                        </button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-44 rounded-xl p-2">
+                        <DropdownMenuItem
+                          className="cursor-pointer gap-2 rounded-lg py-2"
+                          onSelect={() => setSelectedUser(user)}
+                        >
+                          <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+                          Edit Akun
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator className="my-1" />
+                        <DropdownMenuItem
+                          variant="destructive"
+                          className="cursor-pointer gap-2 rounded-lg py-2"
+                          onSelect={() => setDeleteUser(user)}
+                        >
+                          <HugeiconsIcon icon={Delete02Icon} size={16} />
+                          Hapus Akun
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </div>
+                </div>
+                )
+              })}
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="lg:hidden">
+        <Button
+          asChild
+          className="fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 size-14 rounded-full shadow-lg sm:right-6"
+          aria-label="Tambah akun"
+        >
+          <Link href="/admin/pengaturan/tambah-akun">
+            <HugeiconsIcon icon={PlusSignIcon} size={28} />
+          </Link>
+        </Button>
+      </div>
+
+      <Sheet open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+        <SheetContent
+          side={isDesktopSheet ? "right" : "bottom"}
+          className={isDesktopSheet ? "w-[420px] p-0" : "rounded-t-[2rem] border-0 p-0"}
+          showCloseButton={false}
+        >
+          {selectedUser && (
+            <UserAccountEditForm
+              user={selectedUser}
+              isAccessPending={isAccessPending}
+              onSubmit={handleUserAccessSubmit}
+              onCancel={() => setSelectedUser(null)}
+              onDelete={() => handleDeleteFromSheet(selectedUser)}
+            />
+          )}
+        </SheetContent>
+      </Sheet>
+
+      <AlertDialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
+        <AlertDialogContent className="sm:max-w-[400px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <HugeiconsIcon icon={Alert02Icon} size={20} />
+              Hapus Akun?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="pt-2 leading-relaxed">
+              Akun <strong className="font-semibold text-foreground">{deleteUser?.name}</strong> akan dihapus permanen.
+              Jika akun memiliki riwayat transaksi atau stok, sistem akan menolak penghapusan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          <AlertDialogFooter className="gap-2 pt-4">
+            <AlertDialogCancel className="mt-0 w-full sm:w-auto">Batal</AlertDialogCancel>
+            <Button
+              type="button"
+              variant="destructive"
+              className="w-full sm:w-auto"
+              disabled={isDeletePending}
+              onClick={handleDeleteUser}
+            >
+              {isDeletePending ? "Menghapus..." : "Hapus"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   )
 }
 
 export function PengaturanTemaContent() {
   return <TemaTab />
+}
+
+function UserAccountEditForm({
+  user,
+  isAccessPending,
+  onSubmit,
+  onCancel,
+  onDelete,
+}: {
+  user: SettingsUser
+  isAccessPending: boolean
+  onSubmit: (e: React.FormEvent<HTMLFormElement>) => void
+  onCancel: () => void
+  onDelete: () => void
+}) {
+  return (
+    <form onSubmit={onSubmit} className="grid gap-3 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] lg:h-full lg:content-start lg:p-4">
+      <input type="hidden" name="userId" value={user.id} />
+
+      <SheetHeader className="p-0 text-left">
+        <div className="mx-auto mb-1 h-1.5 w-12 rounded-full bg-muted lg:hidden" />
+        <div className="flex items-center gap-3 rounded-3xl bg-muted p-2.5">
+          <div className="flex size-12 shrink-0 items-center justify-center rounded-2xl bg-primary text-sm font-black text-primary-foreground">
+            {getInitials(user.name)}
+          </div>
+          <div className="min-w-0">
+            <SheetTitle className="truncate text-base font-black">
+              {user.name}
+            </SheetTitle>
+            <SheetDescription className="truncate text-xs">
+              {user.email}
+            </SheetDescription>
+          </div>
+        </div>
+      </SheetHeader>
+
+      <div className="grid gap-3">
+        <label className="grid gap-1.5 text-xs font-bold text-foreground">
+          <span className="px-1">Email Akun</span>
+          <Input name="email" type="email" defaultValue={user.email} required className="h-11 rounded-2xl border-0 bg-muted shadow-none" />
+        </label>
+
+        <div className="grid grid-cols-2 gap-3">
+          <label className="grid gap-1.5 text-xs font-bold text-foreground">
+            <span className="px-1">Role Akun</span>
+            <Select name="role" defaultValue={user.role === "admin" ? "admin" : "cashier"}>
+              <SelectTrigger className="h-11 rounded-2xl border-0 bg-muted shadow-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="admin">Admin</SelectItem>
+                <SelectItem value="cashier">Kasir</SelectItem>
+              </SelectContent>
+            </Select>
+          </label>
+
+          <label className="grid gap-1.5 text-xs font-bold text-foreground">
+            <span className="px-1">Status Akun</span>
+            <Select name="status" defaultValue={user.banned ? "inactive" : "active"}>
+              <SelectTrigger className="h-11 rounded-2xl border-0 bg-muted shadow-none">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="active">Aktif</SelectItem>
+                <SelectItem value="inactive">Nonaktif</SelectItem>
+              </SelectContent>
+            </Select>
+          </label>
+        </div>
+
+        <label className="grid gap-1.5 text-xs font-bold text-foreground">
+          <span className="px-1">Reset Password</span>
+          <Input name="newPassword" type="password" minLength={8} placeholder="Kosongkan jika tidak diganti" className="h-11 rounded-2xl border-0 bg-muted shadow-none" />
+        </label>
+      </div>
+
+      <div className="grid grid-cols-2 gap-3 pt-1">
+        <Button type="button" variant="outline" className="h-11 rounded-2xl" onClick={onCancel}>
+          Batal
+        </Button>
+        <Button type="submit" disabled={isAccessPending} className="h-11 rounded-2xl font-black">
+          {isAccessPending ? "Menyimpan..." : "Simpan"}
+        </Button>
+      </div>
+
+      <Button
+        type="button"
+        variant="ghost"
+        className="h-10 rounded-2xl text-destructive hover:bg-destructive/10 hover:text-destructive"
+        onClick={onDelete}
+      >
+        Hapus Akun
+      </Button>
+    </form>
+  )
 }
 
 export function ProfileTab({
@@ -330,15 +532,19 @@ export function ProfileTab({
 }) {
   const [isPending, startTransition] = useTransition()
   const [isPwPending, startPwTransition] = useTransition()
-  const [mobileView, setMobileView] = React.useState<"menu" | "profile" | "password">("menu")
-  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(displayUser.image ?? null)
+  const [mobileView, setMobileView] = React.useState<
+    "menu" | "profile" | "password"
+  >("menu")
+  const [avatarUrl, setAvatarUrl] = React.useState<string | null>(
+    displayUser.image ?? null
+  )
   const [isProfileChanged, setIsProfileChanged] = React.useState(false)
   const [isPasswordReady, setIsPasswordReady] = React.useState(false)
   const avatarInputRef = React.useRef<HTMLInputElement>(null)
   const pwFormRef = React.useRef<HTMLFormElement>(null)
   const router = useRouter()
   const { refetch: refetchSession } = useSession()
-  const isCashierSettings = basePath === "/cashier/pengaturan"
+  const canManageUsers = basePath === "/admin/pengaturan"
 
   async function syncSessionAndRoute() {
     await refetchSession()
@@ -347,7 +553,7 @@ export function ProfileTab({
 
   const { startUpload, isUploading } = useUploadThing("avatarUpload", {
     onClientUploadComplete: async (res) => {
-      const url = res[0]?.url ?? null
+      const url = res[0]?.ufsUrl ?? null
       if (!url) return
       setAvatarUrl(url)
       const result = await updateAvatar(url)
@@ -399,7 +605,7 @@ export function ProfileTab({
     const formData = new FormData(e.currentTarget)
     setIsProfileChanged(
       formData.get("name") !== displayUser.name ||
-      formData.get("email") !== displayUser.email
+        formData.get("email") !== displayUser.email
     )
   }
 
@@ -407,8 +613,8 @@ export function ProfileTab({
     const formData = new FormData(e.currentTarget)
     setIsPasswordReady(
       Boolean(formData.get("currentPassword")) &&
-      Boolean(formData.get("newPassword")) &&
-      Boolean(formData.get("confirmPassword"))
+        Boolean(formData.get("newPassword")) &&
+        Boolean(formData.get("confirmPassword"))
     )
   }
 
@@ -428,11 +634,12 @@ export function ProfileTab({
   }
 
   React.useEffect(() => {
-    const title = mobileView === "profile"
-      ? "Profil Akun"
-      : mobileView === "password"
-        ? "Keamanan Akun"
-        : null
+    const title =
+      mobileView === "profile"
+        ? "Profil Akun"
+        : mobileView === "password"
+          ? "Keamanan Akun"
+          : null
 
     if (title) {
       document.body.dataset.pengaturanDetailTitle = title
@@ -453,25 +660,34 @@ export function ProfileTab({
   }, [mobileView])
 
   return (
-    <div className={cn("flex flex-col gap-4", isCashierSettings && "lg:mx-auto lg:w-full lg:max-w-4xl")}>
+    <div className="flex flex-col gap-4">
       <div className="space-y-4 lg:hidden">
         {mobileView === "menu" && (
           <>
-            <section className="relative overflow-hidden rounded-[2rem] bg-primary p-4 text-primary-foreground shadow-lg shadow-primary/20">
-              <div className="absolute -right-10 -top-12 size-32 rounded-full bg-primary-foreground/10" />
+            <section className="relative overflow-hidden rounded-3xl bg-primary p-4 text-primary-foreground shadow-lg shadow-primary/20">
+              <div className="absolute -top-12 -right-10 size-32 rounded-full bg-primary-foreground/10" />
               <div className="absolute -bottom-16 left-10 size-40 rounded-full bg-primary-foreground/10" />
 
               <div className="relative flex items-center gap-4">
                 <div className="relative flex size-16 shrink-0 items-center justify-center overflow-hidden rounded-3xl border border-primary-foreground/30 bg-primary-foreground/15 text-primary-foreground shadow-sm">
                   {avatarUrl ? (
-                    <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                    <Image
+                      src={avatarUrl}
+                      alt="Avatar"
+                      fill
+                      className="object-cover"
+                    />
                   ) : (
                     <HugeiconsIcon icon={UserCircleIcon} size={34} />
                   )}
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-lg font-black leading-tight">{displayUser.name}</p>
-                  <p className="truncate text-xs font-medium text-primary-foreground/75">{displayUser.email}</p>
+                  <p className="truncate text-lg leading-tight font-black">
+                    {displayUser.name}
+                  </p>
+                  <p className="truncate text-xs font-medium text-primary-foreground/75">
+                    {displayUser.email}
+                  </p>
                   <div className="mt-2 flex flex-wrap gap-2">
                     <span className="rounded-full bg-primary-foreground/15 px-2.5 py-1 text-[11px] font-bold ring-1 ring-primary-foreground/15">
                       {formatRole(displayUser.role)}
@@ -492,6 +708,17 @@ export function ProfileTab({
                 onClick={() => setMobileView("profile")}
               />
               <div className="mx-4 border-t" />
+              {canManageUsers && (
+                <>
+                  <SettingsRow
+                    href={`${basePath}/akun`}
+                    icon={UserSettings01Icon}
+                    title="Manajemen Akun"
+                    description="Tambah akun, ubah role, dan status akun."
+                  />
+                  <div className="mx-4 border-t" />
+                </>
+              )}
               <SettingsRow
                 href={`${basePath}/tema`}
                 icon={ComputerDesk01Icon}
@@ -502,7 +729,7 @@ export function ProfileTab({
               <SettingsRow
                 icon={LockPasswordIcon}
                 title="Keamanan Akun"
-                description="Ganti password akun kasir."
+                description="Ganti password akun saat ini."
                 onClick={() => setMobileView("password")}
               />
             </section>
@@ -513,7 +740,15 @@ export function ProfileTab({
                 title="Logout"
                 description="Keluar dari akun kasir saat ini."
                 variant="destructive"
-                onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
+                onClick={() =>
+                  authClient.signOut({
+                    fetchOptions: {
+                      onSuccess: () => {
+                        window.location.href = "/login"
+                      },
+                    },
+                  })
+                }
               />
             </section>
           </>
@@ -526,7 +761,12 @@ export function ProfileTab({
                 <div className="relative mb-3">
                   <div className="relative flex size-24 items-center justify-center overflow-hidden rounded-[2rem] bg-primary/10 text-primary ring-4 ring-primary/10">
                     {avatarUrl ? (
-                      <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                      <Image
+                        src={avatarUrl}
+                        alt="Avatar"
+                        fill
+                        className="object-cover"
+                      />
                     ) : (
                       <HugeiconsIcon icon={UserCircleIcon} size={48} />
                     )}
@@ -544,34 +784,70 @@ export function ProfileTab({
                     )}
                   </button>
                 </div>
-                <p className="text-base font-black text-foreground">{displayUser.name}</p>
-                <p className="text-xs text-muted-foreground">{displayUser.email}</p>
+                <p className="text-base font-black text-foreground">
+                  {displayUser.name}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {displayUser.email}
+                </p>
               </div>
 
-              <form onSubmit={handleProfileSubmit} onChange={handleProfileChange} className="mt-4 grid gap-3">
+              <form
+                onSubmit={handleProfileSubmit}
+                onChange={handleProfileChange}
+                className="mt-4 grid gap-3"
+              >
                 <MobileInput label="Nama Pengguna">
-                  <Input name="name" defaultValue={displayUser.name} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  <Input
+                    name="name"
+                    defaultValue={displayUser.name}
+                    required
+                    className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                  />
                 </MobileInput>
 
                 <MobileInput label="Email Akun">
-                  <Input name="email" type="email" defaultValue={displayUser.email} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  <Input
+                    name="email"
+                    type="email"
+                    defaultValue={displayUser.email}
+                    required
+                    className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                  />
                 </MobileInput>
 
                 <div className="grid grid-cols-2 gap-3">
                   <MobileInput label="Role">
-                    <Input value={formatRole(displayUser.role)} disabled className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                    <Input
+                      value={formatRole(displayUser.role)}
+                      disabled
+                      className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                    />
                   </MobileInput>
                   <MobileInput label="Status">
-                    <Input value={displayUser.banned ? "Nonaktif" : "Aktif"} disabled className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                    <Input
+                      value={displayUser.banned ? "Nonaktif" : "Aktif"}
+                      disabled
+                      className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                    />
                   </MobileInput>
                 </div>
 
                 <div className="grid gap-2 pt-2">
-                  <Button type="submit" disabled={isPending || !isProfileChanged} className="h-12 rounded-2xl font-black">
+                  <Button
+                    type="submit"
+                    disabled={isPending || !isProfileChanged}
+                    className="h-12 rounded-2xl font-black"
+                  >
                     {isPending ? "Menyimpan..." : "Simpan Perubahan"}
                   </Button>
                   {avatarUrl && (
-                    <Button type="button" variant="ghost" className="h-11 rounded-2xl text-destructive" onClick={handleAvatarRemove}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      className="h-11 rounded-2xl text-destructive"
+                      onClick={handleAvatarRemove}
+                    >
                       Hapus Foto Profil
                     </Button>
                   )}
@@ -588,25 +864,54 @@ export function ProfileTab({
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary text-primary-foreground">
                   <HugeiconsIcon icon={LockPasswordIcon} size={21} />
                 </div>
-                <p className="text-xs font-semibold leading-relaxed text-primary">
+                <p className="text-xs leading-relaxed font-semibold text-primary">
                   Ubah Password
                 </p>
               </div>
 
-              <form ref={pwFormRef} onSubmit={handlePasswordSubmit} onChange={handlePasswordChange} className="grid gap-3">
+              <form
+                ref={pwFormRef}
+                onSubmit={handlePasswordSubmit}
+                onChange={handlePasswordChange}
+                className="grid gap-3"
+              >
                 <MobileInput label="Password Saat Ini">
-                  <Input name="currentPassword" type="password" autoComplete="current-password" required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  <Input
+                    name="currentPassword"
+                    type="password"
+                    autoComplete="current-password"
+                    required
+                    className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                  />
                 </MobileInput>
 
                 <MobileInput label="Password Baru">
-                  <Input name="newPassword" type="password" autoComplete="new-password" minLength={8} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  <Input
+                    name="newPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                    className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                  />
                 </MobileInput>
 
                 <MobileInput label="Konfirmasi Password Baru">
-                  <Input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                  <Input
+                    name="confirmPassword"
+                    type="password"
+                    autoComplete="new-password"
+                    minLength={8}
+                    required
+                    className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                  />
                 </MobileInput>
 
-                <Button type="submit" disabled={isPwPending || !isPasswordReady} className="mt-2 h-12 rounded-2xl font-black">
+                <Button
+                  type="submit"
+                  disabled={isPwPending || !isPasswordReady}
+                  className="mt-2 h-12 rounded-2xl font-black"
+                >
                   {isPwPending ? "Mengubah..." : "Update Password"}
                 </Button>
               </form>
@@ -616,7 +921,7 @@ export function ProfileTab({
       </div>
 
       <Card className="hidden lg:block">
-        <CardHeader>
+        <CardHeader className="px-4 pb-2 sm:px-6">
           <CardTitle>Profile Pengguna</CardTitle>
           <CardDescription>
             Perbarui nama dan email akun yang sedang login.
@@ -627,18 +932,23 @@ export function ProfileTab({
             <div className="relative shrink-0">
               <div className="relative flex size-14 items-center justify-center overflow-hidden rounded-2xl border-2 border-background bg-primary/10 text-primary shadow-sm sm:size-16">
                 {avatarUrl ? (
-                  <Image src={avatarUrl} alt="Avatar" fill className="object-cover" />
+                  <Image
+                    src={avatarUrl}
+                    alt="Avatar"
+                    fill
+                    className="object-cover"
+                  />
                 ) : (
                   <HugeiconsIcon icon={UserCircleIcon} size={32} />
                 )}
               </div>
-              
+
               {/* Tombol Aksi di Pojok Kanan Atas */}
               {avatarUrl ? (
                 <button
                   type="button"
                   onClick={handleAvatarRemove}
-                  className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full bg-destructive text-white shadow-md transition-transform hover:scale-110 active:scale-95"
+                  className="absolute -top-2 -right-2 flex size-7 items-center justify-center rounded-full bg-destructive text-white shadow-md transition-transform hover:scale-110 active:scale-95"
                   title="Hapus foto"
                 >
                   <HugeiconsIcon icon={Delete02Icon} size={14} />
@@ -648,7 +958,7 @@ export function ProfileTab({
                   type="button"
                   disabled={isUploading}
                   onClick={() => avatarInputRef.current?.click()}
-                  className="absolute -right-2 -top-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
+                  className="absolute -top-2 -right-2 flex size-7 items-center justify-center rounded-full bg-primary text-primary-foreground shadow-md transition-transform hover:scale-110 active:scale-95 disabled:opacity-50"
                   title="Upload foto"
                 >
                   {isUploading ? (
@@ -658,7 +968,7 @@ export function ProfileTab({
                   )}
                 </button>
               )}
-              
+
               <input
                 ref={avatarInputRef}
                 type="file"
@@ -668,23 +978,39 @@ export function ProfileTab({
               />
             </div>
             <div className="min-w-0 flex-1 space-y-0.5">
-              <p className="truncate font-semibold sm:text-lg">{displayUser.name}</p>
-              <p className="truncate text-xs text-muted-foreground sm:text-sm">{displayUser.email}</p>
+              <p className="truncate font-semibold sm:text-lg">
+                {displayUser.name}
+              </p>
+              <p className="truncate text-xs text-muted-foreground sm:text-sm">
+                {displayUser.email}
+              </p>
               <div className="pt-1">
-                <Badge variant="outline" className="h-5 px-1.5 text-[10px] sm:h-6 sm:px-2 sm:text-xs">
+                <Badge
+                  variant="outline"
+                  className="h-5 px-1.5 text-[10px] sm:h-6 sm:px-2 sm:text-xs"
+                >
                   {formatRole(displayUser.role)}
                 </Badge>
               </div>
             </div>
           </div>
 
-          <form onSubmit={handleProfileSubmit} onChange={handleProfileChange} className="grid gap-4 md:grid-cols-2">
+          <form
+            onSubmit={handleProfileSubmit}
+            onChange={handleProfileChange}
+            className="grid gap-4 md:grid-cols-2"
+          >
             <FieldGroup label="Nama Pengguna">
               <Input name="name" defaultValue={displayUser.name} required />
             </FieldGroup>
 
             <FieldGroup label="Email Akun">
-              <Input name="email" type="email" defaultValue={displayUser.email} required />
+              <Input
+                name="email"
+                type="email"
+                defaultValue={displayUser.email}
+                required
+              />
             </FieldGroup>
 
             <FieldGroup label="Role">
@@ -692,7 +1018,10 @@ export function ProfileTab({
             </FieldGroup>
 
             <FieldGroup label="Status Akun">
-              <Input value={displayUser.banned ? "Nonaktif" : "Aktif"} disabled />
+              <Input
+                value={displayUser.banned ? "Nonaktif" : "Aktif"}
+                disabled
+              />
             </FieldGroup>
 
             <div className="md:col-span-2">
@@ -719,19 +1048,41 @@ export function ProfileTab({
           </div>
         </CardHeader>
         <CardContent>
-          <form ref={pwFormRef} onSubmit={handlePasswordSubmit} onChange={handlePasswordChange} className="grid gap-4 md:grid-cols-2">
+          <form
+            ref={pwFormRef}
+            onSubmit={handlePasswordSubmit}
+            onChange={handlePasswordChange}
+            className="grid gap-4 md:grid-cols-2"
+          >
             <div className="md:col-span-2">
               <FieldGroup label="Password Saat Ini">
-                <Input name="currentPassword" type="password" autoComplete="current-password" required />
+                <Input
+                  name="currentPassword"
+                  type="password"
+                  autoComplete="current-password"
+                  required
+                />
               </FieldGroup>
             </div>
 
             <FieldGroup label="Password Baru">
-              <Input name="newPassword" type="password" autoComplete="new-password" minLength={8} required />
+              <Input
+                name="newPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
             </FieldGroup>
 
             <FieldGroup label="Konfirmasi Password Baru">
-              <Input name="confirmPassword" type="password" autoComplete="new-password" minLength={8} required />
+              <Input
+                name="confirmPassword"
+                type="password"
+                autoComplete="new-password"
+                minLength={8}
+                required
+              />
             </FieldGroup>
 
             <div className="md:col-span-2">
@@ -764,20 +1115,33 @@ function SettingsRow({
   const isDestructive = variant === "destructive"
   const content = (
     <>
-      <div className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${isDestructive ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}>
+      <div
+        className={`flex size-10 shrink-0 items-center justify-center rounded-2xl ${isDestructive ? "bg-destructive/10 text-destructive" : "bg-primary/10 text-primary"}`}
+      >
         <HugeiconsIcon icon={icon} size={20} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className={`text-sm font-bold ${isDestructive ? "text-destructive" : "text-foreground"}`}>{title}</p>
+        <p
+          className={`text-sm font-bold ${isDestructive ? "text-destructive" : "text-foreground"}`}
+        >
+          {title}
+        </p>
         <p className="truncate text-xs text-muted-foreground">{description}</p>
       </div>
-      <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="shrink-0 text-muted-foreground" />
+      <HugeiconsIcon
+        icon={ArrowRight01Icon}
+        size={18}
+        className="shrink-0 text-muted-foreground"
+      />
     </>
   )
 
   if (href) {
     return (
-      <Link href={href} className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60">
+      <Link
+        href={href}
+        className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60"
+      >
         {content}
       </Link>
     )
@@ -813,7 +1177,9 @@ export function TemaTab() {
   const { theme, setTheme } = useTheme()
   const pathname = usePathname()
   const router = useRouter()
-  const basePath = pathname.startsWith("/cashier") ? "/cashier/pengaturan" : "/admin/pengaturan"
+  const basePath = pathname.startsWith("/cashier")
+    ? "/cashier/pengaturan"
+    : "/admin/pengaturan"
 
   React.useEffect(() => {
     if (!pathname.startsWith("/cashier")) {
@@ -847,14 +1213,22 @@ export function TemaTab() {
                 onClick={() => setTheme(option.value)}
                 className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60"
               >
-                <div className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"}`}>
+                <div
+                  className={`flex size-11 shrink-0 items-center justify-center rounded-2xl ${isActive ? "bg-primary text-primary-foreground" : "bg-primary/10 text-primary"}`}
+                >
                   <HugeiconsIcon icon={option.icon} size={21} />
                 </div>
-                <div className={`min-w-0 flex-1 ${index < themeOptions.length - 1 ? "border-b pb-4" : ""}`}>
+                <div
+                  className={`min-w-0 flex-1 ${index < themeOptions.length - 1 ? "border-b pb-4" : ""}`}
+                >
                   <div className="flex items-center justify-between gap-3">
                     <div className="min-w-0">
-                      <p className="text-sm font-black text-foreground">{option.label}</p>
-                      <p className="truncate text-xs text-muted-foreground">{option.description}</p>
+                      <p className="text-sm font-black text-foreground">
+                        {option.label}
+                      </p>
+                      <p className="truncate text-xs text-muted-foreground">
+                        {option.description}
+                      </p>
                     </div>
                     {isActive && (
                       <div className="flex size-6 shrink-0 items-center justify-center rounded-full bg-primary text-primary-foreground">
@@ -870,45 +1244,46 @@ export function TemaTab() {
       </div>
 
       <Card className="hidden lg:block">
-      <CardHeader>
-        <CardTitle>Tema Aplikasi</CardTitle>
-        <CardDescription>
-          Sesuaikan tema aplikasi untuk kenyamanan mata selama operasional toko.
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
-          {themeOptions.map((option) => {
-            const isActive = (theme ?? "system") === option.value
+        <CardHeader className="px-4 pb-2 sm:px-6">
+          <CardTitle>Tema Aplikasi</CardTitle>
+          <CardDescription>
+            Sesuaikan tema aplikasi untuk kenyamanan mata selama operasional
+            toko.
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="grid gap-4 sm:grid-cols-2 md:grid-cols-3">
+            {themeOptions.map((option) => {
+              const isActive = (theme ?? "system") === option.value
 
-            return (
-              <button
-                key={option.value}
-                type="button"
-                onClick={() => setTheme(option.value)}
-                className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
-                  isActive ? "border-primary bg-primary/10" : "bg-card"
-                }`}
-              >
-                <div className="mb-4 flex items-center justify-between gap-3">
-                  <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                    <HugeiconsIcon icon={option.icon} size={20} />
-                  </div>
-                  {isActive && (
-                    <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
-                      <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+              return (
+                <button
+                  key={option.value}
+                  type="button"
+                  onClick={() => setTheme(option.value)}
+                  className={`rounded-2xl border p-4 text-left transition-colors hover:bg-muted/50 ${
+                    isActive ? "border-primary bg-primary/10" : "bg-card"
+                  }`}
+                >
+                  <div className="mb-4 flex items-center justify-between gap-3">
+                    <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                      <HugeiconsIcon icon={option.icon} size={20} />
                     </div>
-                  )}
-                </div>
-                <p className="font-semibold">{option.label}</p>
-                <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
-                  {option.description}
-                </p>
-              </button>
-            )
-          })}
-        </div>
-      </CardContent>
+                    {isActive && (
+                      <div className="flex size-6 items-center justify-center rounded-full bg-primary text-primary-foreground">
+                        <HugeiconsIcon icon={CheckmarkCircle02Icon} size={16} />
+                      </div>
+                    )}
+                  </div>
+                  <p className="font-semibold">{option.label}</p>
+                  <p className="mt-1 text-sm leading-relaxed text-muted-foreground">
+                    {option.description}
+                  </p>
+                </button>
+              )
+            })}
+          </div>
+        </CardContent>
       </Card>
     </>
   )

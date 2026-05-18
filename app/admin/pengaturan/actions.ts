@@ -103,9 +103,19 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
 
   const userId = String(formData.get("userId") ?? "")
   const role = asRole(formData.get("role"))
+  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const newPassword = String(formData.get("newPassword") ?? "")
 
   if (!userId || !role) {
     return { success: false, message: "Data pengguna tidak valid." }
+  }
+
+  if (!email) {
+    return { success: false, message: "Email pengguna tidak boleh kosong." }
+  }
+
+  if (newPassword && newPassword.length < 8) {
+    return { success: false, message: "Password baru minimal 8 karakter." }
   }
 
   if (admin.id === userId) {
@@ -139,13 +149,81 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
   await prisma.user.update({
     where: { id: userId },
     data: {
+      email,
       role: nextRole,
       banned: nextBanned,
     },
   })
 
+  if (newPassword) {
+    await auth.api.setUserPassword({
+      body: {
+        userId,
+        newPassword,
+      },
+      headers: await headers(),
+    })
+  }
+
   revalidatePath("/admin/pengaturan")
-  return { success: true, message: "Akses pengguna berhasil diperbarui." }
+  return { success: true, message: "Data pengguna berhasil diperbarui." }
+}
+
+export async function deleteUserAccount(formData: FormData): Promise<ActionResult> {
+  const admin = await requireAdmin()
+  if (!admin) {
+    return { success: false, message: "Akses ditolak." }
+  }
+
+  const userId = String(formData.get("userId") ?? "")
+  if (!userId) {
+    return { success: false, message: "Data akun tidak valid." }
+  }
+
+  if (admin.id === userId) {
+    return { success: false, message: "Akun sendiri tidak bisa dihapus." }
+  }
+
+  const targetUser = await prisma.user.findUnique({
+    where: { id: userId },
+    select: {
+      id: true,
+      role: true,
+      banned: true,
+      _count: {
+        select: {
+          transactions: true,
+          stockAdjustments: true,
+        },
+      },
+    },
+  })
+
+  if (!targetUser) {
+    return { success: false, message: "Akun tidak ditemukan." }
+  }
+
+  if (targetUser.role === "admin" && !targetUser.banned) {
+    const activeAdminCount = await prisma.user.count({
+      where: { role: "admin", banned: false },
+    })
+
+    if (activeAdminCount <= 1) {
+      return { success: false, message: "Tidak bisa menghapus admin terakhir." }
+    }
+  }
+
+  if (targetUser._count.transactions > 0 || targetUser._count.stockAdjustments > 0) {
+    return {
+      success: false,
+      message: "Akun memiliki riwayat transaksi/stok. Nonaktifkan akun sebagai gantinya.",
+    }
+  }
+
+  await prisma.user.delete({ where: { id: userId } })
+
+  revalidatePath("/admin/pengaturan")
+  return { success: true, message: "Akun berhasil dihapus." }
 }
 
 export async function createUserAccount(formData: FormData): Promise<ActionResult> {

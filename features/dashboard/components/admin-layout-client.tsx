@@ -1,81 +1,163 @@
 "use client"
 
-import Link from "next/link"
-import { useEffect, useState } from "react"
-import { usePathname } from "next/navigation"
+import { useState, useSyncExternalStore } from "react"
+import { usePathname, useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  DashboardSquare01Icon,
-  PackageIcon,
-  InvoiceIcon,
-  ChartHistogramIcon,
+  ArrowLeft01Icon,
   CashierIcon,
+  ChartHistogramIcon,
+  DashboardSquare01Icon,
+  InvoiceIcon,
+  Menu01Icon,
+  PackageIcon,
+  ShoppingCart01Icon,
+  Store01Icon,
   TagsIcon,
 } from "@hugeicons/core-free-icons"
 
-const navItems = [
-  { href: "/admin", label: "Dashboard", icon: DashboardSquare01Icon },
-  { href: "/admin/barang", label: "Barang", icon: PackageIcon },
-  { href: "/admin/kategori", label: "Kategori", icon: TagsIcon },
-  { href: "/admin/pos", label: "Kasir", icon: CashierIcon },
-  { href: "/admin/transaksi", label: "Transaksi", icon: InvoiceIcon },
-  { href: "/admin/laporan", label: "Laporan", icon: ChartHistogramIcon },
-]
+import { useSession } from "@/lib/auth-client"
+import { AdminMobileSidebar } from "./admin-mobile-sidebar"
+
+type PosMobileTab = "barang" | "keranjang" | "pembayaran"
+
+type MobileHeaderConfig = {
+  title: string
+  icon?: typeof DashboardSquare01Icon
+}
+
+const posMobileTabs = ["barang", "keranjang", "pembayaran"] as const
+
+const adminMobileHeaders = [
+  { href: "/admin/barang", title: "Barang", icon: PackageIcon },
+  { href: "/admin/kategori", title: "Kategori", icon: TagsIcon },
+  { href: "/admin/transaksi", title: "Transaksi", icon: InvoiceIcon },
+  { href: "/admin/laporan", title: "Laporan", icon: ChartHistogramIcon },
+  { href: "/admin/pos", title: "Kasir", icon: CashierIcon },
+] satisfies Array<MobileHeaderConfig & { href: string }>
+
+function getPosMobileTabSnapshot(): PosMobileTab {
+  const tab = document.body.dataset.posMobileTab
+
+  return posMobileTabs.includes(tab as PosMobileTab) ? (tab as PosMobileTab) : "barang"
+}
+
+function subscribePosMobileTab(onStoreChange: () => void) {
+  window.addEventListener("pos-mobile-tab-change", onStoreChange)
+
+  return () => window.removeEventListener("pos-mobile-tab-change", onStoreChange)
+}
+
+function getPengaturanDetailSnapshot(): string | null {
+  return document.body.dataset.pengaturanDetailTitle ?? null
+}
+
+function subscribePengaturanDetail(onStoreChange: () => void) {
+  window.addEventListener("pengaturan-detail-change", onStoreChange)
+
+  return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
+}
 
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const pathname = usePathname()
-  const [hidePosBottomNav, setHidePosBottomNav] = useState(false)
+  const router = useRouter()
+  const { data: session } = useSession()
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const posMobileTab = useSyncExternalStore<PosMobileTab>(
+    subscribePosMobileTab,
+    getPosMobileTabSnapshot,
+    () => "barang"
+  )
+  const pengaturanDetailTitle = useSyncExternalStore(
+    subscribePengaturanDetail,
+    getPengaturanDetailSnapshot,
+    () => null
+  )
 
-  useEffect(() => {
-    if (pathname !== "/admin/pos") {
+  const userName = session?.user?.name ?? "Admin"
+  const userEmail = session?.user?.email ?? undefined
+  const userRole = session?.user?.role ?? "admin"
+
+  const posMobileHeaders: Record<PosMobileTab, MobileHeaderConfig> = {
+    barang: { title: "Warung Mama Nia", icon: Store01Icon },
+    keranjang: { title: "Checkout", icon: ShoppingCart01Icon },
+    pembayaran: { title: "Pembayaran", icon: InvoiceIcon },
+  }
+
+  const isPosPage = pathname === "/admin/pos"
+  const isPengaturanPage = pathname.startsWith("/admin/pengaturan")
+  const isPengaturanDetail = isPengaturanPage && !!pengaturanDetailTitle
+  const isPengaturanSubPage = isPengaturanPage && pathname !== "/admin/pengaturan"
+  const isPosSubStep = isPosPage && posMobileTab !== "barang"
+  const activeAdminHeader = adminMobileHeaders.find((item) => pathname.startsWith(item.href))
+
+  const pengaturanHeader: MobileHeaderConfig = pathname.startsWith("/admin/pengaturan/tambah-akun")
+    ? { title: "Tambah Akun" }
+    : pathname.startsWith("/admin/pengaturan/akun")
+      ? { title: "Manajemen Akun" }
+      : pathname.startsWith("/admin/pengaturan/tema")
+        ? { title: "Tema Tampilan" }
+      : { title: pengaturanDetailTitle ?? "Pengaturan" }
+
+  const mobileHeader: MobileHeaderConfig = isPosPage
+    ? posMobileHeaders[posMobileTab]
+    : isPengaturanPage
+      ? pengaturanHeader
+      : activeAdminHeader
+        ? { title: activeAdminHeader.title }
+        : { title: "Dashboard" }
+
+  const handleMobileHeaderAction = () => {
+    if (isPengaturanDetail) {
+      window.dispatchEvent(new Event("pengaturan-detail-back"))
       return
     }
 
-    const syncMobileTab = (event: Event) => {
-      const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab
-      setHidePosBottomNav(tab === "keranjang")
+    if (isPengaturanSubPage) {
+      router.push("/admin/pengaturan")
+      return
     }
 
-    window.addEventListener("pos-mobile-tab-change", syncMobileTab)
-
-    return () => {
-      window.removeEventListener("pos-mobile-tab-change", syncMobileTab)
+    if (isPosSubStep) {
+      window.dispatchEvent(new CustomEvent("pos-mobile-tab-request", {
+        detail: { tab: posMobileTab === "pembayaran" ? "keranjang" : "barang" },
+      }))
+      return
     }
-  }, [pathname])
+
+    setIsMobileSidebarOpen(true)
+  }
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
+      <header className="shrink-0 bg-primary px-4 py-3 lg:hidden">
+        <div className="flex items-center justify-between">
+          <button
+            type="button"
+            onClick={handleMobileHeaderAction}
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+          >
+            <HugeiconsIcon icon={isPengaturanDetail || isPengaturanSubPage || isPosSubStep ? ArrowLeft01Icon : Menu01Icon} size={20} />
+          </button>
+
+          <div className="flex items-center gap-2">
+            {mobileHeader.icon ? (
+              <HugeiconsIcon icon={mobileHeader.icon} size={20} className="text-primary-foreground" />
+            ) : null}
+            <span className="text-base font-bold text-primary-foreground">{mobileHeader.title}</span>
+          </div>
+
+          <div className="w-8" />
+        </div>
+      </header>
+
       <main className="flex flex-1 min-h-0 flex-col overflow-hidden">{children}</main>
 
-      {!(pathname === "/admin/pos" && hidePosBottomNav) && (
-        <nav className="z-40 flex h-[64px] shrink-0 items-center justify-around border-t bg-card pb-[env(safe-area-inset-bottom)] lg:hidden">
-          {navItems.map((item) => {
-            const isActive = item.href === "/admin" ? pathname === "/admin" : pathname.startsWith(item.href)
-            const isPrimary = item.href === "/admin/pos"
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${
-                  isPrimary ? "-mt-3" : ""
-                } ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"}`}
-              >
-                <span
-                  className={`flex items-center justify-center transition-colors ${
-                    isPrimary
-                      ? `size-11 rounded-full border shadow-sm ${isActive ? "border-primary bg-primary text-primary-foreground ring-4 ring-primary/15" : "border-primary/20 bg-primary/10 text-primary"}`
-                      : ""
-                  }`}
-                >
-                  <HugeiconsIcon icon={item.icon} size={isPrimary ? 22 : 20} />
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      )}
+      <AdminMobileSidebar
+        open={isMobileSidebarOpen}
+        onOpenChange={setIsMobileSidebarOpen}
+        user={{ name: userName, email: userEmail, role: userRole }}
+      />
     </div>
   )
 }

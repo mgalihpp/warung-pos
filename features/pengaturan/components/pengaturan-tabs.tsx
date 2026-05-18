@@ -4,9 +4,9 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  CheckmarkCircle02Icon,
   ComputerDesk01Icon,
   UserCircleIcon,
+  UserSettings01Icon,
 } from "@hugeicons/core-free-icons"
 
 import { cn } from "@/lib/utils"
@@ -21,7 +21,7 @@ export function PengaturanTabs({ basePath, canManageUsers = false }: PengaturanT
   const tabs = [
     { href: basePath, label: "Profile", icon: UserCircleIcon },
     ...(canManageUsers
-      ? [{ href: `${basePath}/pengguna`, label: "Manajemen Pengguna", icon: CheckmarkCircle02Icon }]
+      ? [{ href: `${basePath}/akun`, label: "Manajemen Akun", icon: UserSettings01Icon }]
       : []),
     { href: `${basePath}/tema`, label: "Tema", icon: ComputerDesk01Icon },
   ]

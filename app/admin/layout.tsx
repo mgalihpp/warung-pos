@@ -20,7 +20,9 @@ export default async function AdminLayout({
         <AppSidebar />
         <SidebarInset className="min-w-0">
           <AdminLayoutClient>
-            <DashboardHeader />
+            <div className="hidden lg:block">
+              <DashboardHeader />
+            </div>
             <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">{children}</div>
           </AdminLayoutClient>
         </SidebarInset>
