@@ -553,7 +553,7 @@ export function ProfileTab({
 
   const { startUpload, isUploading } = useUploadThing("avatarUpload", {
     onClientUploadComplete: async (res) => {
-      const url = res[0]?.ufsUrl ?? null
+      const url = res[0]?.url ?? null
       if (!url) return
       setAvatarUrl(url)
       const result = await updateAvatar(url)

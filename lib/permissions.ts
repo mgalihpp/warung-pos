@@ -5,7 +5,7 @@ export const statement = {
   category: ["read", "create", "update", "delete"],
   transaction: ["read", "create", "update"],
   report: ["read"],
-  user: ["read", "create", "update", "delete"],
+  user: ["read", "create", "update", "delete", "set-password"],
 } as const
 
 export const ac = createAccessControl(statement)
@@ -15,7 +15,7 @@ export const admin = ac.newRole({
   category: ["read", "create", "update", "delete"],
   transaction: ["read", "create", "update"],
   report: ["read"],
-  user: ["read", "create", "update", "delete"],
+  user: ["read", "create", "update", "delete", "set-password"],
 })
 
 export const cashier = ac.newRole({
