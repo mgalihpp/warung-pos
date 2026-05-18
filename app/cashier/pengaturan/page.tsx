@@ -29,5 +29,5 @@ export default async function CashierPengaturanPage() {
       })
     : null
 
-  return <PengaturanContent currentUser={currentUser} users={[]} canManageUsers={false} />
+  return <PengaturanContent currentUser={currentUser} />
 }

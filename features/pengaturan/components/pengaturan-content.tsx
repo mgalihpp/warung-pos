@@ -41,7 +41,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { cn } from "@/lib/utils"
 
 const { useUploadThing } = generateReactHelpers<AppFileRouter>()
 
@@ -56,11 +55,12 @@ export type SettingsUser = {
 
 type PengaturanContentProps = {
   currentUser: SettingsUser | null
-  users: SettingsUser[]
-  canManageUsers?: boolean
 }
 
-type PengaturanTab = "profile" | "pengguna" | "tema"
+type PengaturanPenggunaContentProps = {
+  currentUser: SettingsUser | null
+  users: SettingsUser[]
+}
 
 const themeOptions = [
   {
@@ -83,17 +83,7 @@ const themeOptions = [
   },
 ]
 
-export function PengaturanContent({ currentUser, users, canManageUsers = true }: PengaturanContentProps) {
-  const [activeTab, setActiveTab] = React.useState<PengaturanTab>("profile")
-  const [isAccessPending, startAccessTransition] = useTransition()
-  const router = useRouter()
-  const tabs = [
-    { value: "profile", label: "Profile", icon: UserCircleIcon },
-    ...(canManageUsers
-      ? [{ value: "pengguna" as const, label: "Manajemen Pengguna", icon: CheckmarkCircle02Icon }]
-      : []),
-    { value: "tema", label: "Tema", icon: ComputerDesk01Icon },
-  ] satisfies Array<{ value: PengaturanTab; label: string; icon: typeof UserCircleIcon }>
+export function PengaturanContent({ currentUser }: PengaturanContentProps) {
   const displayUser = currentUser ?? {
     id: "",
     name: "Pengguna",
@@ -101,6 +91,13 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
     role: "cashier",
     banned: false,
   }
+
+  return <ProfileTab displayUser={displayUser} />
+}
+
+export function PengaturanPenggunaContent({ currentUser, users }: PengaturanPenggunaContentProps) {
+  const [isAccessPending, startAccessTransition] = useTransition()
+  const router = useRouter()
 
   function handleUserAccessSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault()
@@ -118,42 +115,7 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">
-      <div>
-        <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Pengaturan</h1>
-        <p className="text-sm text-muted-foreground">
-          {canManageUsers
-            ? "Kelola profile pengguna, manajemen pengguna, dan tema aplikasi."
-            : "Kelola profile pengguna dan tema aplikasi."}
-        </p>
-      </div>
-
-      <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-b px-4 lg:mx-0 lg:px-0">
-        {tabs.map((tab) => {
-          const isActive = activeTab === tab.value
-          return (
-            <button
-              key={tab.value}
-              type="button"
-              onClick={() => setActiveTab(tab.value)}
-              className={cn(
-                "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
-                isActive
-                  ? "border-primary text-primary"
-                  : "border-transparent text-muted-foreground hover:text-foreground",
-              )}
-            >
-              <HugeiconsIcon icon={tab.icon} size={16} />
-              {tab.label}
-            </button>
-          )
-        })}
-      </div>
-
-      {activeTab === "profile" && <ProfileTab displayUser={displayUser} />}
-
-      {activeTab === "pengguna" && (
-        <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-4">
           <div className="flex items-center justify-between gap-3">
             <div>
               <h2 className="text-lg font-semibold tracking-tight">Manajemen Pengguna</h2>
@@ -236,7 +198,7 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
                       </div>
 
                       {currentUser?.id === user.id && (
-                        <p className="text-xs text-muted-foreground">Akun Anda hanya bisa diubah dari tab Profile.</p>
+                        <p className="text-xs text-muted-foreground">Akun Anda hanya bisa diubah dari halaman Profile.</p>
                       )}
 
                       <Button
@@ -347,12 +309,12 @@ export function PengaturanContent({ currentUser, users, canManageUsers = true }:
               </Link>
             </Button>
           </div>
-        </div>
-      )}
-
-      {activeTab === "tema" && <TemaTab />}
     </div>
   )
+}
+
+export function PengaturanTemaContent() {
+  return <TemaTab />
 }
 
 export function ProfileTab({ displayUser }: { displayUser: SettingsUser }) {

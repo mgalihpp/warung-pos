@@ -47,7 +47,7 @@ export function TambahAkunContent() {
         toast.success(result.message)
         formRef.current?.reset()
         setIsMobileMenuOpen(false)
-        router.push("/admin/pengaturan")
+        router.push("/admin/pengaturan/pengguna")
       } else {
         toast.error(result.message)
       }
@@ -64,7 +64,7 @@ export function TambahAkunContent() {
 
         <div className="hidden items-center gap-2 sm:flex">
           <Button asChild variant="outline" className="gap-2">
-            <Link href="/admin/pengaturan">
+            <Link href="/admin/pengaturan/pengguna">
               <HugeiconsIcon icon={Cancel01Icon} size={14} />
               Batal
             </Link>
@@ -143,7 +143,7 @@ export function TambahAkunContent() {
               type="button"
               variant="outline"
               className="h-12 rounded-full px-5 shadow-lg"
-              onClick={() => router.push("/admin/pengaturan")}
+              onClick={() => router.push("/admin/pengaturan/pengguna")}
             >
               <HugeiconsIcon icon={Cancel01Icon} size={16} />
               Batal

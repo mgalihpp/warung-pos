@@ -15,31 +15,19 @@ export default async function PengaturanPage() {
     redirect("/unauthorized")
   }
 
-  const [currentUser, users] = await Promise.all([
-    user.id
-      ? prisma.user.findUnique({
-          where: { id: user.id },
-          select: {
-            id: true,
-            name: true,
-            email: true,
-            role: true,
-            banned: true,
-            image: true,
-          },
-        })
-      : null,
-    prisma.user.findMany({
-      orderBy: { createdAt: "asc" },
-      select: {
-        id: true,
-        name: true,
-        email: true,
-        role: true,
-        banned: true,
-      },
-    }),
-  ])
+  const currentUser = user.id
+    ? await prisma.user.findUnique({
+        where: { id: user.id },
+        select: {
+          id: true,
+          name: true,
+          email: true,
+          role: true,
+          banned: true,
+          image: true,
+        },
+      })
+    : null
 
-  return <PengaturanContent currentUser={currentUser} users={users} />
+  return <PengaturanContent currentUser={currentUser} />
 }

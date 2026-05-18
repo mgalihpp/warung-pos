@@ -6,8 +6,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ChartHistogramIcon,
   PackageIcon,
-  Wallet03Icon,
-  CashierIcon,
 } from "@hugeicons/core-free-icons"
 
 import { cn } from "@/lib/utils"
@@ -15,8 +13,6 @@ import { cn } from "@/lib/utils"
 const tabs = [
   { href: "/admin/laporan", label: "Penjualan", icon: ChartHistogramIcon },
   { href: "/admin/laporan/stok", label: "Stok", icon: PackageIcon },
-  { href: "/admin/laporan/kas", label: "Tutup Kas", icon: Wallet03Icon },
-  { href: "/admin/laporan/kasir", label: "Kasir", icon: CashierIcon },
 ]
 
 export function LaporanTabs() {

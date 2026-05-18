@@ -12,7 +12,7 @@ export default function LaporanLayout({
           Laporan & Analitik
         </h1>
         <p className="text-sm text-muted-foreground">
-          Pantau performa penjualan, stok, kas, dan kasir warung Anda
+          Pantau performa penjualan dan stok warung Anda
         </p>
       </div>
       <LaporanTabs />
