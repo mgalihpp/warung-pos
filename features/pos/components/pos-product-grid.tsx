@@ -394,7 +394,7 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background/75 to-transparent dark:from-background/25" />
         <div className="no-scrollbar h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
           {/* Desktop grid */}
-          <div className="hidden grid-cols-2 gap-3 min-[1399px]:grid-cols-4 xl:grid xl:gap-4">
+          <div className="hidden grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 xl:grid xl:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
               <ProductSkeleton key={i} />
             ))}
@@ -424,7 +424,7 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-6 bg-gradient-to-t from-background/75 to-transparent dark:from-background/25 xl:block" />
       <div className="scrollbar-thin h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
         {/* Desktop: Grid layout */}
-        <div className="hidden grid-cols-2 gap-3 min-[1399px]:grid-cols-4 xl:grid xl:gap-4">
+        <div className="hidden grid-cols-[repeat(auto-fill,minmax(220px,1fr))] gap-3 xl:grid xl:gap-4">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} qtyInCart={cartQuantities.get(product.id) ?? 0} addItem={addItem} />
           ))}
