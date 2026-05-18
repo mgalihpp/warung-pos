@@ -2,16 +2,20 @@
 
 import Link from "next/link"
 import Image from "next/image"
-import { useEffect, useState } from "react"
+import { useState, useSyncExternalStore } from "react"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowLeft01Icon,
   ShoppingCart01Icon,
   Invoice01Icon,
   Logout03Icon,
   Settings01Icon,
+  Menu01Icon,
+  Store01Icon,
 } from "@hugeicons/core-free-icons"
 import { authClient, useSession } from "@/lib/auth-client"
+import { CashierMobileSidebar } from "./cashier-mobile-sidebar"
 
 import {
   DropdownMenu,
@@ -28,6 +32,37 @@ type CashierLayoutClientProps = {
   children: React.ReactNode
 }
 
+type PosMobileTab = "barang" | "keranjang" | "pembayaran"
+
+type MobileHeaderConfig = {
+  title: string
+  icon: typeof ShoppingCart01Icon
+}
+
+const posMobileTabs = ["barang", "keranjang", "pembayaran"] as const
+
+function getPosMobileTabSnapshot(): PosMobileTab {
+  const tab = document.body.dataset.posMobileTab
+
+  return posMobileTabs.includes(tab as PosMobileTab) ? (tab as PosMobileTab) : "barang"
+}
+
+function subscribePosMobileTab(onStoreChange: () => void) {
+  window.addEventListener("pos-mobile-tab-change", onStoreChange)
+
+  return () => window.removeEventListener("pos-mobile-tab-change", onStoreChange)
+}
+
+function getTransaksiDetailSnapshot(): boolean {
+  return document.body.dataset.transaksiDetail === "true"
+}
+
+function subscribeTransaksiDetail(onStoreChange: () => void) {
+  window.addEventListener("transaksi-detail-change", onStoreChange)
+
+  return () => window.removeEventListener("transaksi-detail-change", onStoreChange)
+}
+
 const navItems = [
   { href: "/cashier/pos", label: "Kasir", icon: ShoppingCart01Icon },
   { href: "/cashier/transaksi", label: "Riwayat", icon: Invoice01Icon },
@@ -36,7 +71,17 @@ const navItems = [
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
   const { data: session } = useSession()
-  const [hidePosBottomNav, setHidePosBottomNav] = useState(false)
+  const [isMobileSidebarOpen, setIsMobileSidebarOpen] = useState(false)
+  const posMobileTab = useSyncExternalStore<PosMobileTab>(
+    subscribePosMobileTab,
+    getPosMobileTabSnapshot,
+    () => "barang"
+  )
+  const isTransaksiDetail = useSyncExternalStore(
+    subscribeTransaksiDetail,
+    getTransaksiDetailSnapshot,
+    () => false
+  )
 
   const displayName = session?.user?.name ?? userName
   const avatarUrl = session?.user?.image ?? null
@@ -48,27 +93,70 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
     .substring(0, 2)
     .toUpperCase()
 
-  useEffect(() => {
-    if (pathname !== "/cashier/pos") {
+  const posMobileHeaders: Record<PosMobileTab, MobileHeaderConfig> = {
+    barang: { title: "Warung Mama Nia", icon: Store01Icon },
+    keranjang: { title: "Checkout", icon: ShoppingCart01Icon },
+    pembayaran: { title: "Pembayaran", icon: Invoice01Icon },
+  }
+
+  const posMobileHeader = posMobileHeaders[posMobileTab]
+
+  const isTransaksiPage = pathname.startsWith("/cashier/transaksi")
+
+  const mobileHeader = isTransaksiPage
+    ? isTransaksiDetail
+      ? { title: "Detail Transaksi", icon: Invoice01Icon }
+      : { title: "Transaksi", icon: Invoice01Icon }
+    : pathname.startsWith("/cashier/pengaturan")
+      ? { title: "Pengaturan", icon: Settings01Icon }
+      : posMobileHeader
+
+  const isPosSubStep = pathname === "/cashier/pos" && posMobileTab !== "barang"
+  const showBackArrow = isPosSubStep || (isTransaksiPage && isTransaksiDetail)
+
+  const handleMobileHeaderAction = () => {
+    if (isTransaksiPage && isTransaksiDetail) {
+      window.dispatchEvent(new Event("transaksi-detail-back"))
       return
     }
 
-    const syncMobileTab = (event: Event) => {
-      const tab = (event as CustomEvent<{ tab?: string }>).detail?.tab
-      setHidePosBottomNav(tab === "keranjang")
+    if (isPosSubStep) {
+      window.dispatchEvent(new CustomEvent("pos-mobile-tab-request", {
+        detail: { tab: posMobileTab === "pembayaran" ? "keranjang" : "barang" },
+      }))
+      return
     }
 
-    window.addEventListener("pos-mobile-tab-change", syncMobileTab)
-
-    return () => {
-      window.removeEventListener("pos-mobile-tab-change", syncMobileTab)
-    }
-  }, [pathname])
+    setIsMobileSidebarOpen(true)
+  }
 
   return (
     <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
-      {/* Top Navigation Bar */}
-      <header className="bg-card border-b px-4 py-2 shrink-0">
+      {/* Mobile Header - matches the design screenshot */}
+      <header className={`${pathname === "/cashier/pos" ? "xl:hidden" : "md:hidden"} bg-primary px-4 py-3 shrink-0`}>
+        <div className="flex items-center justify-between">
+          <button
+            onClick={handleMobileHeaderAction}
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+          >
+            <HugeiconsIcon icon={showBackArrow ? ArrowLeft01Icon : Menu01Icon} size={20} />
+          </button>
+          <div className="flex items-center gap-2">
+            <HugeiconsIcon
+              icon={mobileHeader.icon}
+              size={20}
+              className="text-primary-foreground"
+            />
+            <span className="text-base font-bold text-primary-foreground">
+              {mobileHeader.title}
+            </span>
+          </div>
+          <div className="w-8" />
+        </div>
+      </header>
+
+      {/* Desktop Header */}
+      <header className={`${pathname === "/cashier/pos" ? "hidden xl:block" : "hidden md:block"} bg-card border-b px-4 py-2 shrink-0`}>
         <div className="flex items-center justify-between gap-3">
           <div className="flex items-center gap-2.5 min-w-0">
             <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
@@ -91,7 +179,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
           </div>
 
           {/* Center: nav tabs */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="flex items-center gap-1">
             {navItems.map((item) => {
               const isActive = pathname === item.href
               return (
@@ -158,35 +246,16 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
         {children}
       </main>
 
-      {/* Mobile Bottom Navigation */}
-      {!(pathname === "/cashier/pos" && hidePosBottomNav) && (
-        <nav className="flex h-[60px] shrink-0 items-center justify-around border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
-          {navItems.map((item) => {
-            const isActive = pathname === item.href
-            const isPrimary = item.href === "/cashier/pos"
-
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                className={`flex h-full flex-1 flex-col items-center justify-center gap-1 text-[10px] font-medium transition-colors ${isActive ? "text-primary" : "text-muted-foreground hover:bg-muted/50"
-                  }`}
-              >
-                <span
-                  className={`flex items-center justify-center transition-colors ${
-                    isPrimary
-                      ? `size-10 rounded-full border shadow-sm ${isActive ? "border-primary bg-primary text-primary-foreground ring-4 ring-primary/15" : "border-primary/20 bg-primary/10 text-primary"}`
-                      : ""
-                  }`}
-                >
-                  <HugeiconsIcon icon={item.icon} size={isPrimary ? 21 : 20} />
-                </span>
-                <span>{item.label}</span>
-              </Link>
-            )
-          })}
-        </nav>
-      )}
+      <CashierMobileSidebar
+        open={isMobileSidebarOpen}
+        onOpenChange={setIsMobileSidebarOpen}
+        user={{
+          name: displayName,
+          email: session?.user?.email ?? undefined,
+          image: avatarUrl,
+          role: session?.user?.role ?? "cashier",
+        }}
+      />
     </div>
   )
 }

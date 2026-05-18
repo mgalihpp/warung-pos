@@ -172,6 +172,7 @@ export async function getTransaksiPageData() {
     id: transaction.id,
     transactionNumber: transaction.transactionNumber,
     waktu: dateFormatter.format(transaction.createdAt),
+    createdAt: transaction.createdAt.toISOString(),
     kasir: transaction.cashierName,
     kasirImage: transaction.cashier?.image ?? null,
     item: transaction.items.map((item) => item.productName).join(", "),

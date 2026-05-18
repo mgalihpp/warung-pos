@@ -1,7 +1,12 @@
 "use client"
 
 import { HugeiconsIcon } from "@hugeicons/react"
-import { PlusSignIcon, Alert02Icon } from "@hugeicons/core-free-icons"
+import {
+  Alert02Icon,
+  PackageIcon,
+  PlusSignIcon,
+  ShoppingCartAdd01Icon,
+} from "@hugeicons/core-free-icons"
 import Image from "next/image"
 import { formatRupiah } from "@/lib/format-currency"
 import { useCartStore, useCartItemQuantity } from "@/features/pos/hooks/use-cart"
@@ -23,11 +28,82 @@ type PosProductGridProps = {
   isLoading?: boolean
 }
 
+function getVisibleCartTarget() {
+  const targets = document.querySelectorAll<HTMLElement>(
+    "[data-pos-cart-icon-target], [data-pos-cart-target]"
+  )
+
+  return Array.from(targets).find((target) => {
+    const rect = target.getBoundingClientRect()
+    const style = window.getComputedStyle(target)
+
+    return (
+      rect.width > 0 &&
+      rect.height > 0 &&
+      rect.bottom > 0 &&
+      rect.right > 0 &&
+      rect.top < window.innerHeight &&
+      rect.left < window.innerWidth &&
+      style.display !== "none" &&
+      style.visibility !== "hidden"
+    )
+  })
+}
+
+function animateProductToCart(source: HTMLElement) {
+  const target = getVisibleCartTarget()
+  const prefersReducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+
+  if (!target || prefersReducedMotion) return
+
+  const sourceRect = source.getBoundingClientRect()
+  const targetRect = target.getBoundingClientRect()
+  const clone = source.cloneNode(true) as HTMLElement
+
+  clone.style.position = "fixed"
+  clone.style.left = `${sourceRect.left}px`
+  clone.style.top = `${sourceRect.top}px`
+  clone.style.width = `${sourceRect.width}px`
+  clone.style.height = `${sourceRect.height}px`
+  clone.style.zIndex = "9999"
+  clone.style.pointerEvents = "none"
+  clone.style.borderRadius = "16px"
+  clone.style.overflow = "hidden"
+  clone.style.boxShadow = "0 18px 45px rgba(0, 0, 0, 0.2)"
+  document.body.appendChild(clone)
+
+  const targetX = targetRect.left + targetRect.width / 2
+  const targetY = targetRect.top + targetRect.height / 2
+  const sourceX = sourceRect.left + sourceRect.width / 2
+  const sourceY = sourceRect.top + sourceRect.height / 2
+  const deltaX = targetX - sourceX
+  const deltaY = targetY - sourceY
+
+  clone
+    .animate(
+      [
+        { transform: "translate3d(0, 0, 0) scale(1)", opacity: 0.98 },
+        { transform: `translate3d(${deltaX * 0.38}px, ${deltaY * 0.38 - 46}px, 0) scale(0.88)`, opacity: 0.95 },
+        { transform: `translate3d(${deltaX * 0.78}px, ${deltaY * 0.78 - 18}px, 0) scale(0.52)`, opacity: 0.85 },
+        { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.16)`, opacity: 0 },
+      ],
+      { duration: 900, easing: "cubic-bezier(0.2, 0.85, 0.18, 1)" }
+    )
+    .finished.finally(() => clone.remove())
+}
+
 function ProductCard({ product }: { product: PosProduct }) {
   const addItem = useCartStore((s) => s.addItem)
   const qtyInCart = useCartItemQuantity(product.id)
 
-  const handleAdd = () => {
+  const handleAdd = (event: React.MouseEvent<HTMLElement>) => {
+    if (isOutOfStock) return
+
+    const card = event.currentTarget.closest<HTMLElement>("[data-pos-product-card]") ?? event.currentTarget
+    const image = card.querySelector<HTMLElement>("[data-pos-product-image]")
+
+    if (image) animateProductToCart(image)
+
     addItem({
       id: product.id,
       name: product.name,
@@ -46,19 +122,29 @@ function ProductCard({ product }: { product: PosProduct }) {
     <>
       {/* --- DESKTOP CARD (HORIZONTAL) --- */}
       <div
-        className={`group relative hidden flex-row overflow-hidden rounded-xl border bg-card transition-all xl:flex ${
+        role="button"
+        tabIndex={isOutOfStock ? -1 : 0}
+        data-pos-product-card
+        onClick={handleAdd}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" && event.key !== " ") return
+
+          event.preventDefault()
+          handleAdd(event as unknown as React.MouseEvent<HTMLElement>)
+        }}
+        className={`group relative hidden flex-row overflow-hidden rounded-xl border bg-card text-left transition-all active:scale-[0.985] ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"} xl:flex ${
           isInCart
-            ? "border-primary/50 ring-1 ring-primary/30"
-            : "hover:shadow-md"
+            ? "border-primary/45 bg-primary/[0.025] shadow-sm ring-1 ring-primary/20"
+            : "hover:border-primary/25 hover:shadow-md"
         } ${isOutOfStock ? "opacity-55 grayscale-[0.35]" : ""}`}
       >
         {isInCart && (
-          <div className="absolute top-1.5 left-1.5 z-10 flex size-5 items-center justify-center rounded-full bg-primary text-[10px] font-bold text-primary-foreground shadow-sm">
+          <div className="absolute top-2 left-2 z-10 flex min-w-6 items-center justify-center rounded-full border border-primary-foreground/40 bg-primary px-1.5 py-0.5 text-[10px] font-black leading-none text-primary-foreground shadow-lg shadow-primary/25">
             {qtyInCart}
           </div>
         )}
 
-        <div className="w-24 shrink-0 overflow-hidden">
+        <div data-pos-product-image className="w-24 shrink-0 overflow-hidden bg-muted/20">
           {product.image ? (
             <Image
               src={product.image}
@@ -82,13 +168,22 @@ function ProductCard({ product }: { product: PosProduct }) {
             <span className="text-sm font-bold text-primary">
               {formatRupiah(product.sellPrice)}
             </span>
-            <span className="text-[10px] text-muted-foreground">
-              Stok {product.stock} {product.unit}
+            <span className={`mt-1 inline-flex w-fit items-center gap-1 rounded-full border px-2 py-0.5 text-[10px] font-bold ${
+              product.stock > 0
+                ? "border-emerald-500/20 bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+                : "border-destructive/20 bg-destructive/10 text-destructive"
+            }`}>
+              <HugeiconsIcon icon={product.stock > 0 ? PackageIcon : Alert02Icon} size={10} />
+              {product.stock > 0 ? `${product.stock} ${product.unit}` : "Habis"}
             </span>
           </div>
 
           <button
-            onClick={handleAdd}
+            type="button"
+            onClick={(event) => {
+              event.stopPropagation()
+              handleAdd(event)
+            }}
             disabled={isOutOfStock}
             className={`mt-1.5 flex w-full items-center justify-center gap-1 rounded-lg py-1.5 text-[11px] font-semibold whitespace-nowrap transition-all active:scale-[0.97] ${
               isOutOfStock
@@ -111,66 +206,131 @@ function ProductCard({ product }: { product: PosProduct }) {
         </div>
       </div>
 
-      {/* --- MOBILE/TABLET CARD (VERTICAL) --- */}
-      <button
+      {/* --- MOBILE/TABLET CARD (HORIZONTAL LIST ITEM) --- */}
+      <div
+        role="button"
+        tabIndex={isOutOfStock ? -1 : 0}
+        data-pos-product-card
         onClick={handleAdd}
-        disabled={isOutOfStock}
-        className={`group relative flex flex-col overflow-hidden rounded-xl border bg-card p-3 text-left transition-all active:scale-[0.98] xl:hidden ${
-          isInCart
-            ? "border-primary/50 bg-primary/5 ring-1 ring-primary/30"
-            : ""
-        } ${isOutOfStock ? "cursor-not-allowed opacity-45 grayscale-[0.75]" : "cursor-pointer"}`}
-      >
-        {isInCart && (
-          <div className="absolute top-2 right-2 z-10 flex size-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground shadow-sm">
-            {qtyInCart}
-          </div>
-        )}
+        onKeyDown={(event) => {
+          if (event.key !== "Enter" && event.key !== " ") return
 
-        <div className="flex w-full flex-col items-center gap-3">
+          event.preventDefault()
+          handleAdd(event as unknown as React.MouseEvent<HTMLElement>)
+        }}
+        className={`group relative flex w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left transition-all active:scale-[0.985] ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"} xl:hidden ${
+          isInCart
+            ? "border-primary/45 bg-primary/[0.035] shadow-sm ring-1 ring-primary/20"
+            : "border-border"
+        } ${isOutOfStock ? "opacity-50" : ""}`}
+      >
+        {/* Product Image */}
+        <div data-pos-product-image className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/30">
           {product.image ? (
-            <div className="relative h-24 w-full shrink-0 overflow-hidden rounded-lg bg-white">
-              <Image
-                src={product.image}
-                alt={product.name}
-                fill
-                sizes="(max-width: 1279px) 50vw, 25vw"
-                className="object-contain"
-              />
-            </div>
+            <Image
+              src={product.image}
+              alt={product.name}
+              fill
+              sizes="64px"
+              className="object-contain"
+            />
           ) : (
-            <div className="flex h-24 w-full shrink-0 items-center justify-center rounded-lg border border-primary/20 bg-primary/10 text-3xl font-bold text-primary">
-              {product.name.charAt(0).toUpperCase()}
+            <div className="flex size-full items-center justify-center bg-destructive/10 text-destructive">
+              <HugeiconsIcon icon={PackageIcon} size={24} />
             </div>
           )}
-
-          <div className="flex w-full min-w-0 flex-col text-center">
-            <span className="mb-1 line-clamp-2 text-xs leading-tight font-semibold text-foreground sm:text-sm">
-              {product.name}
-            </span>
-            <span className="text-sm font-bold text-primary">
-              {formatRupiah(product.sellPrice)}
-            </span>
-            <span className="mt-1 self-center rounded-full bg-muted px-2 py-0.5 text-[10px] text-muted-foreground">
-              Stok: {product.stock} {product.unit}
-            </span>
-          </div>
+          {/* Out of stock overlay */}
+          {product.stock <= 0 && (
+            <div className="absolute inset-0 flex items-center justify-center rounded-xl bg-black/40">
+              <div className="rounded-full bg-destructive/90 px-1.5 py-0.5 text-[8px] font-bold text-white">
+                Habis
+              </div>
+            </div>
+          )}
+          {/* In-cart badge */}
+          {isInCart && (
+            <div className="absolute top-1 right-1 z-10 flex min-w-6 items-center justify-center rounded-full border border-primary-foreground/40 bg-primary px-1.5 py-0.5 text-[10px] font-black leading-none text-primary-foreground shadow-lg shadow-primary/25">
+              {qtyInCart}
+            </div>
+          )}
         </div>
-      </button>
+
+        {/* Product Info */}
+        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
+          <span className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground">
+            {product.name}
+          </span>
+          {product.stock > 0 ? (
+            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
+              <HugeiconsIcon icon={PackageIcon} size={10} />
+              {product.stock} {product.unit}
+            </span>
+          ) : (
+            <span className="inline-flex w-fit items-center gap-1 rounded-full border border-destructive/20 bg-destructive/10 px-2 py-0.5 text-[10px] font-bold text-destructive">
+              <HugeiconsIcon icon={Alert02Icon} size={10} />
+              Habis
+            </span>
+          )}
+        </div>
+
+        {/* Price */}
+        <div className="shrink-0 text-right">
+          <span className="text-sm font-bold text-destructive">
+            {formatRupiah(product.sellPrice)}
+          </span>
+        </div>
+
+        {/* Add to Cart Button */}
+        <button
+          type="button"
+          onClick={(event) => {
+            event.stopPropagation()
+            handleAdd(event)
+          }}
+          disabled={isOutOfStock}
+          className={`flex size-10 shrink-0 items-center justify-center rounded-xl transition-all active:scale-95 ${
+            isOutOfStock
+              ? "cursor-not-allowed bg-muted/50 text-muted-foreground/50"
+              : isInCart
+                ? "bg-primary text-primary-foreground shadow-sm"
+                : "bg-muted/60 text-muted-foreground hover:bg-primary/10 hover:text-primary"
+          }`}
+          aria-label={`Tambah ${product.name}`}
+        >
+          {isOutOfStock ? (
+            <HugeiconsIcon icon={Alert02Icon} size={18} />
+          ) : (
+            <HugeiconsIcon icon={ShoppingCartAdd01Icon} size={18} />
+          )}
+        </button>
+      </div>
     </>
   )
 }
 
 function ProductSkeleton() {
   return (
-    <div className="flex animate-pulse flex-col gap-3 rounded-xl border bg-card p-3">
-      <div className="h-24 w-full shrink-0 rounded-lg bg-muted" />
-      <div className="flex w-full flex-col items-center gap-2">
-        <div className="h-4 w-3/4 rounded bg-muted" />
-        <div className="h-4 w-1/2 rounded bg-muted" />
-        <div className="mt-1 h-3 w-1/3 rounded-full bg-muted" />
+    <>
+      {/* Desktop skeleton */}
+      <div className="hidden animate-pulse flex-col gap-3 rounded-xl border bg-card p-3 xl:flex">
+        <div className="h-24 w-full shrink-0 rounded-lg bg-muted" />
+        <div className="flex w-full flex-col items-center gap-2">
+          <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="h-4 w-1/2 rounded bg-muted" />
+          <div className="mt-1 h-3 w-1/3 rounded-full bg-muted" />
+        </div>
       </div>
-    </div>
+      {/* Mobile skeleton */}
+      <div className="flex animate-pulse items-center gap-3 rounded-2xl border bg-card p-3 xl:hidden">
+        <div className="size-16 shrink-0 rounded-xl bg-muted" />
+        <div className="flex min-w-0 flex-1 flex-col gap-2">
+          <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="h-3 w-1/3 rounded-full bg-muted" />
+        </div>
+        <div className="h-4 w-16 rounded bg-muted" />
+        <div className="size-10 shrink-0 rounded-xl bg-muted" />
+      </div>
+    </>
   )
 }
 
@@ -180,8 +340,15 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
       <div className="relative min-h-0 flex-1">
         <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background/75 to-transparent dark:from-background/25" />
         <div className="no-scrollbar h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
-          <div className="grid grid-cols-2 gap-3 min-[1399px]:grid-cols-4 sm:grid-cols-3 xl:gap-4">
+          {/* Desktop grid */}
+          <div className="hidden grid-cols-2 gap-3 min-[1399px]:grid-cols-4 xl:grid xl:gap-4">
             {Array.from({ length: 8 }).map((_, i) => (
+              <ProductSkeleton key={i} />
+            ))}
+          </div>
+          {/* Mobile list */}
+          <div className="flex flex-col gap-2 xl:hidden">
+            {Array.from({ length: 6 }).map((_, i) => (
               <ProductSkeleton key={i} />
             ))}
           </div>
@@ -203,7 +370,14 @@ export function PosProductGrid({ products, isLoading }: PosProductGridProps) {
       <div className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 bg-gradient-to-b from-background/75 to-transparent dark:from-background/25" />
       <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 hidden h-6 bg-gradient-to-t from-background/75 to-transparent dark:from-background/25 xl:block" />
       <div className="scrollbar-thin h-full min-h-0 overflow-y-auto px-3 pt-2 pb-24 xl:px-0 xl:pr-2 xl:pb-4">
-        <div className="grid grid-cols-2 gap-3 min-[1399px]:grid-cols-4 sm:grid-cols-3 xl:gap-4">
+        {/* Desktop: Grid layout */}
+        <div className="hidden grid-cols-2 gap-3 min-[1399px]:grid-cols-4 xl:grid xl:gap-4">
+          {products.map((product) => (
+            <ProductCard key={product.id} product={product} />
+          ))}
+        </div>
+        {/* Mobile/Tablet: Vertical list layout */}
+        <div className="flex flex-col gap-2 xl:hidden">
           {products.map((product) => (
             <ProductCard key={product.id} product={product} />
           ))}

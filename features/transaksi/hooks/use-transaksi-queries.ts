@@ -11,6 +11,7 @@ export type TransactionItem = {
   id: string
   transactionNumber: string
   waktu: string
+  createdAt: string
   kasir: string
   kasirImage: string | null
   item: string
@@ -67,6 +68,7 @@ export type TransactionDetailItem = {
   id: string
   productId: string
   productName: string
+  productImage: string | null
   unitPrice: number
   quantity: number
   subtotal: number

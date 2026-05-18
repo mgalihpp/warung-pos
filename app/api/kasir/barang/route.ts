@@ -23,6 +23,11 @@ export async function GET() {
     }),
   ])
 
+  // Count low-stock products: stock > 0 AND stock <= minStock (from DB)
+  const lowStockProducts = products.filter(
+    (p) => p.stock > 0 && p.stock <= p.minStock
+  ).length
+
   const productItems = products.map((product) => ({
     id: product.id,
     name: product.name,
@@ -41,5 +46,9 @@ export async function GET() {
     slug: category.slug,
   }))
 
-  return NextResponse.json({ products: productItems, categories: categoryItems })
+  return NextResponse.json({
+    products: productItems,
+    categories: categoryItems,
+    lowStockCount: lowStockProducts,
+  })
 }

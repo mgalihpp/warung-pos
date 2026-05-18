@@ -72,30 +72,23 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
   const itemCount = useCartItemCount()
 
   const [showNotes, setShowNotes] = useState(false)
-  const [amountInput, setAmountInput] = useState(
-    amountPaid > 0 ? formatNumber(amountPaid) : ""
-  )
 
   const handleAmountChange = (value: string) => {
     const num = parseRupiahInput(value)
-    setAmountInput(num > 0 ? formatNumber(num) : "")
     setAmountPaid(num)
   }
 
   const handleQuickAmount = (amount: number) => {
     const newAmount = amountPaid + amount
     setAmountPaid(newAmount)
-    setAmountInput(formatNumber(newAmount))
   }
 
   const handleExactAmount = () => {
     setAmountPaid(subtotal)
-    setAmountInput(formatNumber(subtotal))
   }
 
   const handleResetAmount = () => {
     setAmountPaid(0)
-    setAmountInput("")
   }
 
   const canPay =
@@ -104,10 +97,13 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
     !isProcessing
 
   return (
-    <div className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden bg-card xl:w-[400px] xl:rounded-xl xl:border xl:shadow-sm min-[1400px]:xl:w-[450px]">
+    <div data-pos-cart-target className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden bg-card xl:w-[400px] xl:rounded-xl xl:border xl:shadow-sm min-[1400px]:xl:w-[450px]">
       {/* Header (Desktop Only) */}
       <div className="hidden shrink-0 items-center justify-between border-b p-4 xl:flex">
-        <h2 className="font-bold text-foreground">Keranjang</h2>
+        <div data-pos-cart-icon-target className="flex items-center gap-2">
+          <HugeiconsIcon icon={ShoppingCart01Icon} size={18} className="text-primary" />
+          <h2 className="font-bold text-foreground">Keranjang</h2>
+        </div>
         {itemCount > 0 && (
           <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-bold text-primary">
             {itemCount} item
@@ -288,7 +284,7 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                         <input
                           type="text"
                           inputMode="numeric"
-                          value={amountInput}
+                          value={amountPaid > 0 ? formatNumber(amountPaid) : ""}
                           onChange={(e) => handleAmountChange(e.target.value)}
                           className="w-full rounded-lg border bg-card py-2 pr-3 pl-8 text-sm font-bold text-foreground focus:border-primary focus:ring-2 focus:ring-primary/20 focus:outline-none"
                           placeholder="0"
@@ -378,7 +374,6 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                     <AlertDialogAction
                       onClick={() => {
                         clearCart()
-                        setAmountInput("")
                         setShowNotes(false)
                       }}
                       className="bg-destructive text-white hover:bg-destructive/90"

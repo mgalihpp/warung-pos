@@ -56,6 +56,9 @@ export async function GET(_request: Request, { params }: RouteParams) {
           quantity: true,
           subtotal: true,
           grossProfit: true,
+          product: {
+            select: { image: true },
+          },
         },
         orderBy: { createdAt: "asc" },
       },
@@ -100,6 +103,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
       id: item.id,
       productId: item.productId,
       productName: item.productName,
+      productImage: item.product?.image ?? null,
       unitPrice: item.unitPrice,
       quantity: item.quantity,
       subtotal: item.subtotal,
