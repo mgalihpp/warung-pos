@@ -73,7 +73,7 @@ export function PosMobileCheckout({ onProceed }: Props) {
 
                 {/* Item Info */}
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold text-foreground">
+                  <p className="line-clamp-2 break-words text-sm font-semibold leading-5 text-foreground">
                     {item.name}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground">

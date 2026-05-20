@@ -217,13 +217,13 @@ export function PosPageClient() {
           >
             {/* Low Stock Banner */}
             {lowStockCount > 0 && (
-              <div className="mx-3 mt-3 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
-                <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                  <HugeiconsIcon icon={Alert02Icon} size={20} />
+              <div className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
+                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                  <HugeiconsIcon icon={Alert02Icon} size={22} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold">Stok Hampir Habis!</p>
-                  <p className="text-xs opacity-90">
+                  <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
+                  <p className="text-xs leading-4 opacity-90">
                     {lowStockCount} barang perlu restock
                   </p>
                 </div>
@@ -239,7 +239,7 @@ export function PosPageClient() {
             <button
               onClick={() => setMobileTab("keranjang")}
               data-pos-cart-target
-              className="mx-3 mt-2 flex items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-primary/85 px-4 py-3 text-primary-foreground shadow-md transition-all active:scale-[0.98]"
+              className="mx-3 mt-2 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-primary to-primary/85 px-4 py-3 text-primary-foreground shadow-md transition-all active:scale-[0.98]"
             >
               <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary-foreground/15">
                 <HugeiconsIcon icon={ShoppingCart01Icon} size={24} />
@@ -253,7 +253,7 @@ export function PosPageClient() {
                     Total Belanja
                   </span>
                 </div>
-                <p className="mt-0.5 text-xl font-extrabold tracking-tight">
+                <p className="mt-0.5 text-xl font-extrabold leading-6 tracking-tight">
                   {formatRupiah(cartTotal)}
                 </p>
               </div>

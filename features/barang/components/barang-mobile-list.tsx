@@ -66,7 +66,7 @@ export function BarangMobileList({
   }, [activeCategory, products, query])
 
   return (
-    <div className="lg:hidden">
+    <div className="flex h-full min-h-0 flex-col lg:hidden">
       <div className="relative shrink-0 px-3 pt-3">
         <div className="flex h-[46px] items-center overflow-hidden rounded-xl border bg-card shadow-sm">
           {!isSearchActive ? (
@@ -85,7 +85,7 @@ export function BarangMobileList({
                   value={activeCategory || "all"}
                   onValueChange={(value) => setActiveCategory(value === "all" ? null : value)}
                 >
-                  <SelectTrigger className="mt-1 h-full w-full rounded-none border-0 bg-transparent shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
+                  <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent text-[13px] shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
                     <SelectValue placeholder="Semua Kategori" />
                   </SelectTrigger>
                   <SelectContent>
@@ -106,7 +106,7 @@ export function BarangMobileList({
                 autoFocus
                 type="text"
                 placeholder="Cari barang..."
-                className="h-full flex-1 bg-transparent px-3 text-[13px] outline-none"
+                className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] leading-none outline-none"
                 value={q}
                 onChange={(e) => setQ(e.target.value)}
                 inputMode="search"
@@ -127,7 +127,7 @@ export function BarangMobileList({
         </div>
       </div>
 
-      <div className="space-y-3 px-4 pb-6 pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
         {filtered.map((product) => {
           const badge = getStockBadge(product)
           const isOut = product.isActive && product.stock <= 0
@@ -159,11 +159,11 @@ export function BarangMobileList({
                 </div>
 
                 <div className="min-w-0 flex-1">
-                  <div className="flex items-start justify-between gap-3">
-                    <p className="truncate text-base font-semibold leading-5">
+                  <div className="flex items-start justify-between gap-2">
+                    <p className="line-clamp-2 min-w-0 break-words text-[15px] font-semibold leading-5">
                       {product.name}
                     </p>
-                    <p className="shrink-0 text-base font-bold text-primary">
+                    <p className="shrink-0 whitespace-nowrap text-sm font-bold leading-5 text-primary">
                       {formatRupiah(product.sellPrice)}
                     </p>
                   </div>

@@ -14,12 +14,12 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import {
-  Drawer,
-  DrawerContent,
-  DrawerHeader,
-  DrawerTitle,
-  DrawerTrigger,
-} from "@/components/ui/drawer"
+  Sheet,
+  SheetContent,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatNumber, formatRupiah } from "@/lib/format-currency"
 import {
@@ -91,8 +91,8 @@ export function LaporanStokContent() {
             </div>
 
             <div className="lg:hidden">
-              <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
-                <DrawerTrigger asChild>
+              <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
+                <SheetTrigger asChild>
                   <button
                     type="button"
                     className="flex h-12 w-full items-center justify-between rounded-xl border bg-background px-4 text-sm font-semibold transition active:scale-[0.99]"
@@ -107,13 +107,13 @@ export function LaporanStokContent() {
                       </span>
                     ) : null}
                   </button>
-                </DrawerTrigger>
-                <DrawerContent>
-                  <div className="mx-auto w-full max-w-sm">
-                    <DrawerHeader className="text-left">
-                      <DrawerTitle>Filter Laporan Stok</DrawerTitle>
-                    </DrawerHeader>
-                    <div className="flex flex-col gap-5 p-4 pb-8">
+                </SheetTrigger>
+                <SheetContent side="bottom" className="rounded-t-[20px] flex flex-col max-h-[85vh] overflow-hidden p-0">
+                  <SheetHeader className="text-left px-4 pt-4 pb-2 shrink-0">
+                    <SheetTitle>Filter Laporan Stok</SheetTitle>
+                  </SheetHeader>
+                  <div className="flex-1 overflow-y-auto px-4 py-2">
+                    <div className="flex flex-col gap-5">
                       <MobileFilterGroup label="Kategori">
                         <MobileFilterOption
                           active={categoryId === "all"}
@@ -139,26 +139,26 @@ export function LaporanStokContent() {
                           />
                         ))}
                       </MobileFilterGroup>
-                      <div className="grid grid-cols-2 gap-2">
-                        <button
-                          type="button"
-                          onClick={resetFilters}
-                          className="h-11 rounded-2xl border text-sm font-semibold"
-                        >
-                          Reset
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => setFilterOpen(false)}
-                          className="h-11 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground"
-                        >
-                          Terapkan
-                        </button>
-                      </div>
                     </div>
                   </div>
-                </DrawerContent>
-              </Drawer>
+                  <div className="shrink-0 border-t bg-background px-4 py-3 grid grid-cols-2 gap-2">
+                    <button
+                      type="button"
+                      onClick={resetFilters}
+                      className="h-11 rounded-2xl border text-sm font-semibold"
+                    >
+                      Reset
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setFilterOpen(false)}
+                      className="h-11 rounded-2xl bg-primary text-sm font-semibold text-primary-foreground"
+                    >
+                      Terapkan
+                    </button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             </div>
 
             <select

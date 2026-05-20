@@ -182,8 +182,8 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
   return (
     <div className="min-w-0">
       {/* Mobile / Tablet */}
-      <div className="lg:hidden">
-        <div className="relative aspect-[9/10] w-full overflow-hidden bg-muted/40">
+      <div className="h-full min-h-0 overflow-y-auto lg:hidden">
+        <div className="relative aspect-[4/3] max-h-[420px] w-full overflow-hidden bg-muted/40 sm:aspect-[16/10]">
           {product.image ? (
             <Image
               src={product.image}
@@ -202,9 +202,9 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
         <div className="space-y-4 px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="truncate text-2xl font-bold tracking-tight">{product.name}</h1>
+              <h1 className="break-words text-[1.35rem] font-bold leading-7 tracking-tight sm:text-2xl sm:leading-8">{product.name}</h1>
               <div className="mt-2 flex items-center gap-2">
-                <span className="rounded-full bg-muted px-3 py-1 text-xs font-medium text-muted-foreground">
+                <span className="max-w-full truncate rounded-full bg-muted px-3 py-1 text-xs font-medium leading-4 text-muted-foreground">
                   {product.category}
                 </span>
               </div>
@@ -212,7 +212,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
 
             <span
               className={cn(
-                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold",
+                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold leading-4",
                 statusBadgeClass(status)
               )}
             >
@@ -221,7 +221,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           </div>
 
           <section className="rounded-2xl border bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold leading-5">
               <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700">
                 <HugeiconsIcon icon={MoneyBag02Icon} size={16} />
               </span>
@@ -230,25 +230,25 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
 
             <div className="divide-y">
               <div className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
                   <HugeiconsIcon icon={Tag01Icon} size={18} className="text-blue-600" />
                   Harga Jual
                 </div>
-                <div className="text-base font-bold text-primary">{formatRupiah(product.sellPrice)}</div>
+                <div className="min-w-0 text-right text-[15px] font-bold leading-5 text-primary">{formatRupiah(product.sellPrice)}</div>
               </div>
               <div className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
                   <HugeiconsIcon icon={Dollar01Icon} size={18} className="text-emerald-700" />
                   Harga Dasar
                 </div>
-                <div className="text-base font-semibold">{formatRupiah(product.buyPrice)}</div>
+                <div className="min-w-0 text-right text-[15px] font-semibold leading-5">{formatRupiah(product.buyPrice)}</div>
               </div>
               <div className="flex items-center justify-between gap-3 py-3">
-                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
                   <HugeiconsIcon icon={ChartUpIcon} size={18} className="text-emerald-700" />
                   Profit
                 </div>
-                <div className="text-base font-bold text-emerald-700">
+                <div className="min-w-0 text-right text-[15px] font-bold leading-5 text-emerald-700">
                   {formatRupiah(product.sellPrice - product.buyPrice)}
                 </div>
               </div>

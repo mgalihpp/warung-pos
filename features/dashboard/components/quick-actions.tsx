@@ -79,7 +79,7 @@ export function QuickActionsFab() {
         <div className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px]" />
       )}
 
-      <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6 lg:bottom-6">
+      <div className="pointer-events-none fixed right-4 bottom-[calc(1.5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6 lg:bottom-6">
         <div
           className={`flex flex-col items-end gap-3 transition-all duration-200 ${
             isOpen

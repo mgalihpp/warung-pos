@@ -211,11 +211,11 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
               />
           </button>
 
-          <div className="flex items-center gap-2">
+          <div className="mx-3 flex min-w-0 flex-1 items-center justify-center gap-2">
             {mobileHeader.icon ? (
-              <HugeiconsIcon icon={mobileHeader.icon} size={20} className="text-primary-foreground" />
+              <HugeiconsIcon icon={mobileHeader.icon} size={20} className="shrink-0 text-primary-foreground" />
             ) : null}
-            <span className="text-base font-bold text-primary-foreground">{mobileHeader.title}</span>
+            <span className="truncate text-[15px] font-bold leading-none text-primary-foreground">{mobileHeader.title}</span>
           </div>
 
           {isBarangDetail ? (

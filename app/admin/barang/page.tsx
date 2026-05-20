@@ -27,40 +27,40 @@ export default async function BarangPage() {
   return (
     <>
       {/* Mobile / Tablet: landing "Manajemen Barang" */}
-      <div className="lg:hidden px-4 pt-5 pb-6">
-        <div className="rounded-3xl bg-primary p-5 text-primary-foreground shadow-lg shadow-primary/20">
-            <div className="flex items-center gap-4">
-              <div className="flex size-14 items-center justify-center rounded-2xl bg-primary-foreground/12">
+      <div className="h-full overflow-y-auto px-4 pb-20 pt-5 lg:hidden animate-in fade-in slide-in-from-bottom-3 duration-300">
+        <div className="rounded-3xl bg-primary p-5 text-primary-foreground shadow-lg shadow-primary/20 transition-all active:scale-[0.99]">
+          <div className="flex items-center gap-4">
+            <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary-foreground/12">
               <HugeiconsIcon icon={WarehouseIcon} size={26} className="text-primary-foreground" />
             </div>
             <div className="min-w-0">
-              <p className="text-xl font-extrabold tracking-tight">Kelola Barang</p>
-              <p className="mt-1 text-sm text-primary-foreground/80">Atur barang dan kategori toko Anda</p>
+              <p className="text-xl font-extrabold leading-6 tracking-tight">Kelola Barang</p>
+              <p className="mt-1 text-sm leading-5 text-primary-foreground/80">Atur barang dan kategori toko Anda</p>
             </div>
           </div>
         </div>
 
         <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border bg-card p-4 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97] cursor-pointer">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <HugeiconsIcon icon={PackageIcon} size={20} />
               </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Total Barang</p>
-                <p className="text-2xl font-extrabold tracking-tight">{data.stats.totalProducts}</p>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-muted-foreground">Total Barang</p>
+                <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.totalProducts}</p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-4 shadow-sm">
+          <div className="rounded-2xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97] cursor-pointer">
             <div className="flex items-center gap-3">
               <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
                 <HugeiconsIcon icon={Alert02Icon} size={20} />
               </div>
-              <div>
-                <p className="text-xs font-medium text-muted-foreground">Stok Menipis</p>
-                <p className="text-2xl font-extrabold tracking-tight">{data.stats.lowStock}</p>
+              <div className="min-w-0">
+                <p className="truncate text-xs font-semibold text-muted-foreground">Stok Menipis</p>
+                <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.lowStock}</p>
               </div>
             </div>
           </div>
@@ -69,32 +69,32 @@ export default async function BarangPage() {
         <div className="mt-5 space-y-4">
           <Link
             href="/admin/barang/daftar"
-            className="flex items-center gap-4 rounded-3xl border bg-card p-4 shadow-sm"
+            className="flex items-center gap-4 rounded-3xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-150 active:scale-[0.98] hover:border-border/80"
           >
             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
               <HugeiconsIcon icon={PackageIcon} size={26} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-lg font-bold">Barang</p>
-              <p className="text-sm text-muted-foreground">Kelola daftar barang</p>
+              <p className="text-lg font-extrabold leading-6 tracking-tight text-foreground">Barang</p>
+              <p className="text-sm font-medium leading-5 text-muted-foreground">Kelola daftar barang</p>
             </div>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted/50 text-muted-foreground">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted/60 text-muted-foreground transition-colors group-hover:bg-primary/10 group-hover:text-primary">
               <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
             </div>
           </Link>
 
           <Link
             href="/admin/kategori"
-            className="flex items-center gap-4 rounded-3xl border bg-card p-4 shadow-sm"
+            className="flex items-center gap-4 rounded-3xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-150 active:scale-[0.98] hover:border-border/80"
           >
             <div className="flex size-14 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600">
               <HugeiconsIcon icon={TagsIcon} size={26} />
             </div>
             <div className="min-w-0 flex-1">
-              <p className="text-lg font-bold">Kategori</p>
-              <p className="text-sm text-muted-foreground">Atur kategori barang</p>
+              <p className="text-lg font-extrabold leading-6 tracking-tight text-foreground">Kategori</p>
+              <p className="text-sm font-medium leading-5 text-muted-foreground">Atur kategori barang</p>
             </div>
-            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted/50 text-amber-700">
+            <div className="flex size-10 shrink-0 items-center justify-center rounded-full bg-muted/60 text-amber-700 transition-colors">
               <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
             </div>
           </Link>

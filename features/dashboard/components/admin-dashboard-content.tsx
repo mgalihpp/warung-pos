@@ -22,9 +22,9 @@ export function AdminDashboardContent({ initialData }: AdminDashboardContentProp
 
   return (
     <div className="flex min-w-0 flex-col gap-6 p-4 lg:p-6">
-      <QuickActionsFab />
-
       <StatCards stats={data.stats} />
+
+      <QuickActionsFab />
 
       <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
         <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden">

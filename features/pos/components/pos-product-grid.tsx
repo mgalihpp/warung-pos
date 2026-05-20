@@ -71,6 +71,8 @@ function animateProductToCart(source: HTMLElement) {
 
   if (!target || prefersReducedMotion) return
 
+  const isMobileLayout = !window.matchMedia("(min-width: 1280px)").matches
+
   const sourceRect = source.getBoundingClientRect()
   const targetRect = target.getBoundingClientRect()
   const sourceImage = source.querySelector<HTMLImageElement>("img")
@@ -85,11 +87,12 @@ function animateProductToCart(source: HTMLElement) {
   clone.style.pointerEvents = "none"
   clone.style.borderRadius = "16px"
   clone.style.overflow = "hidden"
-  clone.style.boxShadow = "0 18px 45px rgba(0, 0, 0, 0.2)"
+  clone.style.boxShadow = isMobileLayout ? "none" : "0 18px 45px rgba(0, 0, 0, 0.2)"
   clone.style.backgroundColor = "var(--muted)"
   clone.style.backgroundPosition = "center"
   clone.style.backgroundRepeat = "no-repeat"
   clone.style.backgroundSize = "cover"
+  clone.style.willChange = "transform, opacity"
 
   if (sourceImage?.currentSrc || sourceImage?.src) {
     clone.style.backgroundImage = `url("${sourceImage.currentSrc || sourceImage.src}")`
@@ -106,13 +109,21 @@ function animateProductToCart(source: HTMLElement) {
 
   clone
     .animate(
-      [
-        { transform: "translate3d(0, 0, 0) scale(1)", opacity: 0.98 },
-        { transform: `translate3d(${deltaX * 0.38}px, ${deltaY * 0.38 - 46}px, 0) scale(0.88)`, opacity: 0.95 },
-        { transform: `translate3d(${deltaX * 0.78}px, ${deltaY * 0.78 - 18}px, 0) scale(0.52)`, opacity: 0.85 },
-        { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.16)`, opacity: 0 },
-      ],
-      { duration: 900, easing: "cubic-bezier(0.2, 0.85, 0.18, 1)" }
+      isMobileLayout
+        ? [
+            { transform: "translate3d(0, 0, 0) scale(1)", opacity: 0.9 },
+            { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.3)`, opacity: 0 },
+          ]
+        : [
+            { transform: "translate3d(0, 0, 0) scale(1)", opacity: 0.98 },
+            { transform: `translate3d(${deltaX * 0.38}px, ${deltaY * 0.38 - 46}px, 0) scale(0.88)`, opacity: 0.95 },
+            { transform: `translate3d(${deltaX * 0.78}px, ${deltaY * 0.78 - 18}px, 0) scale(0.52)`, opacity: 0.85 },
+            { transform: `translate3d(${deltaX}px, ${deltaY}px, 0) scale(0.16)`, opacity: 0 },
+          ],
+      {
+        duration: isMobileLayout ? 360 : 900,
+        easing: isMobileLayout ? "cubic-bezier(0.2, 0.8, 0.2, 1)" : "cubic-bezier(0.2, 0.85, 0.18, 1)",
+      }
     )
     .finished.finally(() => {
       clone.remove()
@@ -297,8 +308,8 @@ const ProductCard = memo(function ProductCard({
         </div>
 
         {/* Product Info */}
-        <div className="flex min-w-0 flex-1 flex-col gap-0.5">
-          <span className="line-clamp-1 text-[13px] font-semibold leading-tight text-foreground">
+        <div className="flex min-w-0 flex-1 flex-col gap-1">
+          <span className="line-clamp-2 break-words text-[15px] font-semibold leading-5 text-foreground">
             {product.name}
           </span>
           {product.stock > 0 ? (
@@ -315,8 +326,8 @@ const ProductCard = memo(function ProductCard({
         </div>
 
         {/* Price */}
-        <div className="shrink-0 text-right">
-          <span className="text-sm font-bold text-destructive">
+        <div className="shrink-0 self-center text-right">
+          <span className="whitespace-nowrap text-sm font-bold leading-5 text-destructive">
             {formatRupiah(product.sellPrice)}
           </span>
         </div>

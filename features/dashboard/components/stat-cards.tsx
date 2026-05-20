@@ -120,60 +120,68 @@ export function StatCards({ stats }: { stats: DashboardStats }) {
       {items.map((stat) => (
         <div
           key={stat.title}
-          className="group relative overflow-hidden rounded-xl border bg-card p-4 shadow-sm transition-shadow hover:shadow-md"
+          className="group relative overflow-hidden rounded-2xl sm:rounded-[24px] border border-border bg-card p-5 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 active:scale-[0.98] cursor-pointer hover:shadow-md hover:border-border/80"
         >
           <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3.5">
               <div
-                className={`flex size-10 shrink-0 items-center justify-center rounded-xl ${stat.iconBg}`}
+                className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-transform duration-300 group-hover:scale-105 ${stat.iconBg}`}
               >
                 <HugeiconsIcon
                   icon={stat.icon}
-                  size={20}
+                  size={22}
                   className={stat.iconColor}
                 />
               </div>
               <div className="space-y-0.5">
-                <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
+                <p className="text-[11px] font-semibold text-muted-foreground uppercase tracking-wider sm:text-xs">
                   {stat.title}
                 </p>
-                <p className="text-lg font-bold tracking-tight sm:text-xl">
+                <p className="text-xl font-extrabold tracking-tight sm:text-2xl text-foreground">
                   {stat.formatted
                     ? formatRupiah(stat.value)
                     : stat.value.toLocaleString("id-ID")}
                 </p>
               </div>
             </div>
-            <div className={`h-8 w-14 shrink-0 opacity-70 ${stat.chartColor}`}>
+            <div className={`h-8 w-14 shrink-0 opacity-80 transition-opacity group-hover:opacity-100 ${stat.chartColor}`}>
               <Sparkline data={stat.chartData} className="size-full" />
             </div>
           </div>
-          <div className="mt-3 flex items-center gap-1.5 pl-[3.25rem]">
+          <div className="mt-3.5 flex items-center gap-1.5 pl-[3.65rem]">
             {stat.change !== null ? (
               <>
                 <span
-                  className={`inline-flex items-center gap-0.5 text-[11px] font-semibold ${stat.positive ? "text-emerald-600" : "text-destructive"}`}
+                  className={`inline-flex items-center gap-0.5 text-[11px] font-bold rounded-full px-2 py-0.5 ${
+                    stat.positive 
+                      ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20" 
+                      : "bg-destructive/10 text-destructive dark:bg-destructive/20"
+                  }`}
                 >
                   <HugeiconsIcon
                     icon={stat.positive ? ArrowUp01Icon : ArrowDown01Icon}
-                    size={12}
+                    size={11}
                   />
                   {stat.change}
                 </span>
-                <span className="min-w-0 truncate text-[10px] text-muted-foreground sm:text-[11px]">
+                <span className="min-w-0 truncate text-[10px] text-muted-foreground sm:text-[11px] font-medium">
                   {stat.changeLabel}
                 </span>
               </>
             ) : (
               <span
-                className={`text-[11px] font-medium ${stat.positive === false && !stat.change ? "text-destructive" : "text-muted-foreground"}`}
+                className={`text-[11px] font-semibold rounded-full px-2 py-0.5 ${
+                  stat.positive === false && !stat.change 
+                    ? "bg-destructive/10 text-destructive" 
+                    : "bg-muted text-muted-foreground"
+                }`}
               >
                 {stat.changeLabel}
               </span>
             )}
           </div>
           {/* Subtle gradient overlay on hover */}
-          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
         </div>
       ))}
     </div>
