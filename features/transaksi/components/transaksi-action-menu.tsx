@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter, usePathname } from "next/navigation"
+import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   MoreVerticalCircle01Icon,
@@ -34,22 +34,18 @@ type Props = {
   transactionId: string
   transactionNumber: string
   currentStatus: TransactionStatus
+  basePath: string
 }
 
 export function TransaksiActionMenu({
   transactionId,
   transactionNumber,
   currentStatus,
+  basePath,
 }: Props) {
   const router = useRouter()
-  const pathname = usePathname()
   const [deleteOpen, setDeleteOpen] = React.useState(false)
   const deleteMutation = useDeleteTransaction()
-
-  // Derive base path: /admin/transaksi or /cashier/transaksi
-  const basePath = pathname.startsWith("/cashier")
-    ? "/cashier/transaksi"
-    : "/admin/transaksi"
 
   return (
     <>

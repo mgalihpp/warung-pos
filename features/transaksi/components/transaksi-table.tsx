@@ -1,6 +1,7 @@
 "use client"
 
 import * as React from "react"
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowDown01Icon,
@@ -9,6 +10,7 @@ import {
   ArrowRight01Icon,
   FilterIcon,
   Tick02Icon,
+  ViewIcon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
 import { TransaksiDetailDialog } from "./transaksi-detail-dialog"
@@ -140,9 +142,11 @@ function sortTransactions(list: TransactionItem[], sort: string): TransactionIte
 type Props = {
   transactions: TransactionItem[]
   cashierList: string[]
+  detailBasePath?: string
+  actionBasePath?: string
 }
 
-export function TransaksiTable({ transactions, cashierList }: Props) {
+export function TransaksiTable({ transactions, cashierList, detailBasePath, actionBasePath }: Props) {
   const [activeStatusFilter, setActiveStatusFilter] = React.useState("Semua")
   const [activeMetodeFilter, setActiveMetodeFilter] = React.useState<string | null>(null)
   const [activeKasirFilter, setActiveKasirFilter] = React.useState<string | null>(null)
@@ -558,16 +562,29 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
                   </td>
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-1">
-                      <TransaksiDetailDialog
-                        transactionId={trx.id}
-                        transactionNumber={trx.transactionNumber}
-                        status={trx.status}
-                      />
-                      <TransaksiActionMenu
-                        transactionId={trx.id}
-                        transactionNumber={trx.transactionNumber}
-                        currentStatus={trx.status}
-                      />
+                      {detailBasePath ? (
+                        <Link
+                          href={`${detailBasePath}/${trx.id}`}
+                          className="flex min-h-10 min-w-10 items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted"
+                          title="Lihat Detail"
+                        >
+                          <HugeiconsIcon icon={ViewIcon} size={15} />
+                        </Link>
+                      ) : (
+                        <TransaksiDetailDialog
+                          transactionId={trx.id}
+                          transactionNumber={trx.transactionNumber}
+                          status={trx.status}
+                        />
+                      )}
+                      {actionBasePath ? (
+                        <TransaksiActionMenu
+                          transactionId={trx.id}
+                          transactionNumber={trx.transactionNumber}
+                          currentStatus={trx.status}
+                          basePath={actionBasePath}
+                        />
+                      ) : null}
                     </div>
                   </td>
                 </tr>
@@ -629,16 +646,29 @@ export function TransaksiTable({ transactions, cashierList }: Props) {
                   <span className="text-sm font-bold">{formatRupiah(trx.total)}</span>
                 </div>
                 <div className="relative z-10 flex items-center gap-1">
-                  <TransaksiDetailDialog
-                    transactionId={trx.id}
-                    transactionNumber={trx.transactionNumber}
-                    status={trx.status}
-                  />
-                  <TransaksiActionMenu
-                    transactionId={trx.id}
-                    transactionNumber={trx.transactionNumber}
-                    currentStatus={trx.status}
-                  />
+                  {detailBasePath ? (
+                    <Link
+                      href={`${detailBasePath}/${trx.id}`}
+                      className="flex min-h-10 min-w-10 items-center justify-center rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground active:bg-muted"
+                      title="Lihat Detail"
+                    >
+                      <HugeiconsIcon icon={ViewIcon} size={15} />
+                    </Link>
+                  ) : (
+                    <TransaksiDetailDialog
+                      transactionId={trx.id}
+                      transactionNumber={trx.transactionNumber}
+                      status={trx.status}
+                    />
+                  )}
+                  {actionBasePath ? (
+                    <TransaksiActionMenu
+                      transactionId={trx.id}
+                      transactionNumber={trx.transactionNumber}
+                      currentStatus={trx.status}
+                      basePath={actionBasePath}
+                    />
+                  ) : null}
                 </div>
               </div>
             </div>

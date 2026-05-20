@@ -28,7 +28,11 @@ export default async function CashierTransaksiPage() {
 
       <div className="hidden lg:flex lg:flex-col lg:gap-6">
         <TransaksiStatCards stats={data.stats} />
-        <TransaksiTable transactions={data.transactions} cashierList={data.cashierList} />
+        <TransaksiTable
+          transactions={data.transactions}
+          cashierList={data.cashierList}
+          detailBasePath="/cashier/transaksi"
+        />
       </div>
 
       <div className="block min-h-0 flex-1 lg:hidden">

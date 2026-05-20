@@ -32,7 +32,12 @@ export default async function TransaksiPage() {
         <TransaksiStatCards stats={data.stats} />
 
         {/* Transaction Table */}
-        <TransaksiTable transactions={data.transactions} cashierList={data.cashierList} />
+        <TransaksiTable
+          transactions={data.transactions}
+          cashierList={data.cashierList}
+          detailBasePath="/admin/transaksi"
+          actionBasePath="/admin/transaksi"
+        />
 
         {/* Recent Activity */}
         <TransaksiAktivitas activities={data.activities} />
