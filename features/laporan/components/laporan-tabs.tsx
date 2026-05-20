@@ -18,7 +18,7 @@ const tabs = [
 export function LaporanTabs() {
   const pathname = usePathname()
   return (
-    <div className="scrollbar-none -mx-4 flex gap-1 overflow-x-auto border-b px-4 lg:mx-0 lg:px-0">
+    <div className="sticky top-0 z-20 -mx-4 flex overflow-x-auto border-b bg-background px-4 lg:static lg:mx-0 lg:px-0">
       {tabs.map((tab) => {
         const isActive =
           tab.href === "/admin/laporan"
@@ -29,7 +29,7 @@ export function LaporanTabs() {
             key={tab.href}
             href={tab.href}
             className={cn(
-              "inline-flex shrink-0 items-center gap-2 border-b-2 px-3 py-2.5 text-sm font-medium transition-colors",
+              "inline-flex flex-1 shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:flex-none sm:justify-start",
               isActive
                 ? "border-primary text-primary"
                 : "border-transparent text-muted-foreground hover:text-foreground",

@@ -5,12 +5,15 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   AnalyticsUpIcon,
   ArrowDown01Icon,
+  ArrowRight01Icon,
   ArrowUp01Icon,
+  Calendar02Icon,
   ChartLineData01Icon,
   Clock01Icon,
   DollarCircleIcon,
   InvoiceIcon,
   StarIcon,
+  TickDouble01Icon,
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 import {
@@ -31,6 +34,13 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatRupiah, formatNumber } from "@/lib/format-currency"
 import {
@@ -57,7 +67,7 @@ export function LaporanContent({ initialData }: { initialData?: PenjualanData })
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+      <div className="hidden flex-col gap-2 lg:flex lg:flex-row lg:items-center lg:justify-between">
         <p className="text-sm text-muted-foreground">
           Ringkasan penjualan {RANGE_LABEL[range]}
         </p>
@@ -71,7 +81,7 @@ export function LaporanContent({ initialData }: { initialData?: PenjualanData })
       ) : isLoading || !data ? (
         <PenjualanSkeleton />
       ) : (
-        <PenjualanDashboard data={data} />
+        <PenjualanDashboard data={data} range={range} onRangeChange={setRange} />
       )}
     </div>
   )
@@ -91,11 +101,10 @@ function RangeSelector({
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
-            value === opt.value
+          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${value === opt.value
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:bg-muted"
-          }`}
+            }`}
         >
           {opt.label}
         </button>
@@ -104,7 +113,15 @@ function RangeSelector({
   )
 }
 
-function PenjualanDashboard({ data }: { data: PenjualanData }) {
+function PenjualanDashboard({
+  data,
+  range,
+  onRangeChange,
+}: {
+  data: PenjualanData
+  range: LaporanRange
+  onRangeChange: (value: LaporanRange) => void
+}) {
   const stats = [
     {
       title: "Penjualan",
@@ -142,7 +159,9 @@ function PenjualanDashboard({ data }: { data: PenjualanData }) {
 
   return (
     <div className="flex flex-col gap-4">
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
+      <MobileReportHero data={data} range={range} onRangeChange={onRangeChange} />
+
+      <div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-4">
         {stats.map((stat) => (
           <StatCard key={stat.title} {...stat} />
         ))}
@@ -170,6 +189,107 @@ function PenjualanDashboard({ data }: { data: PenjualanData }) {
   )
 }
 
+function MobileReportHero({
+  data,
+  range,
+  onRangeChange,
+}: {
+  data: PenjualanData
+  range: LaporanRange
+  onRangeChange: (value: LaporanRange) => void
+}) {
+  const [open, setOpen] = React.useState(false)
+  const bestDay = [...data.salesTrend].sort((a, b) => b.penjualan - a.penjualan)[0]
+
+  return (
+    <div className="lg:hidden">
+      <div className="relative overflow-hidden rounded-[28px] bg-primary p-4 text-primary-foreground shadow-lg">
+        <div className="pointer-events-none absolute -top-16 -right-16 size-36 rounded-full bg-primary-foreground/10" />
+        <div className="pointer-events-none absolute right-10 -bottom-20 size-44 rounded-full bg-primary-foreground/10" />
+
+        <Drawer open={open} onOpenChange={setOpen}>
+          <DrawerTrigger asChild>
+            <button
+              type="button"
+              className="relative flex w-full items-center justify-between rounded-2xl bg-primary-foreground/10 p-3 text-left transition active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-3">
+                <span className="flex size-10 items-center justify-center rounded-xl bg-primary-foreground/15">
+                  <HugeiconsIcon icon={Calendar02Icon} size={20} />
+                </span>
+                <span>
+                  <span className="block text-[11px] font-medium opacity-80">Periode laporan</span>
+                  <span className="block text-sm font-bold">{RANGE_LABEL[range]}</span>
+                </span>
+              </div>
+              <span className="flex size-8 items-center justify-center rounded-full bg-primary-foreground/10">
+                <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
+              </span>
+            </button>
+          </DrawerTrigger>
+          <DrawerContent>
+            <div className="mx-auto w-full max-w-sm">
+              <DrawerHeader className="text-left">
+                <DrawerTitle>Pilih Periode Laporan</DrawerTitle>
+              </DrawerHeader>
+              <div className="flex flex-col gap-2 p-4 pb-8">
+                {RANGE_OPTIONS.map((opt) => (
+                  <button
+                    key={opt.value}
+                    type="button"
+                    onClick={() => {
+                      onRangeChange(opt.value)
+                      setOpen(false)
+                    }}
+                    className={`flex items-center justify-between rounded-2xl border p-4 text-left transition active:scale-[0.99] ${range === opt.value
+                        ? "border-primary bg-primary/5 text-primary"
+                        : "border-border bg-card"
+                      }`}
+                  >
+                    <span>
+                      <span className="block text-base font-bold">{opt.label}</span>
+                      <span className="block text-xs text-muted-foreground">Ringkasan {RANGE_LABEL[opt.value]}</span>
+                    </span>
+                    {range === opt.value ? (
+                      <HugeiconsIcon icon={TickDouble01Icon} size={20} />
+                    ) : null}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </DrawerContent>
+        </Drawer>
+
+        <div className="relative mt-5">
+          <p className="text-[11px] font-medium uppercase tracking-[0.18em] opacity-75">Total penjualan</p>
+          <p className="mt-1 break-words text-3xl font-black tracking-tight min-[420px]:text-4xl">
+            {formatRupiah(data.stats.penjualan.value)}
+          </p>
+        </div>
+
+        <div className="relative mt-5 grid grid-cols-2 gap-3 border-t border-primary-foreground/20 pt-4">
+          <div>
+            <p className="text-[10px] font-medium opacity-75">Laba kotor</p>
+            <p className="mt-1 break-words text-sm font-bold min-[420px]:text-base">
+              {formatRupiah(data.stats.labaKotor.value)}
+            </p>
+          </div>
+          <div className="border-l border-primary-foreground/20 pl-3">
+            <p className="text-[10px] font-medium opacity-75">Transaksi</p>
+            <p className="mt-1 text-2xl font-black">{formatNumber(data.stats.totalTransaksi.value)}</p>
+          </div>
+        </div>
+
+        {bestDay && bestDay.penjualan > 0 ? (
+          <div className="relative mt-4 rounded-2xl bg-primary-foreground/10 px-3 py-2 text-xs font-semibold">
+            Hari terbaik: {bestDay.date}, {formatRupiah(bestDay.penjualan)}
+          </div>
+        ) : null}
+      </div>
+    </div>
+  )
+}
+
 function StatCard({
   title,
   value,
@@ -187,7 +307,7 @@ function StatCard({
 }) {
   const positive = change !== null && change >= 0
   return (
-    <div className="flex items-center gap-3 rounded-xl border bg-card p-3 shadow-sm lg:gap-4 lg:p-4">
+    <div className="flex min-h-24 items-start gap-3 rounded-2xl border bg-card p-3 shadow-sm lg:min-h-0 lg:items-center lg:gap-4 lg:rounded-xl lg:p-4">
       <div
         className={`flex size-10 shrink-0 items-center justify-center rounded-xl lg:size-12 ${iconBg}`}
       >
@@ -195,10 +315,10 @@ function StatCard({
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-medium text-muted-foreground">{title}</p>
-        <p className="truncate text-base font-bold tracking-tight lg:text-lg">
+        <p className="break-words text-base font-bold tracking-tight lg:truncate lg:text-lg">
           {value}
         </p>
-        <p className="flex items-center gap-1 text-[10px] text-muted-foreground">
+        <p className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
           {change !== null ? (
             <>
               <HugeiconsIcon
@@ -250,7 +370,7 @@ function SalesTrendCard({
       {data.length === 0 ? (
         <EmptyState message="Belum ada transaksi pada periode ini" />
       ) : (
-        <ChartContainer config={salesChartConfig} className="h-[260px] w-full">
+        <ChartContainer config={salesChartConfig} className="h-[220px] w-full sm:h-[260px]">
           <AreaChart
             data={data}
             margin={{ left: 2, right: 8, top: 8, bottom: 0 }}
@@ -443,17 +563,63 @@ function PaymentMethodCard({
   )
 }
 
+type DailySummaryView = "table" | "calendar"
+
 function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
+  const [view, setView] = React.useState<DailySummaryView>("table")
+
   return (
     <div className="overflow-hidden rounded-xl border bg-card shadow-sm">
-      <div className="flex flex-col gap-2 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
-        <h2 className="text-sm font-semibold">Ringkasan Penjualan Harian</h2>
-        <span className="inline-flex w-fit items-center gap-2 rounded-md border bg-background px-3 py-1.5 text-xs font-medium text-muted-foreground">
-          <HugeiconsIcon icon={Clock01Icon} size={14} />
-          {rows.length > 0 ? `${rows.length} hari` : "Tidak ada data"}
-        </span>
+      <div className="flex flex-col gap-3 border-b p-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <h2 className="text-sm font-semibold">Ringkasan Penjualan Harian</h2>
+          <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
+            <HugeiconsIcon icon={Clock01Icon} size={14} />
+            {rows.length > 0 ? `${rows.length} hari tercatat` : "Tidak ada data"}
+          </p>
+        </div>
+        <div className="flex items-center rounded-xl border bg-background p-1 w-fit ml-auto sm:ml-0">
+          <button
+            type="button"
+            onClick={() => setView("table")}
+            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${view === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+              }`}
+            title="Tabel"
+            aria-label="Tabel"
+          >
+            <HugeiconsIcon icon={InvoiceIcon} size={16} />
+          </button>
+          <button
+            type="button"
+            onClick={() => setView("calendar")}
+            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${view === "calendar" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
+              }`}
+            title="Kalender"
+            aria-label="Kalender"
+          >
+            <HugeiconsIcon icon={Calendar02Icon} size={16} />
+          </button>
+        </div>
       </div>
-      <div className="hidden overflow-x-auto md:block">
+
+      {view === "calendar" ? (
+        <DailySummaryCalendar rows={rows} />
+      ) : (
+        <DailySummaryTableView rows={rows} />
+      )}
+    </div>
+  )
+}
+
+function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }) {
+  const totalTransaksi = rows.reduce((sum, r) => sum + r.transaksi, 0)
+  const totalPenjualan = rows.reduce((sum, r) => sum + r.penjualan, 0)
+  const totalLaba = rows.reduce((sum, r) => sum + r.laba, 0)
+  const rataBelanja = totalTransaksi > 0 ? totalPenjualan / totalTransaksi : 0
+
+  return (
+    <>
+      <div className="hidden overflow-x-auto lg:block">
         <table className="w-full min-w-[760px] text-left text-xs">
           <thead className="bg-muted/50 text-muted-foreground">
             <tr>
@@ -461,75 +627,298 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
               <th className="px-4 py-3 text-center font-semibold">Transaksi</th>
               <th className="px-4 py-3 text-right font-semibold">Penjualan</th>
               <th className="px-4 py-3 text-right font-semibold">Laba Kotor</th>
-              <th className="px-4 py-3 text-right font-semibold">
-                Rata-rata Belanja
-              </th>
+              <th className="px-4 py-3 text-right font-semibold">Rata-rata Belanja</th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td
-                  colSpan={5}
-                  className="px-4 py-8 text-center text-muted-foreground"
-                >
+                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
                   Belum ada data penjualan
                 </td>
               </tr>
             ) : (
-              rows.map((row) => (
-                <tr
-                  key={row.dateKey}
-                  className="border-t transition-colors hover:bg-muted/30"
-                >
-                  <td className="px-4 py-2.5 font-medium">{row.date}</td>
-                  <td className="px-4 py-2.5 text-center">{row.transaksi}</td>
-                  <td className="px-4 py-2.5 text-right font-medium">
-                    {formatRupiah(row.penjualan)}
+              <>
+                {rows.map((row) => (
+                  <tr key={row.dateKey} className="border-t transition-colors hover:bg-muted/30">
+                    <td className="px-4 py-2.5 font-medium">{row.date}</td>
+                    <td className="px-4 py-2.5 text-center">{row.transaksi}</td>
+                    <td className="px-4 py-2.5 text-right font-medium">{formatRupiah(row.penjualan)}</td>
+                    <td className="px-4 py-2.5 text-right">{formatRupiah(row.laba)}</td>
+                    <td className="px-4 py-2.5 text-right">{formatRupiah(row.rataBelanja)}</td>
+                  </tr>
+                ))}
+                <tr className="border-t-2 border-border bg-muted/40 font-bold">
+                  <td className="px-4 py-3">Total Semua</td>
+                  <td className="px-4 py-3 text-center">{totalTransaksi}</td>
+                  <td className="px-4 py-3 text-right text-primary">{formatRupiah(totalPenjualan)}</td>
+                  <td className={`px-4 py-3 text-right ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}>
+                    {formatRupiah(totalLaba)}
                   </td>
-                  <td className="px-4 py-2.5 text-right">
-                    {formatRupiah(row.laba)}
-                  </td>
-                  <td className="px-4 py-2.5 text-right">
-                    {formatRupiah(row.rataBelanja)}
-                  </td>
+                  <td className="px-4 py-3 text-right">{formatRupiah(rataBelanja)}</td>
                 </tr>
-              ))
+              </>
             )}
           </tbody>
         </table>
       </div>
 
-      {/* ── Mobile/Tablet Card List (<md) ── */}
-      <div className="flex flex-col gap-2 md:hidden p-4 pt-0">
+      <div className="flex flex-col gap-2 p-4 pt-0 lg:hidden">
         {rows.length === 0 ? (
-          <div className="py-6 text-center text-xs text-muted-foreground">
-            Belum ada data penjualan
-          </div>
+          <div className="py-6 text-center text-xs text-muted-foreground">Belum ada data penjualan</div>
         ) : (
-          rows.map((row) => (
-            <div
-              key={row.dateKey}
-              className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5"
-            >
-              <div className="min-w-0 flex-1">
-                <p className="text-xs font-semibold">{row.date}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {row.transaksi} transaksi
-                </p>
+          <>
+            {rows.map((row) => (
+              <div key={row.dateKey} className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5">
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-semibold">{row.date}</p>
+                  <p className="text-[11px] text-muted-foreground">{row.transaksi} transaksi</p>
+                </div>
+                <div className="text-right">
+                  <p className="text-xs font-bold">{formatRupiah(row.penjualan)}</p>
+                  <p className="text-[10px] text-muted-foreground">Laba {formatRupiah(row.laba)}</p>
+                </div>
               </div>
-              <div className="text-right">
-                <p className="text-xs font-bold">{formatRupiah(row.penjualan)}</p>
-                <p className="text-[10px] text-muted-foreground">
-                  Laba {formatRupiah(row.laba)}
-                </p>
+            ))}
+
+            <div className="mt-2 flex flex-col gap-2 rounded-xl border border-dashed border-border bg-muted/30 p-3">
+              <p className="text-xs font-bold text-foreground">Total Semua</p>
+              <div className="grid grid-cols-2 gap-2 text-xs">
+                <div>
+                  <span className="block text-[10px] text-muted-foreground">Transaksi</span>
+                  <span className="font-semibold">{totalTransaksi}</span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[10px] text-muted-foreground">Rata-rata Belanja</span>
+                  <span className="font-semibold">{formatRupiah(rataBelanja)}</span>
+                </div>
+                <div>
+                  <span className="block text-[10px] text-muted-foreground">Penjualan</span>
+                  <span className="font-bold text-primary">{formatRupiah(totalPenjualan)}</span>
+                </div>
+                <div className="text-right">
+                  <span className="block text-[10px] text-muted-foreground">Total Laba</span>
+                  <span className={`font-bold ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}>
+                    {formatRupiah(totalLaba)}
+                  </span>
+                </div>
               </div>
             </div>
-          ))
+          </>
         )}
+      </div>
+    </>
+  )
+}
+
+function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] }) {
+  const rowMap = new Map(rows.map((row) => [row.dateKey, row]))
+  const months = buildCalendarMonths(rows)
+  const [monthIndex, setMonthIndex] = React.useState(() => Math.max(0, months.length - 1))
+  const effectiveMonthIndex = Math.min(monthIndex, Math.max(0, months.length - 1))
+  const currentMonth = months[effectiveMonthIndex]
+  const monthRows = currentMonth
+    ? rows.filter((row) => row.dateKey.startsWith(currentMonth.key))
+    : []
+
+  if (rows.length === 0) {
+    return <div className="p-8 text-center text-xs text-muted-foreground">Belum ada data penjualan</div>
+  }
+
+  if (!currentMonth) return null
+
+  const monthlyLaba = monthRows.reduce((sum, row) => sum + row.laba, 0)
+  const canGoPrev = effectiveMonthIndex > 0
+  const canGoNext = effectiveMonthIndex < months.length - 1
+
+  return (
+    <div className="p-2 sm:p-4">
+      <div className="rounded-[22px] bg-background p-2.5 sm:p-4 shadow-sm">
+        {/* Sleek Monthly Laba Header */}
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => {
+                  setMonthIndex((index) => Math.max(0, index - 1))
+                }}
+                disabled={!canGoPrev}
+                className="flex size-7 shrink-0 items-center justify-center rounded-lg border bg-card text-sm font-bold disabled:opacity-35 hover:bg-muted transition cursor-pointer"
+                aria-label="Bulan sebelumnya"
+              >
+                ‹
+              </button>
+              <span className="text-xs sm:text-sm font-semibold px-1 min-w-[70px] sm:min-w-[90px] text-center truncate">
+                {currentMonth.label}
+              </span>
+              <button
+                type="button"
+                onClick={() => {
+                  setMonthIndex((index) => Math.min(months.length - 1, index + 1))
+                }}
+                disabled={!canGoNext}
+                className="flex size-7 shrink-0 items-center justify-center rounded-lg border bg-card text-sm font-bold disabled:opacity-35 hover:bg-muted transition cursor-pointer"
+                aria-label="Bulan berikutnya"
+              >
+                ›
+              </button>
+            </div>
+            <div className="hidden sm:block text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+              {currentMonth.activeDays} hari aktif
+            </div>
+          </div>
+          
+          <div className="text-left sm:text-right">
+            <span className="block text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Laba Bulanan</span>
+            <span className={`text-sm sm:text-base font-bold tracking-tight ${monthlyLaba > 0 ? "text-emerald-500" : monthlyLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}>
+              {formatPnLFull(monthlyLaba)}
+            </span>
+          </div>
+        </div>
+
+        {/* Days Header Row (Sunday-First) */}
+        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted-foreground border-b pb-2 mb-2">
+          {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
+            <div key={day} className="py-1">{day}</div>
+          ))}
+        </div>
+
+        {/* Calendar Cells */}
+        <div className="mt-1 grid grid-cols-7 gap-1 sm:gap-1.5">
+          {currentMonth.cells.map((cell, index) => {
+            if (!cell) return <div key={`${currentMonth.key}-blank-${index}`} className="aspect-square sm:aspect-auto sm:h-12 md:h-14 lg:h-16 bg-muted/5 rounded-lg opacity-30" />
+
+            const row = rowMap.get(cell.dateKey)
+            const laba = row ? row.laba : 0
+            const hasTransactions = !!row && row.transaksi > 0
+
+            let cellStyle = "border-border/60 bg-card hover:bg-muted/40"
+            let borderLeftStyle = "border-l-transparent"
+            let numberColor = "text-muted-foreground"
+            let valColor = "text-muted-foreground/60"
+
+            if (hasTransactions) {
+              if (laba > 0) {
+                cellStyle = "border-emerald-500/20 bg-emerald-500/8 dark:bg-emerald-500/12 hover:bg-emerald-500/12 dark:hover:bg-emerald-500/18"
+                borderLeftStyle = "border-l-[3px] border-l-emerald-500"
+                numberColor = "text-emerald-600 dark:text-emerald-400 font-semibold"
+                valColor = "text-emerald-600 dark:text-emerald-400 font-semibold"
+              } else if (laba < 0) {
+                cellStyle = "border-rose-500/20 bg-rose-500/8 dark:bg-rose-500/12 hover:bg-rose-500/12 dark:hover:bg-rose-500/18"
+                borderLeftStyle = "border-l-[3px] border-l-rose-500"
+                numberColor = "text-rose-600 dark:text-rose-400 font-semibold"
+                valColor = "text-rose-600 dark:text-rose-400 font-semibold"
+              } else {
+                cellStyle = "border-border/80 bg-muted/20 hover:bg-muted/30"
+                borderLeftStyle = "border-l-[3px] border-l-muted-foreground/30"
+                numberColor = "text-foreground font-medium"
+                valColor = "text-muted-foreground font-medium"
+              }
+            }
+
+            return (
+              <div
+                key={cell.dateKey}
+                className={`relative flex aspect-square sm:aspect-auto sm:h-12 md:h-14 lg:h-16 flex-col justify-between rounded-lg border p-1 sm:p-1.5 transition text-left ${cellStyle} ${borderLeftStyle}`}
+              >
+                {/* Day number */}
+                <span className={`block text-[10px] sm:text-xs font-semibold sm:text-[13px] ${numberColor}`}>
+                  {cell.day}
+                </span>
+
+                {/* Compact Text PnL */}
+                <span className={`block truncate text-[7.5px] min-[360px]:text-[8.5px] sm:text-[10px] font-semibold tracking-tight leading-tight ${valColor}`}>
+                  {formatPnLCompact(laba)}
+                </span>
+              </div>
+            )
+          })}
+        </div>
       </div>
     </div>
   )
+}
+
+function buildCalendarMonths(rows: PenjualanData["dailySummary"]) {
+  const dates = rows
+    .map((row) => parseDateKey(row.dateKey))
+    .filter((date): date is Date => Boolean(date))
+    .sort((a, b) => a.getTime() - b.getTime())
+
+  if (dates.length === 0) return []
+
+  const first = dates[0]
+  const last = dates[dates.length - 1]
+  const months: Array<{
+    key: string
+    label: string
+    activeDays: number
+    cells: Array<{ dateKey: string; day: number } | null>
+  }> = []
+
+  const cursor = new Date(first.getFullYear(), first.getMonth(), 1)
+  const lastMonth = new Date(last.getFullYear(), last.getMonth(), 1)
+
+  while (cursor <= lastMonth) {
+    const year = cursor.getFullYear()
+    const month = cursor.getMonth()
+    const daysInMonth = new Date(year, month + 1, 0).getDate()
+
+    // Sunday-First Calendar Offset
+    const firstDay = new Date(year, month, 1).getDay()
+    const cells: Array<{ dateKey: string; day: number } | null> = Array.from({ length: firstDay }, () => null)
+
+    for (let day = 1; day <= daysInMonth; day++) {
+      cells.push({ dateKey: formatDateKey(new Date(year, month, day)), day })
+    }
+
+    const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`
+    months.push({
+      key: monthKey,
+      label: new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(cursor),
+      activeDays: rows.filter((row) => row.dateKey.startsWith(monthKey) && row.penjualan > 0).length,
+      cells,
+    })
+
+    cursor.setMonth(cursor.getMonth() + 1)
+  }
+
+  return months
+}
+
+function parseDateKey(dateKey: string) {
+  const [year, month, day] = dateKey.split("-").map(Number)
+  if (!year || !month || !day) return null
+  return new Date(year, month - 1, day)
+}
+
+function formatDateKey(date: Date) {
+  return `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`
+}
+
+function formatPnLCompact(value: number) {
+  if (value === 0) return "0"
+  const absValue = Math.abs(value)
+  const sign = value > 0 ? "+" : "-"
+
+  let formatted = ""
+  if (absValue >= 1_000_000) {
+    const val = absValue / 1_000_000
+    formatted = `${val.toFixed(val % 1 === 0 ? 0 : 1)}jt`
+  } else if (absValue >= 1_000) {
+    const val = absValue / 1_000
+    formatted = `${val.toFixed(val % 1 === 0 ? 0 : 1)}rb`
+  } else {
+    formatted = `${absValue}`
+  }
+  return `${sign}${formatted}`
+}
+
+function formatPnLFull(value: number) {
+  if (value === 0) return "Rp 0"
+  const sign = value > 0 ? "+" : "-"
+  return `${sign}${formatRupiah(Math.abs(value))}`
 }
 
 function TopProductsCard({
@@ -617,24 +1006,24 @@ function QuickInsightCard({ data }: { data: PenjualanData }) {
   const insights = [
     bestDay && bestDay.penjualan > 0
       ? {
-          text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.penjualan)})`,
-          icon: StarIcon,
-          tone: "bg-primary/10 text-primary",
-        }
+        text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.penjualan)})`,
+        icon: StarIcon,
+        tone: "bg-primary/10 text-primary",
+      }
       : null,
     topCategory
       ? {
-          text: `Kategori unggulan: ${topCategory.name} (${topCategory.pct}%)`,
-          icon: AnalyticsUpIcon,
-          tone: "bg-blue-500/10 text-blue-600",
-        }
+        text: `Kategori unggulan: ${topCategory.name} (${topCategory.pct}%)`,
+        icon: AnalyticsUpIcon,
+        tone: "bg-blue-500/10 text-blue-600",
+      }
       : null,
     topProduct
       ? {
-          text: `Barang terlaris: ${topProduct.name}`,
-          icon: ChartLineData01Icon,
-          tone: "bg-emerald-500/10 text-emerald-600",
-        }
+        text: `Barang terlaris: ${topProduct.name}`,
+        icon: ChartLineData01Icon,
+        tone: "bg-emerald-500/10 text-emerald-600",
+      }
       : null,
   ].filter((i): i is NonNullable<typeof i> => Boolean(i))
 

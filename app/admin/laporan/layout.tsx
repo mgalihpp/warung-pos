@@ -7,7 +7,7 @@ export default function LaporanLayout({
 }) {
   return (
     <div className="flex min-w-0 flex-col gap-3 p-4 lg:gap-4 lg:p-6">
-      <div>
+      <div className="hidden lg:block">
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
           Laporan & Analitik
         </h1>
