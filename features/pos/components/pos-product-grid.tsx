@@ -270,20 +270,20 @@ const ProductCard = memo(function ProductCard({
           event.preventDefault()
           handleAdd(event as unknown as React.MouseEvent<HTMLElement>)
         }}
-        className={`group relative flex w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left transition-all active:scale-[0.985] ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"} xl:hidden ${
+        className={`group relative flex w-full items-center gap-3 rounded-2xl border bg-card p-3 text-left transition-all active:scale-[0.985] max-[340px]:gap-2 max-[340px]:p-2.5 ${isOutOfStock ? "cursor-not-allowed" : "cursor-pointer"} xl:hidden ${
           isInCart
             ? "border-primary/45 bg-primary/[0.035] shadow-sm ring-1 ring-primary/20"
             : "border-border"
         } ${isOutOfStock ? "opacity-50" : ""}`}
       >
         {/* Product Image */}
-        <div data-pos-product-image className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/30">
+        <div data-pos-product-image className="relative size-16 shrink-0 overflow-hidden rounded-xl bg-muted/30 max-[340px]:size-14">
           {product.image ? (
             <Image
               src={product.image}
               alt={product.name}
               fill
-              sizes="64px"
+              sizes="(max-width: 340px) 56px, 64px"
               className="object-contain"
             />
           ) : (
@@ -309,8 +309,11 @@ const ProductCard = memo(function ProductCard({
 
         {/* Product Info */}
         <div className="flex min-w-0 flex-1 flex-col gap-1">
-          <span className="line-clamp-2 break-words text-[15px] font-semibold leading-5 text-foreground">
+          <span className="line-clamp-2 break-words text-[15px] font-semibold leading-5 text-foreground max-[340px]:text-sm">
             {product.name}
+          </span>
+          <span className="hidden whitespace-nowrap text-sm font-bold leading-5 text-destructive max-[340px]:block">
+            {formatRupiah(product.sellPrice)}
           </span>
           {product.stock > 0 ? (
             <span className="inline-flex w-fit items-center gap-1 rounded-full border border-emerald-500/20 bg-emerald-500/10 px-2 py-0.5 text-[10px] font-bold text-emerald-700 dark:text-emerald-400">
@@ -326,7 +329,7 @@ const ProductCard = memo(function ProductCard({
         </div>
 
         {/* Price */}
-        <div className="shrink-0 self-center text-right">
+        <div className="shrink-0 self-center text-right max-[340px]:hidden">
           <span className="whitespace-nowrap text-sm font-bold leading-5 text-destructive">
             {formatRupiah(product.sellPrice)}
           </span>
@@ -373,13 +376,14 @@ function ProductSkeleton() {
         </div>
       </div>
       {/* Mobile skeleton */}
-      <div className="flex animate-pulse items-center gap-3 rounded-2xl border bg-card p-3 xl:hidden">
-        <div className="size-16 shrink-0 rounded-xl bg-muted" />
+      <div className="flex animate-pulse items-center gap-3 rounded-2xl border bg-card p-3 max-[340px]:gap-2 max-[340px]:p-2.5 xl:hidden">
+        <div className="size-16 shrink-0 rounded-xl bg-muted max-[340px]:size-14" />
         <div className="flex min-w-0 flex-1 flex-col gap-2">
           <div className="h-4 w-3/4 rounded bg-muted" />
+          <div className="hidden h-4 w-16 rounded bg-muted max-[340px]:block" />
           <div className="h-3 w-1/3 rounded-full bg-muted" />
         </div>
-        <div className="h-4 w-16 rounded bg-muted" />
+        <div className="h-4 w-16 rounded bg-muted max-[340px]:hidden" />
         <div className="size-10 shrink-0 rounded-xl bg-muted" />
       </div>
     </>

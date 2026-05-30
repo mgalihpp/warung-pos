@@ -203,7 +203,7 @@ function MobileReportHero({
 
   return (
     <div className="lg:hidden">
-      <div className="relative overflow-hidden rounded-[28px] bg-primary p-4 text-primary-foreground shadow-lg">
+      <div className="relative overflow-hidden rounded-[28px] bg-primary pb-4 px-4 text-primary-foreground shadow-lg">
         <div className="pointer-events-none absolute -top-16 -right-16 size-36 rounded-full bg-primary-foreground/10" />
         <div className="pointer-events-none absolute right-10 -bottom-20 size-44 rounded-full bg-primary-foreground/10" />
 
@@ -768,7 +768,7 @@ function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] })
               {currentMonth.activeDays} hari aktif
             </div>
           </div>
-          
+
           <div className="text-left sm:text-right">
             <span className="block text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Laba Bulanan</span>
             <span className={`text-sm sm:text-base font-bold tracking-tight ${monthlyLaba > 0 ? "text-emerald-500" : monthlyLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}>

@@ -3,7 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Edit02Icon, Search01Icon, TagsIcon } from "@hugeicons/core-free-icons"
+import { Cancel01Icon, Edit02Icon, Search01Icon, TagsIcon } from "@hugeicons/core-free-icons"
 
 import type { KategoriItem } from "../types"
 
@@ -16,26 +16,36 @@ export function KategoriMobileList({ categories }: { categories: KategoriItem[] 
   }, [categories, query])
 
   return (
-    <div className="lg:hidden">
-      <div className="px-4 pt-4">
-        <div className="relative h-14 w-full overflow-hidden rounded-2xl bg-muted/40">
+    <div className="flex h-full min-h-0 flex-col lg:hidden">
+      <div className="relative shrink-0 px-4 pt-3">
+        <div className="flex h-11 items-center overflow-hidden rounded-xl border bg-card px-2 shadow-sm">
           <HugeiconsIcon
             icon={Search01Icon}
-            size={20}
-            className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted-foreground"
+            size={16}
+            className="ml-2 shrink-0 text-muted-foreground"
           />
           <input
             type="text"
             value={q}
             onChange={(event) => setQ(event.target.value)}
             placeholder="Cari kategori..."
-            className="h-full w-full bg-transparent pl-12 pr-4 text-base outline-none placeholder:text-muted-foreground"
+            className="h-full min-w-0 flex-1 bg-transparent px-3 text-[13px] leading-none outline-none placeholder:text-muted-foreground"
             inputMode="search"
           />
+          {q ? (
+            <button
+              type="button"
+              onClick={() => setQ("")}
+              className="flex h-full w-10 items-center justify-center text-muted-foreground hover:text-foreground"
+              aria-label="Hapus pencarian"
+            >
+              <HugeiconsIcon icon={Cancel01Icon} size={16} />
+            </button>
+          ) : null}
         </div>
       </div>
 
-      <div className="space-y-3 px-4 pb-6 pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
         {filtered.map((category) => (
           <div key={category.id} className="rounded-2xl border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-4">

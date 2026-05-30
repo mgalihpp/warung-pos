@@ -2,20 +2,23 @@
 
 import Image from "next/image"
 import Link from "next/link"
-import { usePathname } from "next/navigation"
+import { usePathname, useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowDown01Icon,
   DashboardSquare01Icon,
   PackageIcon,
   InvoiceIcon,
   ChartHistogramIcon,
   Settings01Icon,
   CashierIcon,
+  Logout01Icon,
   TagsIcon,
 } from "@hugeicons/core-free-icons"
 import {
   Sidebar,
   SidebarContent,
+  SidebarFooter,
   SidebarGroup,
   SidebarGroupContent,
   SidebarHeader,
@@ -23,6 +26,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuGroup,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import { signOut, useSession } from "@/lib/auth-client"
 
 const menuItems = [
   { title: "Dashboard", href: "/admin", icon: DashboardSquare01Icon },
@@ -36,6 +50,17 @@ const menuItems = [
 
 export function AppSidebar() {
   const pathname = usePathname()
+  const router = useRouter()
+  const { data: session } = useSession()
+
+  const userName = session?.user?.name ?? "..."
+  const userRole = session?.user?.role === "admin" ? "Admin" : session?.user?.role === "cashier" ? "Kasir" : "..."
+  const userInitials = userName
+    .split(" ")
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((part) => part[0]?.toUpperCase())
+    .join("")
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
@@ -90,6 +115,58 @@ export function AppSidebar() {
         </SidebarGroup>
 
       </SidebarContent>
+      <SidebarFooter className="border-t p-3">
+        <DropdownMenu>
+          <DropdownMenuTrigger asChild>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:outline-none focus:ring-1 focus:ring-sidebar-ring group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+            >
+              <Avatar className="size-9">
+                {session?.user?.image && (
+                  <AvatarImage src={session.user.image} alt={userName} />
+                )}
+                <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
+                <p className="truncate text-sm font-semibold leading-tight">{userName}</p>
+                <p className="truncate text-xs text-muted-foreground">{userRole}</p>
+              </div>
+              <HugeiconsIcon
+                icon={ArrowDown01Icon}
+                size={14}
+                className="text-muted-foreground group-data-[collapsible=icon]:hidden"
+              />
+            </button>
+          </DropdownMenuTrigger>
+          <DropdownMenuContent side="right" align="end" className="w-56">
+            <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuItem asChild>
+                <Link href="/admin/pengaturan">
+                  <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+                  <span>Pengaturan</span>
+                </Link>
+              </DropdownMenuItem>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuItem
+              variant="destructive"
+              className="cursor-pointer"
+              onClick={async () => {
+                await signOut()
+                router.push("/login")
+              }}
+            >
+              <HugeiconsIcon icon={Logout01Icon} size={16} className="mr-2" />
+              <span>Keluar</span>
+            </DropdownMenuItem>
+          </DropdownMenuContent>
+        </DropdownMenu>
+      </SidebarFooter>
     </Sidebar>
   )
 }

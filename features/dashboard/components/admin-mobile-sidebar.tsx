@@ -133,7 +133,7 @@ export function AdminMobileSidebar({
                 </span>
                 <div>
                   <span className="inline-flex rounded-full bg-primary-foreground px-2.5 py-0.5 text-[10px] font-bold text-primary">
-                    {user.role === "cashier" ? "Kasir" : "Manager"}
+                    {user.role === "cashier" ? "Kasir" : "Admin"}
                   </span>
                 </div>
               </div>

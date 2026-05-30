@@ -40,26 +40,26 @@ export default async function BarangPage() {
           </div>
         </div>
 
-        <div className="mt-4 grid grid-cols-2 gap-3">
-          <div className="rounded-2xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97] cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                <HugeiconsIcon icon={PackageIcon} size={20} />
+        <div className="mt-4 grid grid-cols-2 gap-2.5">
+          <div className="cursor-pointer rounded-2xl border bg-card p-3 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97]">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <HugeiconsIcon icon={PackageIcon} size={18} />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-muted-foreground">Total Barang</p>
+                <p className="truncate text-[11px] font-semibold text-muted-foreground">Total Barang</p>
                 <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.totalProducts}</p>
               </div>
             </div>
           </div>
 
-          <div className="rounded-2xl border bg-card p-4 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97] cursor-pointer">
-            <div className="flex items-center gap-3">
-              <div className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
-                <HugeiconsIcon icon={Alert02Icon} size={20} />
+          <div className="cursor-pointer rounded-2xl border bg-card p-3 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all active:scale-[0.97]">
+            <div className="flex min-w-0 items-center gap-2.5">
+              <div className="flex size-9 shrink-0 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600">
+                <HugeiconsIcon icon={Alert02Icon} size={18} />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-xs font-semibold text-muted-foreground">Stok Menipis</p>
+                <p className="truncate text-[11px] font-semibold text-muted-foreground">Stok Menipis</p>
                 <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.lowStock}</p>
               </div>
             </div>

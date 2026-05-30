@@ -98,7 +98,7 @@ export async function PUT(request: Request, context: RouteContext) {
       categoryId: result.data.categoryId,
       image: result.data.image,
       unit: result.data.unit,
-      stock: result.data.stock,
+      ...(result.data.stock === undefined ? {} : { stock: result.data.stock }),
       minStock: result.data.minStock,
       buyPrice: result.data.buyPrice,
       sellPrice: result.data.sellPrice,

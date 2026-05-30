@@ -199,10 +199,10 @@ export function DashboardHeader() {
       {/* Notifications via Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
+          <button className="relative overflow-visible rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
             <HugeiconsIcon icon={Notification03Icon} size={18} />
             {notificationCount > 0 && (
-              <span className="absolute -top-0.5 -right-0.5 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
+              <span className="absolute -top-0.5 -right-0.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
                 {notificationCount}
               </span>
             )}

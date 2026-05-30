@@ -61,9 +61,16 @@ export const createProductSchema = z
     path: ["sellPrice"],
   })
 
-export const updateProductSchema = createProductSchema.extend({
-  id: z.string().min(1, "ID barang wajib ada"),
-})
+export const updateProductSchema = z
+  .object({
+    ...productBaseSchema,
+    id: z.string().min(1, "ID barang wajib ada"),
+    stock: productBaseSchema.stock.optional(),
+  })
+  .refine((data) => data.sellPrice >= data.buyPrice, {
+    message: "Harga jual tidak boleh lebih kecil dari harga beli",
+    path: ["sellPrice"],
+  })
 
 export type CreateProductInput = z.infer<typeof createProductSchema>
 export type UpdateProductInput = z.infer<typeof updateProductSchema>

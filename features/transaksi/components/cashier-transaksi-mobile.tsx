@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { useRouter } from "next/navigation"
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Calendar02Icon,
@@ -78,7 +78,6 @@ type Props = {
 }
 
 export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }: Props) {
-  const router = useRouter()
   const [selectedTransactionId, setSelectedTransactionId] = React.useState<string | null>(null)
   const [searchQuery, setSearchQuery] = React.useState("")
   const [period, setPeriod] = React.useState<Period>('month')
@@ -237,46 +236,56 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
             Tidak ada transaksi yang ditemukan.
           </div>
         ) : (
-          filteredTransactions.map((trx) => (
-            <button
-              key={trx.id}
-              type="button"
-              onClick={() => {
-                if (detailBasePath) {
-                  router.push(`${detailBasePath}/${trx.id}`)
-                  return
-                }
-
-                setSelectedTransactionId(trx.id)
-              }}
-              className="flex w-full items-center gap-3.5 rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
-            >
-              {/* Left: Money icon */}
-              <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-                <HugeiconsIcon icon={MoneyReceiveFlowIcon} size={24} className="text-emerald-600" />
-              </div>
-
-              {/* Center content */}
-              <div className="min-w-0 flex-1">
-                {/* Amount */}
-                <p className="break-words text-base font-bold text-slate-800">{formatRupiah(trx.total)}</p>
-
-                {/* Payment badge */}
-                <span className={`mt-1 inline-flex rounded px-1.5 py-0.5 text-[10px] font-bold ${getMetodeBadgeClass(trx.metode)}`}>
-                  {trx.metode}
-                </span>
-
-                {/* Date & ID */}
-                <div className="mt-1.5 space-y-0.5 text-[11px] text-muted-foreground">
-                  <p>⏱ {trx.waktu}</p>
-                  <p># ID: {trx.transactionNumber}</p>
+          filteredTransactions.map((trx) => {
+            const cardContent = (
+              <>
+                <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
+                  <HugeiconsIcon icon={MoneyReceiveFlowIcon} size={24} className="text-emerald-600" />
                 </div>
-              </div>
 
-              {/* Right: chevron */}
-              <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="shrink-0 text-slate-400" />
-            </button>
-          ))
+                <div className="min-w-0 flex-1 self-stretch py-0.5">
+                  <div className="flex min-w-0 items-start justify-between gap-2">
+                    <p className="min-w-0 truncate text-base font-bold leading-tight text-slate-800">
+                      {formatRupiah(trx.total)}
+                    </p>
+                    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold leading-none ${getMetodeBadgeClass(trx.metode)}`}>
+                      {trx.metode}
+                    </span>
+                  </div>
+
+                  <div className="mt-2 space-y-0.5 text-[11px] leading-snug text-muted-foreground">
+                    <p className="truncate">{trx.waktu}</p>
+                    <p className="truncate"># ID: {trx.transactionNumber}</p>
+                  </div>
+                </div>
+
+                <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="shrink-0 text-slate-400" />
+              </>
+            )
+
+            if (detailBasePath) {
+              return (
+                <Link
+                  key={trx.id}
+                  href={`${detailBasePath}/${trx.id}`}
+                  className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
+                >
+                  {cardContent}
+                </Link>
+              )
+            }
+
+            return (
+              <button
+                key={trx.id}
+                type="button"
+                onClick={() => setSelectedTransactionId(trx.id)}
+                className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
+              >
+                {cardContent}
+              </button>
+            )
+          })
         )}
       </div>
     </div>

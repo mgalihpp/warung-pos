@@ -5,22 +5,40 @@ import Image from "next/image"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
+  ArrowDown01Icon,
   ArrowRight01Icon,
   Cancel01Icon,
+  FilterIcon,
   PackageIcon,
   Search01Icon,
+  Tick02Icon,
 } from "@hugeicons/core-free-icons"
 
 import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select"
+  Sheet,
+  SheetClose,
+  SheetContent,
+  SheetFooter,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet"
+import {
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
+import { Button } from "@/components/ui/button"
 import type { BarangCategory, BarangItem } from "../types"
+
+const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Stok Habis", "Nonaktif"] as const
+const sortOptions = ["Terbaru", "Nama A-Z", "Harga Tertinggi", "Harga Terendah", "Stok Terbanyak", "Stok Tersedikit"] as const
+
+type StatusOption = (typeof statusOptions)[number]
+type SortOption = (typeof sortOptions)[number]
 
 function getStockBadge(product: BarangItem) {
   if (!product.isActive) {
@@ -44,6 +62,13 @@ function getStockBadge(product: BarangItem) {
   }
 }
 
+function getProductStatus(product: BarangItem): StatusOption {
+  if (!product.isActive) return "Nonaktif"
+  if (product.stock <= 0) return "Stok Habis"
+  if (product.stock <= product.minStock) return "Stok Menipis"
+  return "Aktif"
+}
+
 export function BarangMobileList({
   products,
   categories,
@@ -53,51 +78,74 @@ export function BarangMobileList({
 }) {
   const [q, setQ] = React.useState("")
   const [activeCategory, setActiveCategory] = React.useState<string | null>(null)
+  const [activeStatus, setActiveStatus] = React.useState<StatusOption>("Semua Status")
+  const [activeSort, setActiveSort] = React.useState<SortOption>("Terbaru")
   const [isSearchActive, setIsSearchActive] = React.useState(false)
+  const [isCategoryOpen, setIsCategoryOpen] = React.useState(false)
+  const [categorySnap, setCategorySnap] = React.useState<number | string | null>(0.5)
+  const [isFilterOpen, setIsFilterOpen] = React.useState(false)
   const query = q.trim().toLowerCase()
+  const hasActiveFilters = activeStatus !== "Semua Status" || activeSort !== "Terbaru"
+  const activeCategoryName = activeCategory
+    ? categories.find((category) => category.id === activeCategory)?.name ?? "Semua Kategori"
+    : "Semua Kategori"
 
   const filtered = React.useMemo(() => {
-    return products.filter((p) => {
+    const list = products.filter((p) => {
       const matchSearch = !query || p.name.toLowerCase().includes(query)
       const matchCategory = !activeCategory || p.categoryId === activeCategory
+      const matchStatus = activeStatus === "Semua Status" || getProductStatus(p) === activeStatus
 
-      return matchSearch && matchCategory
+      return matchSearch && matchCategory && matchStatus
     })
-  }, [activeCategory, products, query])
+
+    return list.sort((a, b) => {
+      if (activeSort === "Nama A-Z") return a.name.localeCompare(b.name)
+      if (activeSort === "Harga Tertinggi") return b.sellPrice - a.sellPrice
+      if (activeSort === "Harga Terendah") return a.sellPrice - b.sellPrice
+      if (activeSort === "Stok Terbanyak") return b.stock - a.stock
+      if (activeSort === "Stok Tersedikit") return a.stock - b.stock
+      return 0
+    })
+  }, [activeCategory, activeSort, activeStatus, products, query])
 
   return (
     <div className="flex h-full min-h-0 flex-col lg:hidden">
-      <div className="relative shrink-0 px-3 pt-3">
-        <div className="flex h-[46px] items-center overflow-hidden rounded-xl border bg-card shadow-sm">
+      <div className="relative shrink-0 px-4 pt-3">
+        <div className="flex h-11 items-center overflow-hidden rounded-xl border bg-card shadow-sm">
           {!isSearchActive ? (
             <>
               <button
                 type="button"
                 onClick={() => setIsSearchActive(true)}
-                className="flex h-full w-12 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50"
+                className="flex h-full w-11 shrink-0 items-center justify-center text-muted-foreground transition-colors hover:bg-muted/50"
                 aria-label="Cari barang"
               >
                 <HugeiconsIcon icon={Search01Icon} size={18} />
               </button>
               <div className="h-6 w-px bg-border" />
               <div className="relative h-full flex-1">
-                <Select
-                  value={activeCategory || "all"}
-                  onValueChange={(value) => setActiveCategory(value === "all" ? null : value)}
+                <button
+                  type="button"
+                  onClick={() => setIsCategoryOpen(true)}
+                  className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-[13px] outline-none transition-colors hover:bg-muted/50 focus:ring-0"
                 >
-                  <SelectTrigger className="h-full w-full rounded-none border-0 bg-transparent text-[13px] shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0">
-                    <SelectValue placeholder="Semua Kategori" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="all">Semua Kategori</SelectItem>
-                    {categories.map((category) => (
-                      <SelectItem key={category.id} value={category.id}>
-                        {category.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                  <span className="truncate">{activeCategoryName}</span>
+                  <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="shrink-0 text-muted-foreground" />
+                </button>
               </div>
+              <div className="h-6 w-px bg-border" />
+              <button
+                type="button"
+                onClick={() => setIsFilterOpen(true)}
+                className={cn(
+                  "relative flex h-full w-11 shrink-0 items-center justify-center transition-colors hover:bg-muted/50",
+                  hasActiveFilters ? "text-primary" : "text-muted-foreground"
+                )}
+                aria-label="Filter barang"
+              >
+                <HugeiconsIcon icon={FilterIcon} size={18} />
+              </button>
             </>
           ) : (
             <div className="flex h-full flex-1 items-center px-2">
@@ -126,6 +174,135 @@ export function BarangMobileList({
           )}
         </div>
       </div>
+
+      <Drawer
+        open={isCategoryOpen}
+        onOpenChange={(open) => {
+          setIsCategoryOpen(open)
+          if (open) setCategorySnap(0.5)
+        }}
+        snapPoints={[0.5, 1]}
+        activeSnapPoint={categorySnap}
+        setActiveSnapPoint={setCategorySnap}
+      >
+        <DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 !mt-0 !max-h-[100dvh] lg:hidden">
+          <DrawerHeader className="px-4 pt-4 pb-3 text-left">
+            <DrawerTitle className="text-base font-bold">Pilih Kategori</DrawerTitle>
+            <DrawerDescription className="text-xs">
+              Tampilkan barang berdasarkan kategori.
+            </DrawerDescription>
+          </DrawerHeader>
+          <div className="scrollbar-thin min-h-0 flex-1 overflow-y-auto px-4 pb-2">
+            <div className="flex flex-col gap-2">
+              <button
+                type="button"
+                onClick={() => {
+                  setActiveCategory(null)
+                  setIsCategoryOpen(false)
+                }}
+                className={cn(
+                  "flex items-center justify-between rounded-2xl border px-4 py-3 text-left transition-colors",
+                  !activeCategory
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "border-border bg-card text-foreground hover:bg-muted/50"
+                )}
+              >
+                <span className="text-sm font-semibold">Semua Kategori</span>
+                {!activeCategory && <HugeiconsIcon icon={Tick02Icon} size={18} />}
+              </button>
+
+              {categories.map((category) => {
+                const isActive = activeCategory === category.id
+
+                return (
+                  <button
+                    key={category.id}
+                    type="button"
+                    onClick={() => {
+                      setActiveCategory(category.id)
+                      setIsCategoryOpen(false)
+                    }}
+                    className={cn(
+                      "flex items-center justify-between rounded-2xl border px-4 py-3 text-left transition-colors",
+                      isActive
+                        ? "border-primary/30 bg-primary/10 text-primary"
+                        : "border-border bg-card text-foreground hover:bg-muted/50"
+                    )}
+                  >
+                    <span className="truncate text-sm font-semibold">{category.name}</span>
+                    {isActive && <HugeiconsIcon icon={Tick02Icon} size={18} />}
+                  </button>
+                )
+              })}
+            </div>
+          </div>
+        </DrawerContent>
+      </Drawer>
+
+      <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
+        <SheetContent side="bottom" className="max-h-[80vh] rounded-t-3xl border-t p-0" showCloseButton={false}>
+          <SheetHeader className="px-4 py-4 text-left">
+            <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-muted-foreground/25" />
+            <SheetTitle>Filter & Urutkan</SheetTitle>
+          </SheetHeader>
+
+          <div className="grid max-h-[56vh] gap-5 overflow-y-auto px-4 pb-2">
+            <div className="grid gap-2">
+              <p className="px-1 text-xs font-semibold text-muted-foreground">Status</p>
+              <div className="grid grid-cols-2 gap-2">
+                {statusOptions.map((status) => (
+                  <button
+                    key={status}
+                    type="button"
+                    onClick={() => setActiveStatus(status)}
+                    className={cn(
+                      "h-10 rounded-xl px-3 text-sm font-medium transition-colors",
+                      activeStatus === status ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"
+                    )}
+                  >
+                    {status}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="grid gap-2">
+              <p className="px-1 text-xs font-semibold text-muted-foreground">Urutkan</p>
+              <div className="grid grid-cols-2 gap-2">
+                {sortOptions.map((sort) => (
+                  <button
+                    key={sort}
+                    type="button"
+                    onClick={() => setActiveSort(sort)}
+                    className={cn(
+                      "h-10 rounded-xl px-3 text-sm font-medium transition-colors",
+                      activeSort === sort ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"
+                    )}
+                  >
+                    {sort}
+                  </button>
+                ))}
+              </div>
+            </div>
+          </div>
+
+          <SheetFooter className="grid grid-cols-2 gap-2 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))]">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => {
+                setActiveStatus("Semua Status")
+                setActiveSort("Terbaru")
+              }}
+            >
+              Reset
+            </Button>
+            <SheetClose asChild>
+              <Button>Selesai</Button>
+            </SheetClose>
+          </SheetFooter>
+        </SheetContent>
+      </Sheet>
 
       <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
         {filtered.map((product) => {

@@ -112,8 +112,8 @@ export function LaporanStokContent() {
                   <SheetHeader className="text-left px-4 pt-4 pb-2 shrink-0">
                     <SheetTitle>Filter Laporan Stok</SheetTitle>
                   </SheetHeader>
-                  <div className="flex-1 overflow-y-auto px-4 py-2">
-                    <div className="flex flex-col gap-5">
+                  <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2">
+                    <div className="flex flex-col gap-6 pb-2">
                       <MobileFilterGroup label="Kategori">
                         <MobileFilterOption
                           active={categoryId === "all"}
@@ -336,7 +336,7 @@ function MobileFilterGroup({
   return (
     <div>
       <p className="mb-2 px-1 text-xs font-bold text-muted-foreground">{label}</p>
-      <div className="flex max-h-56 flex-col gap-2 overflow-y-auto pr-1">{children}</div>
+      <div className="flex flex-col gap-2.5">{children}</div>
     </div>
   )
 }
@@ -354,7 +354,7 @@ function MobileFilterOption({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center justify-between rounded-2xl border p-3 text-left text-sm transition active:scale-[0.99] ${
+      className={`flex min-h-11 items-center justify-between gap-3 rounded-2xl border px-4 py-2.5 text-left text-sm transition active:scale-[0.99] ${
         active ? "border-primary bg-primary/5 font-bold text-primary" : "border-border bg-card"
       }`}
     >

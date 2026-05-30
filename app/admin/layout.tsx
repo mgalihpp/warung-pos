@@ -18,7 +18,7 @@ export default async function AdminLayout({
     <TooltipProvider>
       <SidebarProvider defaultOpen={defaultOpen}>
         <AppSidebar />
-        <SidebarInset className="min-w-0">
+        <SidebarInset className="min-w-0 max-lg:h-[100dvh] max-lg:overflow-hidden">
           <AdminLayoutClient>
             <div className="hidden lg:block">
               <DashboardHeader />

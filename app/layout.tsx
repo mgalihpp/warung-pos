@@ -4,6 +4,7 @@ import { extractRouterConfig } from "uploadthing/server"
 
 import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
+import { RippleProvider } from "@/components/ui/ripple-provider"
 import { Toaster } from "@/components/ui/sonner"
 import { cn } from "@/lib/utils";
 import type { Metadata, Viewport } from "next"
@@ -53,6 +54,7 @@ export default function RootLayout({
       <body>
         <NextSSRPlugin routerConfig={extractRouterConfig(uploadRouter)} />
         <ThemeProvider>
+          <RippleProvider />
           {children}
           <Toaster richColors position="top-center" />
         </ThemeProvider>

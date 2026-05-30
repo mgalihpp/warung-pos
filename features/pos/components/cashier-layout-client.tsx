@@ -166,7 +166,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
         <div className="flex items-center justify-between">
           <button
             onClick={handleMobileHeaderAction}
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
           >
             <HugeiconsIcon icon={showBackArrow ? ArrowLeft01Icon : Menu01Icon} size={20} />
           </button>

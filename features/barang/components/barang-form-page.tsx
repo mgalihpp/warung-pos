@@ -15,6 +15,7 @@ import {
   useCreateProduct,
   useUpdateProduct,
   useDeleteProduct,
+  useAdjustStock,
 } from "../hooks/use-barang-actions"
 import { CategoryCombobox, UnitCombobox } from "./barang-header"
 import { ImageUpload } from "./barang-image-upload"
@@ -102,8 +103,10 @@ export function BarangFormPage(props: BarangFormPageProps) {
   const createMutation = useCreateProduct()
   const updateMutation = useUpdateProduct()
   const deleteMutation = useDeleteProduct()
+  const adjustStockMutation = useAdjustStock()
   const mutation = mode === "create" ? createMutation : updateMutation
   const errors = mutation.data?.success === false ? (mutation.data.errors ?? null) : null
+  const isPending = mutation.isPending || adjustStockMutation.isPending
 
   const [imageUrl, setImageUrl] = React.useState<string | null>(
     product?.image ?? null
@@ -117,7 +120,6 @@ export function BarangFormPage(props: BarangFormPageProps) {
       name: String(fd.get("name") ?? "").trim(),
       categoryName: String(fd.get("categoryName") ?? "").trim(),
       unit: String(fd.get("unit") ?? "").trim(),
-      stock: Number(fd.get("stock") ?? 0),
       minStock: Number(fd.get("minStock") ?? 0),
       buyPrice: Number(fd.get("buyPrice") ?? 0),
       sellPrice: Number(fd.get("sellPrice") ?? 0),
@@ -125,8 +127,29 @@ export function BarangFormPage(props: BarangFormPageProps) {
       isActive: fd.get("isActive") as string,
       image: imageUrl,
     }
+    if (mode === "create") data.stock = Number(fd.get("stock") ?? 0)
     if (product) data.id = product.id
     return data as Record<string, unknown> & { id?: string }
+  }
+
+  function collectStockAdjustment() {
+    if (mode !== "edit" || !product) return null
+
+    const fd = new FormData(formRef.current!)
+    const rawQuantity = String(fd.get("stockAdjustmentQuantity") ?? "").trim()
+    if (!rawQuantity) return null
+
+    const adjustmentMode = String(fd.get("stockAdjustmentMode") ?? "add")
+    const quantity = Number(rawQuantity)
+    if (!Number.isFinite(quantity) || quantity < 0) return null
+    if (adjustmentMode === "add" && quantity === 0) return null
+
+    return {
+      productId: product.id,
+      mode: adjustmentMode,
+      quantity,
+      reason: String(fd.get("stockAdjustmentReason") ?? "").trim() || undefined,
+    }
   }
 
   function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
@@ -136,19 +159,33 @@ export function BarangFormPage(props: BarangFormPageProps) {
     if (mode === "create") {
       createMutation.mutate(data, {
         onSuccess: (result) => {
-            if (result.success) {
-              toast.success("Barang berhasil ditambahkan")
+          if (result.success) {
+            toast.success("Barang berhasil ditambahkan")
             router.push("/admin/barang")
           }
         },
       })
     } else {
+      const stockAdjustment = collectStockAdjustment()
+
       updateMutation.mutate(data as Record<string, unknown> & { id: string }, {
         onSuccess: (result) => {
-          if (result.success) {
-            toast.success("Barang berhasil diperbarui")
-            router.push("/admin/barang")
+          if (!result.success) return
+
+          if (stockAdjustment) {
+            adjustStockMutation.mutate(stockAdjustment, {
+              onSuccess: (adjustResult) => {
+                if (adjustResult.success) {
+                  toast.success("Barang dan stok berhasil diperbarui")
+                  router.push("/admin/barang")
+                }
+              },
+            })
+            return
           }
+
+          toast.success("Barang berhasil diperbarui")
+          router.push("/admin/barang")
         },
       })
     }
@@ -205,10 +242,10 @@ export function BarangFormPage(props: BarangFormPageProps) {
             type="submit"
             form="barang-form"
             className="gap-2"
-            disabled={mutation.isPending}
+            disabled={isPending}
           >
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
-            {mutation.isPending
+            {isPending
               ? "Menyimpan..."
               : mode === "create"
                 ? "Simpan Barang"
@@ -324,20 +361,18 @@ export function BarangFormPage(props: BarangFormPageProps) {
                 </div>
               </Field>
 
-              <Field
-                label={mode === "create" ? "Stok Awal" : "Stok Saat Ini"}
-                required
-                error={errors?.stock}
-              >
-                <Input
-                  name="stock"
-                  type="number"
-                  min="0"
-                  required
-                  defaultValue={product?.stock ?? 0}
-                  className="bg-input/30"
-                />
-              </Field>
+              {mode === "create" ? (
+                <Field label="Stok Awal" required error={errors?.stock}>
+                  <Input
+                    name="stock"
+                    type="number"
+                    min="0"
+                    required
+                    defaultValue={0}
+                    className="bg-input/30"
+                  />
+                </Field>
+              ) : null}
 
               <Field label="Stok Minimum" required error={errors?.minStock}>
                 <Input
@@ -349,6 +384,59 @@ export function BarangFormPage(props: BarangFormPageProps) {
                   className="bg-input/30"
                 />
               </Field>
+
+              {mode === "edit" && (
+                <div className="sm:col-span-2 lg:col-span-3">
+                  <div className="rounded-xl bg-muted/25 p-4">
+                    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                      <div>
+                        <p className="text-sm font-semibold text-foreground">Penyesuaian Stok</p>
+                        <p className="text-xs font-normal text-muted-foreground">
+                          Opsional. Kosongkan jumlah kalau stok tidak berubah.
+                        </p>
+                      </div>
+                      <p className="text-xs font-medium text-muted-foreground">
+                        Stok saat ini:{" "}
+                        <span className="font-bold text-primary">
+                          {product?.stock ?? 0} {product?.unit}
+                        </span>
+                      </p>
+                    </div>
+
+                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.5fr]">
+                      <Field label="Jenis Penyesuaian">
+                        <Select name="stockAdjustmentMode" defaultValue="add">
+                          <SelectTrigger className="w-full bg-background">
+                            <SelectValue placeholder="Pilih aksi" />
+                          </SelectTrigger>
+                          <SelectContent>
+                            <SelectItem value="add">Stok Masuk (+)</SelectItem>
+                            <SelectItem value="set">Ubah Total Stok (=)</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </Field>
+
+                      <Field label="Jumlah">
+                        <Input
+                          name="stockAdjustmentQuantity"
+                          type="number"
+                          min="0"
+                          placeholder="Contoh: 12"
+                          className="bg-background"
+                        />
+                      </Field>
+
+                      <Field label="Keterangan">
+                        <Input
+                          name="stockAdjustmentReason"
+                          placeholder="Contoh: Restok dari supplier"
+                          className="bg-background"
+                        />
+                      </Field>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
 
@@ -366,16 +454,16 @@ export function BarangFormPage(props: BarangFormPageProps) {
       </div>
 
       {/* Bottom Bar for Mobile/Tablet */}
-      <div className="lg:hidden">
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
+      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
+        <div className="mx-auto max-w-md">
           <Button
             type="button"
-            className="h-12 w-full rounded-2xl gap-2"
+            className="h-12 w-full rounded-xl gap-2"
             onClick={() => formRef.current?.requestSubmit()}
-            disabled={mutation.isPending}
+            disabled={isPending}
           >
             <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-            {mutation.isPending
+            {isPending
               ? "Menyimpan..."
               : mode === "create"
                 ? "Simpan Barang"

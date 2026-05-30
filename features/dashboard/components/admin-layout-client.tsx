@@ -203,7 +203,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           <button
             type="button"
             onClick={handleMobileHeaderAction}
-            className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+            className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
           >
             <HugeiconsIcon
                 icon={(pathname.startsWith("/admin/barang") && pathname !== "/admin/barang") || pathname.startsWith("/admin/kategori") || (isTransaksiPage && isTransaksiDetail) || isTransaksiDetailPage || isTransaksiEdit || isPengaturanDetail || isPengaturanSubPage || isPosSubStep ? ArrowLeft01Icon : Menu01Icon}
@@ -222,7 +222,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("barang-delete-request"))}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
               aria-label="Hapus barang"
             >
               <HugeiconsIcon icon={Delete02Icon} size={20} />
@@ -231,7 +231,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             <button
               type="button"
               onClick={() => window.dispatchEvent(new Event("transaksi-delete-request"))}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
               aria-label="Hapus transaksi"
             >
               <HugeiconsIcon icon={Delete02Icon} size={20} />
@@ -239,7 +239,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           ) : isBarangList ? (
             <Link
               href="/admin/barang/tambah"
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
               aria-label="Tambah barang"
             >
               <HugeiconsIcon icon={PlusSignIcon} size={20} />
@@ -247,7 +247,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
           ) : isKategoriPage ? (
             <Link
               href="/admin/kategori/tambah"
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg border border-primary-foreground/20 bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
+              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
               aria-label="Tambah kategori"
             >
               <HugeiconsIcon icon={PlusSignIcon} size={20} />
