@@ -3,35 +3,9 @@ import { z } from "zod"
 
 import { requireAdmin, requireCashierOrAdmin } from "@/lib/server/auth-guards"
 import { prisma } from "@/lib/prisma"
+import { getTransaksiDetailData } from "@/features/transaksi/server-data"
 
 type RouteParams = { params: Promise<{ id: string }> }
-
-// Map Prisma enum → UI label
-function mapStatus(status: string) {
-  switch (status) {
-    case "COMPLETED":
-      return "Selesai"
-    case "PENDING":
-      return "Pending"
-    case "CANCELLED":
-      return "Dibatalkan"
-    default:
-      return status
-  }
-}
-
-function mapPaymentMethod(method: string) {
-  switch (method) {
-    case "CASH":
-      return "Tunai"
-    case "QRIS_MANUAL":
-      return "QRIS"
-    case "MANUAL_TRANSFER":
-      return "Transfer"
-    default:
-      return method
-  }
-}
 
 // ── GET — Detail transaksi ──
 
@@ -43,30 +17,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
 
   const { id } = await params
 
-  const transaction = await prisma.transaction.findUnique({
-    where: { id },
-    include: {
-      items: {
-        select: {
-          id: true,
-          productId: true,
-          productName: true,
-          unitPrice: true,
-          costPrice: true,
-          quantity: true,
-          subtotal: true,
-          grossProfit: true,
-          product: {
-            select: { image: true },
-          },
-        },
-        orderBy: { createdAt: "asc" },
-      },
-      cashier: {
-        select: { image: true },
-      },
-    },
-  })
+  const transaction = await getTransaksiDetailData(id)
 
   if (!transaction) {
     return NextResponse.json(
@@ -75,41 +26,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
     )
   }
 
-  const dateFormatter = new Intl.DateTimeFormat("id-ID", {
-    weekday: "long",
-    day: "numeric",
-    month: "long",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-    hour12: false,
-    timeZone: "Asia/Jakarta",
-  })
-
-  return NextResponse.json({
-    id: transaction.id,
-    transactionNumber: transaction.transactionNumber,
-    waktu: dateFormatter.format(transaction.createdAt),
-    kasir: transaction.cashierName,
-    kasirImage: transaction.cashier?.image ?? null,
-    metode: mapPaymentMethod(transaction.paymentMethod),
-    status: mapStatus(transaction.status),
-    subtotal: transaction.subtotal,
-    total: transaction.total,
-    amountPaid: transaction.amountPaid,
-    change: transaction.change,
-    notes: transaction.notes,
-    items: transaction.items.map((item) => ({
-      id: item.id,
-      productId: item.productId,
-      productName: item.productName,
-      productImage: item.product?.image ?? null,
-      unitPrice: item.unitPrice,
-      quantity: item.quantity,
-      subtotal: item.subtotal,
-      grossProfit: item.grossProfit,
-    })),
-  })
+  return NextResponse.json(transaction)
 }
 
 // ── PATCH — Update status transaksi ──

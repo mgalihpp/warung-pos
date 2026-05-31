@@ -1,43 +1,22 @@
-"use client"
+import { redirect } from "next/navigation"
 
-import { useProducts } from "@/features/barang/hooks/use-barang-queries"
-import { BarangFormPage } from "@/features/barang/components/barang-form-page"
-import { BarangMobileFormSkeleton } from "@/features/barang/components/barang-mobile-skeletons"
+import { getBarangPageData } from "@/features/barang/server-data"
+import { getSessionUser } from "@/lib/server/auth-guards"
 
-export default function TambahBarangPage() {
-  const { data, isLoading } = useProducts()
+import { TambahBarangPageClient } from "./page-client"
 
-  if (isLoading || !data) {
-    return <BarangFormPageSkeleton />
+export default async function TambahBarangPage() {
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect("/login")
   }
 
-  return <BarangFormPage mode="create" categories={data.categories} units={data.units} stats={data.stats} />
-}
+  if (user.role !== "admin") {
+    redirect("/unauthorized")
+  }
 
-function BarangFormPageSkeleton() {
-  return (
-    <>
-      <BarangMobileFormSkeleton />
-      <div className="hidden lg:flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      <div className="space-y-2">
-        <div className="h-8 w-48 animate-pulse rounded-lg bg-muted" />
-        <div className="h-4 w-72 animate-pulse rounded-lg bg-muted" />
-      </div>
-      <div className="flex gap-4">
-        {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="h-20 flex-1 animate-pulse rounded-xl bg-muted" />
-        ))}
-      </div>
-      <div className="flex flex-col gap-6 xl:flex-row">
-        <div className="flex-1 space-y-6">
-          <div className="h-64 animate-pulse rounded-xl bg-muted" />
-          <div className="h-48 animate-pulse rounded-xl bg-muted" />
-        </div>
-        <div className="w-full xl:w-[340px]">
-          <div className="h-96 animate-pulse rounded-xl bg-muted" />
-        </div>
-      </div>
-      </div>
-    </>
-  )
+  const data = await getBarangPageData()
+
+  return <TambahBarangPageClient initialData={data} />
 }

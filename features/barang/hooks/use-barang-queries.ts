@@ -26,9 +26,10 @@ async function fetchBarangData(): Promise<BarangPageData> {
   return res.json()
 }
 
-export function useProducts() {
+export function useProducts(initialData?: BarangPageData) {
   return useQuery({
     queryKey: ["barang"],
     queryFn: fetchBarangData,
+    initialData,
   })
 }

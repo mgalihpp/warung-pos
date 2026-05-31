@@ -121,8 +121,8 @@ async function fetchStok(): Promise<StokData> {
   return res.json()
 }
 
-export function useLaporanStok() {
-  return useQuery({ queryKey: ["laporan", "stok"], queryFn: fetchStok })
+export function useLaporanStok(initialData?: StokData) {
+  return useQuery({ queryKey: ["laporan", "stok"], queryFn: fetchStok, initialData })
 }
 
 // ── Kas ──

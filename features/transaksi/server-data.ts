@@ -202,3 +202,69 @@ export async function getTransaksiPageData() {
     cashierList: cashiers.map((cashier) => cashier.cashierName),
   }
 }
+
+export async function getTransaksiDetailData(id: string) {
+  const transaction = await prisma.transaction.findUnique({
+    where: { id },
+    include: {
+      items: {
+        select: {
+          id: true,
+          productId: true,
+          productName: true,
+          unitPrice: true,
+          quantity: true,
+          subtotal: true,
+          grossProfit: true,
+          product: {
+            select: { image: true },
+          },
+        },
+        orderBy: { createdAt: "asc" },
+      },
+      cashier: {
+        select: { image: true },
+      },
+    },
+  })
+
+  if (!transaction) {
+    return null
+  }
+
+  const dateFormatter = new Intl.DateTimeFormat("id-ID", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+    timeZone: "Asia/Jakarta",
+  })
+
+  return {
+    id: transaction.id,
+    transactionNumber: transaction.transactionNumber,
+    waktu: dateFormatter.format(transaction.createdAt),
+    kasir: transaction.cashierName,
+    kasirImage: transaction.cashier?.image ?? null,
+    metode: mapPaymentMethod(transaction.paymentMethod),
+    status: mapStatus(transaction.status),
+    subtotal: transaction.subtotal,
+    total: transaction.total,
+    amountPaid: transaction.amountPaid,
+    change: transaction.change,
+    notes: transaction.notes,
+    items: transaction.items.map((item) => ({
+      id: item.id,
+      productId: item.productId,
+      productName: item.productName,
+      productImage: item.product?.image ?? null,
+      unitPrice: item.unitPrice,
+      quantity: item.quantity,
+      subtotal: item.subtotal,
+      grossProfit: item.grossProfit,
+    })),
+  }
+}

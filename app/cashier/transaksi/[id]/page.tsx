@@ -1,23 +1,36 @@
-"use client"
+import { notFound, redirect } from "next/navigation"
 
-import { use, useCallback } from "react"
-import { useRouter } from "next/navigation"
+import { getTransaksiDetailData } from "@/features/transaksi/server-data"
+import { getSessionUser } from "@/lib/server/auth-guards"
 
-import { CashierTransaksiDetailMobile } from "@/features/transaksi/components/cashier-transaksi-detail-mobile"
+import { CashierTransaksiDetailPageClient } from "./page-client"
 
-export default function CashierTransaksiDetailPage({
+export default async function CashierTransaksiDetailPage({
   params,
 }: {
   params: Promise<{ id: string }>
 }) {
-  const { id } = use(params)
-  const router = useRouter()
-  const handleBack = useCallback(() => router.push("/cashier/transaksi"), [router])
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  if (user.role !== "cashier" && user.role !== "admin") {
+    redirect("/unauthorized")
+  }
+
+  const { id } = await params
+  const data = await getTransaksiDetailData(id)
+
+  if (!data) {
+    notFound()
+  }
 
   return (
     <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4 lg:bg-transparent lg:p-6">
       <div className="mx-auto max-w-3xl">
-        <CashierTransaksiDetailMobile transactionId={id} onBack={handleBack} />
+        <CashierTransaksiDetailPageClient transactionId={id} initialData={data} />
       </div>
     </div>
   )

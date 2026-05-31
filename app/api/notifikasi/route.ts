@@ -51,7 +51,7 @@ export async function GET() {
         ? `Stok habis, perlu restok segera.`
         : `Sisa ${product.stock} ${product.unit}, batas minimum ${product.minStock}.`,
     time: formatRelativeTime(product.updatedAt),
-    href: "/admin/barang",
+    href: `/admin/barang/${product.id}/edit`,
     priority: product.stock <= 0 ? 0 : 1,
     createdAt: product.updatedAt.toISOString(),
   }))

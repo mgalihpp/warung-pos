@@ -25,9 +25,10 @@ async function fetchKategoriData(): Promise<KategoriPageData> {
   }
 }
 
-export function useKategori() {
+export function useKategori(initialData?: KategoriPageData) {
   return useQuery({
     queryKey: ["kategori"],
     queryFn: fetchKategoriData,
+    initialData,
   })
 }

@@ -37,8 +37,8 @@ const statusLabel: Record<StatusFilter, string> = {
   OUT: "Habis",
 }
 
-export function LaporanStokContent() {
-  const { data, isLoading, error } = useLaporanStok()
+export function LaporanStokContent({ initialData }: { initialData?: StokData }) {
+  const { data, isLoading, error } = useLaporanStok(initialData)
   const [search, setSearch] = React.useState("")
   const [categoryId, setCategoryId] = React.useState<string>("all")
   const [status, setStatus] = React.useState<StatusFilter>("all")

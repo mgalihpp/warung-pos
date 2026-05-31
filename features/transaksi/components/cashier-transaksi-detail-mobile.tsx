@@ -14,7 +14,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { useTransactionDetail } from "../hooks/use-transaksi-queries"
 import { useDeleteTransaction } from "../hooks/use-transaksi-actions"
-import type { TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
+import type { TransactionStatus, PaymentMethod, TransactionDetail } from "../hooks/use-transaksi-queries"
 import {
   AlertDialog,
   AlertDialogCancel,
@@ -82,12 +82,13 @@ type Props = {
   transactionId: string
   onBack: () => void
   actionBasePath?: string
+  initialData?: TransactionDetail
 }
 
-export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBasePath }: Props) {
+export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBasePath, initialData }: Props) {
   const router = useRouter()
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const { data, isLoading, error } = useTransactionDetail(transactionId)
+  const { data, isLoading, error } = useTransactionDetail(transactionId, initialData)
   const deleteMutation = useDeleteTransaction()
   const [deleteOpen, setDeleteOpen] = React.useState(false)
   const canManage = !!actionBasePath

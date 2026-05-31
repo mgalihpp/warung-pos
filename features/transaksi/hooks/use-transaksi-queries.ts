@@ -103,10 +103,14 @@ async function fetchTransactionDetail(id: string): Promise<TransactionDetail> {
 
 // ── Detail Hook ──
 
-export function useTransactionDetail(id: string | null) {
+export function useTransactionDetail(
+  id: string | null,
+  initialData?: TransactionDetail
+) {
   return useQuery({
     queryKey: ["transaksi", "detail", id],
     queryFn: () => fetchTransactionDetail(id!),
     enabled: !!id,
+    initialData,
   })
 }
