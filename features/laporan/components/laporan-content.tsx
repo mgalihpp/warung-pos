@@ -61,8 +61,14 @@ const RANGE_LABEL: Record<LaporanRange, string> = {
   ytd: "tahun ini",
 }
 
-export function LaporanContent({ initialData }: { initialData?: PenjualanData }) {
-  const [range, setRange] = React.useState<LaporanRange>(initialData?.range ?? "30d")
+export function LaporanContent({
+  initialData,
+}: {
+  initialData?: PenjualanData
+}) {
+  const [range, setRange] = React.useState<LaporanRange>(
+    initialData?.range ?? "30d"
+  )
   const { data, isLoading, error } = useLaporanPenjualan(range, initialData)
 
   return (
@@ -81,7 +87,11 @@ export function LaporanContent({ initialData }: { initialData?: PenjualanData })
       ) : isLoading || !data ? (
         <PenjualanSkeleton />
       ) : (
-        <PenjualanDashboard data={data} range={range} onRangeChange={setRange} />
+        <PenjualanDashboard
+          data={data}
+          range={range}
+          onRangeChange={setRange}
+        />
       )}
     </div>
   )
@@ -101,10 +111,11 @@ function RangeSelector({
           key={opt.value}
           type="button"
           onClick={() => onChange(opt.value)}
-          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${value === opt.value
+          className={`rounded-md px-3 py-1.5 text-xs font-medium transition-colors ${
+            value === opt.value
               ? "bg-primary text-primary-foreground"
               : "text-muted-foreground hover:bg-muted"
-            }`}
+          }`}
         >
           {opt.label}
         </button>
@@ -159,7 +170,11 @@ function PenjualanDashboard({
 
   return (
     <div className="flex flex-col gap-4">
-      <MobileReportHero data={data} range={range} onRangeChange={onRangeChange} />
+      <MobileReportHero
+        data={data}
+        range={range}
+        onRangeChange={onRangeChange}
+      />
 
       <div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-4">
         {stats.map((stat) => (
@@ -199,11 +214,13 @@ function MobileReportHero({
   onRangeChange: (value: LaporanRange) => void
 }) {
   const [open, setOpen] = React.useState(false)
-  const bestDay = [...data.salesTrend].sort((a, b) => b.penjualan - a.penjualan)[0]
+  const bestDay = [...data.salesTrend].sort(
+    (a, b) => b.penjualan - a.penjualan
+  )[0]
 
   return (
     <div className="lg:hidden">
-      <div className="relative overflow-hidden rounded-[28px] bg-primary pb-4 px-4 text-primary-foreground shadow-lg">
+      <div className="relative overflow-hidden rounded-[28px] bg-primary p-4 text-primary-foreground shadow-lg">
         <div className="pointer-events-none absolute -top-16 -right-16 size-36 rounded-full bg-primary-foreground/10" />
         <div className="pointer-events-none absolute right-10 -bottom-20 size-44 rounded-full bg-primary-foreground/10" />
 
@@ -218,8 +235,12 @@ function MobileReportHero({
                   <HugeiconsIcon icon={Calendar02Icon} size={20} />
                 </span>
                 <span>
-                  <span className="block text-[11px] font-medium opacity-80">Periode laporan</span>
-                  <span className="block text-sm font-bold">{RANGE_LABEL[range]}</span>
+                  <span className="block text-[11px] font-medium opacity-80">
+                    Periode laporan
+                  </span>
+                  <span className="block text-sm font-bold">
+                    {RANGE_LABEL[range]}
+                  </span>
                 </span>
               </div>
               <span className="flex size-8 items-center justify-center rounded-full bg-primary-foreground/10">
@@ -241,14 +262,19 @@ function MobileReportHero({
                       onRangeChange(opt.value)
                       setOpen(false)
                     }}
-                    className={`flex items-center justify-between rounded-2xl border p-4 text-left transition active:scale-[0.99] ${range === opt.value
+                    className={`flex items-center justify-between rounded-2xl border p-4 text-left transition active:scale-[0.99] ${
+                      range === opt.value
                         ? "border-primary bg-primary/5 text-primary"
                         : "border-border bg-card"
-                      }`}
+                    }`}
                   >
                     <span>
-                      <span className="block text-base font-bold">{opt.label}</span>
-                      <span className="block text-xs text-muted-foreground">Ringkasan {RANGE_LABEL[opt.value]}</span>
+                      <span className="block text-base font-bold">
+                        {opt.label}
+                      </span>
+                      <span className="block text-xs text-muted-foreground">
+                        Ringkasan {RANGE_LABEL[opt.value]}
+                      </span>
                     </span>
                     {range === opt.value ? (
                       <HugeiconsIcon icon={TickDouble01Icon} size={20} />
@@ -261,8 +287,10 @@ function MobileReportHero({
         </Drawer>
 
         <div className="relative mt-5">
-          <p className="text-[11px] font-medium uppercase tracking-[0.18em] opacity-75">Total penjualan</p>
-          <p className="mt-1 break-words text-3xl font-black tracking-tight min-[420px]:text-4xl">
+          <p className="text-[11px] font-medium tracking-[0.18em] uppercase opacity-75">
+            Total penjualan
+          </p>
+          <p className="mt-1 text-3xl font-black tracking-tight break-words min-[420px]:text-4xl">
             {formatRupiah(data.stats.penjualan.value)}
           </p>
         </div>
@@ -270,13 +298,15 @@ function MobileReportHero({
         <div className="relative mt-5 grid grid-cols-2 gap-3 border-t border-primary-foreground/20 pt-4">
           <div>
             <p className="text-[10px] font-medium opacity-75">Laba kotor</p>
-            <p className="mt-1 break-words text-sm font-bold min-[420px]:text-base">
+            <p className="mt-1 text-sm font-bold break-words min-[420px]:text-base">
               {formatRupiah(data.stats.labaKotor.value)}
             </p>
           </div>
           <div className="border-l border-primary-foreground/20 pl-3">
             <p className="text-[10px] font-medium opacity-75">Transaksi</p>
-            <p className="mt-1 text-2xl font-black">{formatNumber(data.stats.totalTransaksi.value)}</p>
+            <p className="mt-1 text-2xl font-black">
+              {formatNumber(data.stats.totalTransaksi.value)}
+            </p>
           </div>
         </div>
 
@@ -315,7 +345,7 @@ function StatCard({
       </div>
       <div className="min-w-0 flex-1">
         <p className="text-[11px] font-medium text-muted-foreground">{title}</p>
-        <p className="break-words text-base font-bold tracking-tight lg:truncate lg:text-lg">
+        <p className="text-base font-bold tracking-tight break-words lg:truncate lg:text-lg">
           {value}
         </p>
         <p className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
@@ -347,11 +377,7 @@ const salesChartConfig = {
   laba: { label: "Laba", color: "var(--color-chart-2)" },
 } satisfies ChartConfig
 
-function SalesTrendCard({
-  data,
-}: {
-  data: PenjualanData["salesTrend"]
-}) {
+function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
   const total = data.reduce((s, d) => s + d.penjualan, 0)
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -370,19 +396,44 @@ function SalesTrendCard({
       {data.length === 0 ? (
         <EmptyState message="Belum ada transaksi pada periode ini" />
       ) : (
-        <ChartContainer config={salesChartConfig} className="h-[220px] w-full sm:h-[260px]">
+        <ChartContainer
+          config={salesChartConfig}
+          className="h-[220px] w-full sm:h-[260px]"
+        >
           <AreaChart
             data={data}
             margin={{ left: 2, right: 8, top: 8, bottom: 0 }}
           >
             <defs>
-              <linearGradient id="penjualanGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-chart-4)" stopOpacity={0.28} />
-                <stop offset="95%" stopColor="var(--color-chart-4)" stopOpacity={0.02} />
+              <linearGradient
+                id="penjualanGradient"
+                x1="0"
+                y1="0"
+                x2="0"
+                y2="1"
+              >
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-4)"
+                  stopOpacity={0.28}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-4)"
+                  stopOpacity={0.02}
+                />
               </linearGradient>
               <linearGradient id="labaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor="var(--color-chart-2)" stopOpacity={0.28} />
-                <stop offset="95%" stopColor="var(--color-chart-2)" stopOpacity={0.02} />
+                <stop
+                  offset="5%"
+                  stopColor="var(--color-chart-2)"
+                  stopOpacity={0.28}
+                />
+                <stop
+                  offset="95%"
+                  stopColor="var(--color-chart-2)"
+                  stopOpacity={0.02}
+                />
               </linearGradient>
             </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -428,13 +479,9 @@ function SalesTrendCard({
   )
 }
 
-function CategoryCard({
-  data,
-}: {
-  data: PenjualanData["categoryBreakdown"]
-}) {
+function CategoryCard({ data }: { data: PenjualanData["categoryBreakdown"] }) {
   const config: ChartConfig = Object.fromEntries(
-    data.map((d) => [d.name, { label: d.name, color: d.fill }]),
+    data.map((d) => [d.name, { label: d.name, color: d.fill }])
   )
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -443,7 +490,10 @@ function CategoryCard({
         <EmptyState message="Belum ada data kategori" />
       ) : (
         <div className="grid items-center gap-3 sm:grid-cols-[180px_1fr] xl:grid-cols-1 2xl:grid-cols-[170px_1fr]">
-          <ChartContainer config={config} className="mx-auto aspect-square h-[180px]">
+          <ChartContainer
+            config={config}
+            className="mx-auto aspect-square h-[180px]"
+          >
             <PieChart>
               <ChartTooltip content={<ChartTooltipContent />} />
               <Pie
@@ -499,7 +549,9 @@ function CategoryCard({
                   className="size-2.5 rounded-full"
                   style={{ backgroundColor: item.fill }}
                 />
-                <span className="truncate text-muted-foreground">{item.name}</span>
+                <span className="truncate text-muted-foreground">
+                  {item.name}
+                </span>
                 <span className="ml-auto font-bold">{item.pct}%</span>
               </div>
             ))}
@@ -545,7 +597,9 @@ function PaymentMethodCard({
                 className="grid grid-cols-[72px_minmax(0,1fr)_36px] items-center gap-3 text-xs"
               >
                 <div className="flex items-center gap-2 font-semibold">
-                  <span className={`size-2.5 rounded-full ${colorMap[p.name]}`} />
+                  <span
+                    className={`size-2.5 rounded-full ${colorMap[p.name]}`}
+                  />
                   <span>{p.name}</span>
                 </div>
                 <span className="truncate text-right font-semibold">
@@ -575,15 +629,20 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
           <h2 className="text-sm font-semibold">Ringkasan Penjualan Harian</h2>
           <p className="mt-1 flex items-center gap-1.5 text-xs text-muted-foreground">
             <HugeiconsIcon icon={Clock01Icon} size={14} />
-            {rows.length > 0 ? `${rows.length} hari tercatat` : "Tidak ada data"}
+            {rows.length > 0
+              ? `${rows.length} hari tercatat`
+              : "Tidak ada data"}
           </p>
         </div>
-        <div className="flex items-center rounded-xl border bg-background p-1 w-fit ml-auto sm:ml-0">
+        <div className="ml-auto flex w-fit items-center rounded-xl border bg-background p-1 sm:ml-0">
           <button
             type="button"
             onClick={() => setView("table")}
-            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${view === "table" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-              }`}
+            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${
+              view === "table"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
             title="Tabel"
             aria-label="Tabel"
           >
@@ -592,8 +651,11 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
           <button
             type="button"
             onClick={() => setView("calendar")}
-            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${view === "calendar" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:bg-muted"
-              }`}
+            className={`inline-flex size-8 items-center justify-center rounded-lg transition-colors ${
+              view === "calendar"
+                ? "bg-primary text-primary-foreground"
+                : "text-muted-foreground hover:bg-muted"
+            }`}
             title="Kalender"
             aria-label="Kalender"
           >
@@ -611,7 +673,11 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
   )
 }
 
-function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }) {
+function DailySummaryTableView({
+  rows,
+}: {
+  rows: PenjualanData["dailySummary"]
+}) {
   const totalTransaksi = rows.reduce((sum, r) => sum + r.transaksi, 0)
   const totalPenjualan = rows.reduce((sum, r) => sum + r.penjualan, 0)
   const totalLaba = rows.reduce((sum, r) => sum + r.laba, 0)
@@ -627,35 +693,55 @@ function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }
               <th className="px-4 py-3 text-center font-semibold">Transaksi</th>
               <th className="px-4 py-3 text-right font-semibold">Penjualan</th>
               <th className="px-4 py-3 text-right font-semibold">Laba Kotor</th>
-              <th className="px-4 py-3 text-right font-semibold">Rata-rata Belanja</th>
+              <th className="px-4 py-3 text-right font-semibold">
+                Rata-rata Belanja
+              </th>
             </tr>
           </thead>
           <tbody>
             {rows.length === 0 ? (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-muted-foreground">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-muted-foreground"
+                >
                   Belum ada data penjualan
                 </td>
               </tr>
             ) : (
               <>
                 {rows.map((row) => (
-                  <tr key={row.dateKey} className="border-t transition-colors hover:bg-muted/30">
+                  <tr
+                    key={row.dateKey}
+                    className="border-t transition-colors hover:bg-muted/30"
+                  >
                     <td className="px-4 py-2.5 font-medium">{row.date}</td>
                     <td className="px-4 py-2.5 text-center">{row.transaksi}</td>
-                    <td className="px-4 py-2.5 text-right font-medium">{formatRupiah(row.penjualan)}</td>
-                    <td className="px-4 py-2.5 text-right">{formatRupiah(row.laba)}</td>
-                    <td className="px-4 py-2.5 text-right">{formatRupiah(row.rataBelanja)}</td>
+                    <td className="px-4 py-2.5 text-right font-medium">
+                      {formatRupiah(row.penjualan)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      {formatRupiah(row.laba)}
+                    </td>
+                    <td className="px-4 py-2.5 text-right">
+                      {formatRupiah(row.rataBelanja)}
+                    </td>
                   </tr>
                 ))}
                 <tr className="border-t-2 border-border bg-muted/40 font-bold">
                   <td className="px-4 py-3">Total Semua</td>
                   <td className="px-4 py-3 text-center">{totalTransaksi}</td>
-                  <td className="px-4 py-3 text-right text-primary">{formatRupiah(totalPenjualan)}</td>
-                  <td className={`px-4 py-3 text-right ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}>
+                  <td className="px-4 py-3 text-right text-primary">
+                    {formatRupiah(totalPenjualan)}
+                  </td>
+                  <td
+                    className={`px-4 py-3 text-right ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}
+                  >
                     {formatRupiah(totalLaba)}
                   </td>
-                  <td className="px-4 py-3 text-right">{formatRupiah(rataBelanja)}</td>
+                  <td className="px-4 py-3 text-right">
+                    {formatRupiah(rataBelanja)}
+                  </td>
                 </tr>
               </>
             )}
@@ -665,18 +751,29 @@ function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }
 
       <div className="flex flex-col gap-2 p-4 pt-0 lg:hidden">
         {rows.length === 0 ? (
-          <div className="py-6 text-center text-xs text-muted-foreground">Belum ada data penjualan</div>
+          <div className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada data penjualan
+          </div>
         ) : (
           <>
             {rows.map((row) => (
-              <div key={row.dateKey} className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5">
+              <div
+                key={row.dateKey}
+                className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5"
+              >
                 <div className="min-w-0 flex-1">
                   <p className="text-xs font-semibold">{row.date}</p>
-                  <p className="text-[11px] text-muted-foreground">{row.transaksi} transaksi</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    {row.transaksi} transaksi
+                  </p>
                 </div>
                 <div className="text-right">
-                  <p className="text-xs font-bold">{formatRupiah(row.penjualan)}</p>
-                  <p className="text-[10px] text-muted-foreground">Laba {formatRupiah(row.laba)}</p>
+                  <p className="text-xs font-bold">
+                    {formatRupiah(row.penjualan)}
+                  </p>
+                  <p className="text-[10px] text-muted-foreground">
+                    Laba {formatRupiah(row.laba)}
+                  </p>
                 </div>
               </div>
             ))}
@@ -685,20 +782,34 @@ function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }
               <p className="text-xs font-bold text-foreground">Total Semua</p>
               <div className="grid grid-cols-2 gap-2 text-xs">
                 <div>
-                  <span className="block text-[10px] text-muted-foreground">Transaksi</span>
+                  <span className="block text-[10px] text-muted-foreground">
+                    Transaksi
+                  </span>
                   <span className="font-semibold">{totalTransaksi}</span>
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] text-muted-foreground">Rata-rata Belanja</span>
-                  <span className="font-semibold">{formatRupiah(rataBelanja)}</span>
+                  <span className="block text-[10px] text-muted-foreground">
+                    Rata-rata Belanja
+                  </span>
+                  <span className="font-semibold">
+                    {formatRupiah(rataBelanja)}
+                  </span>
                 </div>
                 <div>
-                  <span className="block text-[10px] text-muted-foreground">Penjualan</span>
-                  <span className="font-bold text-primary">{formatRupiah(totalPenjualan)}</span>
+                  <span className="block text-[10px] text-muted-foreground">
+                    Penjualan
+                  </span>
+                  <span className="font-bold text-primary">
+                    {formatRupiah(totalPenjualan)}
+                  </span>
                 </div>
                 <div className="text-right">
-                  <span className="block text-[10px] text-muted-foreground">Total Laba</span>
-                  <span className={`font-bold ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}>
+                  <span className="block text-[10px] text-muted-foreground">
+                    Total Laba
+                  </span>
+                  <span
+                    className={`font-bold ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}
+                  >
                     {formatRupiah(totalLaba)}
                   </span>
                 </div>
@@ -711,18 +822,31 @@ function DailySummaryTableView({ rows }: { rows: PenjualanData["dailySummary"] }
   )
 }
 
-function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] }) {
+function DailySummaryCalendar({
+  rows,
+}: {
+  rows: PenjualanData["dailySummary"]
+}) {
   const rowMap = new Map(rows.map((row) => [row.dateKey, row]))
   const months = buildCalendarMonths(rows)
-  const [monthIndex, setMonthIndex] = React.useState(() => Math.max(0, months.length - 1))
-  const effectiveMonthIndex = Math.min(monthIndex, Math.max(0, months.length - 1))
+  const [monthIndex, setMonthIndex] = React.useState(() =>
+    Math.max(0, months.length - 1)
+  )
+  const effectiveMonthIndex = Math.min(
+    monthIndex,
+    Math.max(0, months.length - 1)
+  )
   const currentMonth = months[effectiveMonthIndex]
   const monthRows = currentMonth
     ? rows.filter((row) => row.dateKey.startsWith(currentMonth.key))
     : []
 
   if (rows.length === 0) {
-    return <div className="p-8 text-center text-xs text-muted-foreground">Belum ada data penjualan</div>
+    return (
+      <div className="p-8 text-center text-xs text-muted-foreground">
+        Belum ada data penjualan
+      </div>
+    )
   }
 
   if (!currentMonth) return null
@@ -733,7 +857,7 @@ function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] })
 
   return (
     <div className="p-2 sm:p-4">
-      <div className="rounded-[22px] bg-background p-2.5 sm:p-4 shadow-sm">
+      <div className="rounded-[22px] bg-background p-2.5 shadow-sm sm:p-4">
         {/* Sleek Monthly Laba Header */}
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap items-center gap-2">
@@ -744,50 +868,64 @@ function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] })
                   setMonthIndex((index) => Math.max(0, index - 1))
                 }}
                 disabled={!canGoPrev}
-                className="flex size-7 shrink-0 items-center justify-center rounded-lg border bg-card text-sm font-bold disabled:opacity-35 hover:bg-muted transition cursor-pointer"
+                className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border bg-card text-sm font-bold transition hover:bg-muted disabled:opacity-35"
                 aria-label="Bulan sebelumnya"
               >
                 ‹
               </button>
-              <span className="text-xs sm:text-sm font-semibold px-1 min-w-[70px] sm:min-w-[90px] text-center truncate">
+              <span className="min-w-[70px] truncate px-1 text-center text-xs font-semibold sm:min-w-[90px] sm:text-sm">
                 {currentMonth.label}
               </span>
               <button
                 type="button"
                 onClick={() => {
-                  setMonthIndex((index) => Math.min(months.length - 1, index + 1))
+                  setMonthIndex((index) =>
+                    Math.min(months.length - 1, index + 1)
+                  )
                 }}
                 disabled={!canGoNext}
-                className="flex size-7 shrink-0 items-center justify-center rounded-lg border bg-card text-sm font-bold disabled:opacity-35 hover:bg-muted transition cursor-pointer"
+                className="flex size-7 shrink-0 cursor-pointer items-center justify-center rounded-lg border bg-card text-sm font-bold transition hover:bg-muted disabled:opacity-35"
                 aria-label="Bulan berikutnya"
               >
                 ›
               </button>
             </div>
-            <div className="hidden sm:block text-[11px] font-semibold text-muted-foreground bg-muted px-2 py-0.5 rounded-full">
+            <div className="hidden rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground sm:block">
               {currentMonth.activeDays} hari aktif
             </div>
           </div>
 
           <div className="text-left sm:text-right">
-            <span className="block text-[8px] sm:text-[9px] font-semibold uppercase tracking-wider text-muted-foreground">Laba Bulanan</span>
-            <span className={`text-sm sm:text-base font-bold tracking-tight ${monthlyLaba > 0 ? "text-emerald-500" : monthlyLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}>
+            <span className="block text-[8px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[9px]">
+              Laba Bulanan
+            </span>
+            <span
+              className={`text-sm font-bold tracking-tight sm:text-base ${monthlyLaba > 0 ? "text-emerald-500" : monthlyLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}
+            >
               {formatPnLFull(monthlyLaba)}
             </span>
           </div>
         </div>
 
         {/* Days Header Row (Sunday-First) */}
-        <div className="grid grid-cols-7 gap-1 text-center text-[10px] font-semibold text-muted-foreground border-b pb-2 mb-2">
+        <div className="mb-2 grid grid-cols-7 gap-1 border-b pb-2 text-center text-[10px] font-semibold text-muted-foreground">
           {["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"].map((day) => (
-            <div key={day} className="py-1">{day}</div>
+            <div key={day} className="py-1">
+              {day}
+            </div>
           ))}
         </div>
 
         {/* Calendar Cells */}
         <div className="mt-1 grid grid-cols-7 gap-1 sm:gap-1.5">
           {currentMonth.cells.map((cell, index) => {
-            if (!cell) return <div key={`${currentMonth.key}-blank-${index}`} className="aspect-square sm:aspect-auto sm:h-12 md:h-14 lg:h-16 bg-muted/5 rounded-lg opacity-30" />
+            if (!cell)
+              return (
+                <div
+                  key={`${currentMonth.key}-blank-${index}`}
+                  className="aspect-square rounded-lg bg-muted/5 opacity-30 sm:aspect-auto sm:h-12 md:h-14 lg:h-16"
+                />
+              )
 
             const row = rowMap.get(cell.dateKey)
             const laba = row ? row.laba : 0
@@ -800,12 +938,16 @@ function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] })
 
             if (hasTransactions) {
               if (laba > 0) {
-                cellStyle = "border-emerald-500/20 bg-emerald-500/8 dark:bg-emerald-500/12 hover:bg-emerald-500/12 dark:hover:bg-emerald-500/18"
+                cellStyle =
+                  "border-emerald-500/20 bg-emerald-500/8 dark:bg-emerald-500/12 hover:bg-emerald-500/12 dark:hover:bg-emerald-500/18"
                 borderLeftStyle = "border-l-[3px] border-l-emerald-500"
-                numberColor = "text-emerald-600 dark:text-emerald-400 font-semibold"
-                valColor = "text-emerald-600 dark:text-emerald-400 font-semibold"
+                numberColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
+                valColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
               } else if (laba < 0) {
-                cellStyle = "border-rose-500/20 bg-rose-500/8 dark:bg-rose-500/12 hover:bg-rose-500/12 dark:hover:bg-rose-500/18"
+                cellStyle =
+                  "border-rose-500/20 bg-rose-500/8 dark:bg-rose-500/12 hover:bg-rose-500/12 dark:hover:bg-rose-500/18"
                 borderLeftStyle = "border-l-[3px] border-l-rose-500"
                 numberColor = "text-rose-600 dark:text-rose-400 font-semibold"
                 valColor = "text-rose-600 dark:text-rose-400 font-semibold"
@@ -820,15 +962,19 @@ function DailySummaryCalendar({ rows }: { rows: PenjualanData["dailySummary"] })
             return (
               <div
                 key={cell.dateKey}
-                className={`relative flex aspect-square sm:aspect-auto sm:h-12 md:h-14 lg:h-16 flex-col justify-between rounded-lg border p-1 sm:p-1.5 transition text-left ${cellStyle} ${borderLeftStyle}`}
+                className={`relative flex aspect-square flex-col justify-between rounded-lg border p-1 text-left transition sm:aspect-auto sm:h-12 sm:p-1.5 md:h-14 lg:h-16 ${cellStyle} ${borderLeftStyle}`}
               >
                 {/* Day number */}
-                <span className={`block text-[10px] sm:text-xs font-semibold sm:text-[13px] ${numberColor}`}>
+                <span
+                  className={`block text-[10px] font-semibold sm:text-xs sm:text-[13px] ${numberColor}`}
+                >
                   {cell.day}
                 </span>
 
                 {/* Compact Text PnL */}
-                <span className={`block truncate text-[7.5px] min-[360px]:text-[8.5px] sm:text-[10px] font-semibold tracking-tight leading-tight ${valColor}`}>
+                <span
+                  className={`block truncate text-[7.5px] leading-tight font-semibold tracking-tight min-[360px]:text-[8.5px] sm:text-[10px] ${valColor}`}
+                >
                   {formatPnLCompact(laba)}
                 </span>
               </div>
@@ -867,7 +1013,10 @@ function buildCalendarMonths(rows: PenjualanData["dailySummary"]) {
 
     // Sunday-First Calendar Offset
     const firstDay = new Date(year, month, 1).getDay()
-    const cells: Array<{ dateKey: string; day: number } | null> = Array.from({ length: firstDay }, () => null)
+    const cells: Array<{ dateKey: string; day: number } | null> = Array.from(
+      { length: firstDay },
+      () => null
+    )
 
     for (let day = 1; day <= daysInMonth; day++) {
       cells.push({ dateKey: formatDateKey(new Date(year, month, day)), day })
@@ -876,8 +1025,13 @@ function buildCalendarMonths(rows: PenjualanData["dailySummary"]) {
     const monthKey = `${year}-${String(month + 1).padStart(2, "0")}`
     months.push({
       key: monthKey,
-      label: new Intl.DateTimeFormat("id-ID", { month: "long", year: "numeric" }).format(cursor),
-      activeDays: rows.filter((row) => row.dateKey.startsWith(monthKey) && row.penjualan > 0).length,
+      label: new Intl.DateTimeFormat("id-ID", {
+        month: "long",
+        year: "numeric",
+      }).format(cursor),
+      activeDays: rows.filter(
+        (row) => row.dateKey.startsWith(monthKey) && row.penjualan > 0
+      ).length,
       cells,
     })
 
@@ -921,11 +1075,7 @@ function formatPnLFull(value: number) {
   return `${sign}${formatRupiah(Math.abs(value))}`
 }
 
-function TopProductsCard({
-  items,
-}: {
-  items: PenjualanData["topProducts"]
-}) {
+function TopProductsCard({ items }: { items: PenjualanData["topProducts"] }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold">Barang Terlaris</h2>
@@ -958,11 +1108,7 @@ function TopProductsCard({
   )
 }
 
-function TopCashiersCard({
-  items,
-}: {
-  items: PenjualanData["topCashiers"]
-}) {
+function TopCashiersCard({ items }: { items: PenjualanData["topCashiers"] }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold">Performa Kasir</h2>
@@ -999,31 +1145,33 @@ function TopCashiersCard({
 }
 
 function QuickInsightCard({ data }: { data: PenjualanData }) {
-  const bestDay = [...data.salesTrend].sort((a, b) => b.penjualan - a.penjualan)[0]
+  const bestDay = [...data.salesTrend].sort(
+    (a, b) => b.penjualan - a.penjualan
+  )[0]
   const topCategory = data.categoryBreakdown[0]
   const topProduct = data.topProducts[0]
 
   const insights = [
     bestDay && bestDay.penjualan > 0
       ? {
-        text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.penjualan)})`,
-        icon: StarIcon,
-        tone: "bg-primary/10 text-primary",
-      }
+          text: `Hari terbaik: ${bestDay.date} (${formatRupiah(bestDay.penjualan)})`,
+          icon: StarIcon,
+          tone: "bg-primary/10 text-primary",
+        }
       : null,
     topCategory
       ? {
-        text: `Kategori unggulan: ${topCategory.name} (${topCategory.pct}%)`,
-        icon: AnalyticsUpIcon,
-        tone: "bg-blue-500/10 text-blue-600",
-      }
+          text: `Kategori unggulan: ${topCategory.name} (${topCategory.pct}%)`,
+          icon: AnalyticsUpIcon,
+          tone: "bg-blue-500/10 text-blue-600",
+        }
       : null,
     topProduct
       ? {
-        text: `Barang terlaris: ${topProduct.name}`,
-        icon: ChartLineData01Icon,
-        tone: "bg-emerald-500/10 text-emerald-600",
-      }
+          text: `Barang terlaris: ${topProduct.name}`,
+          icon: ChartLineData01Icon,
+          tone: "bg-emerald-500/10 text-emerald-600",
+        }
       : null,
   ].filter((i): i is NonNullable<typeof i> => Boolean(i))
 

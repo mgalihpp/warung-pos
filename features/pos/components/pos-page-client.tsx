@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useState } from "react"
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Cancel01Icon,
@@ -15,6 +16,7 @@ import {
 import { toast } from "sonner"
 
 import { formatRupiah } from "@/lib/format-currency"
+import type { PosPageData } from "@/features/pos/types"
 import {
   useCartItemCount,
   useCartStore,
@@ -44,7 +46,20 @@ import { PosMobilePayment } from "./pos-mobile-payment"
 
 type MobileTab = "barang" | "keranjang" | "pembayaran"
 
-export function PosPageClient() {
+type PosProductsQueryData = Pick<
+  PosPageData,
+  "products" | "categories" | "lowStockCount"
+>
+
+type PosPageClientProps = {
+  initialData: PosPageData
+  stockReportHref?: string
+}
+
+export function PosPageClient({
+  initialData,
+  stockReportHref,
+}: PosPageClientProps) {
   const queryClient = useQueryClient()
   const [mobileTab, setMobileTab] = useState<MobileTab>("barang")
   const [searchQuery, setSearchQuery] = useState("")
@@ -64,13 +79,22 @@ export function PosPageClient() {
   const amountPaid = useCartStore((s) => s.amountPaid)
   const notes = useCartStore((s) => s.notes)
 
-  const { data, isLoading } = useQuery({
+  const initialProductsData: PosProductsQueryData = {
+    products: initialData.products,
+    categories: initialData.categories,
+    lowStockCount: initialData.lowStockCount,
+  }
+
+  const { data, isLoading } = useQuery<PosProductsQueryData>({
     queryKey: ["kasir", "barang"],
     queryFn: async () => {
       const res = await fetch("/api/kasir/barang")
       if (!res.ok) throw new Error("Gagal memuat barang")
       return res.json()
     },
+    initialData: initialProductsData,
+    refetchInterval: 10000,
+    refetchOnWindowFocus: true,
   })
 
   const payMutation = useMutation({
@@ -223,7 +247,9 @@ export function PosPageClient() {
             </div>
           </div>
           <PosProductGrid products={filteredProducts} isLoading={isLoading} />
-          <PosRecentTransactions />
+          <PosRecentTransactions
+            initialTransactions={initialData.recentTransactions}
+          />
         </div>
         <PosCart
           onPayment={handlePayment}
@@ -240,22 +266,44 @@ export function PosPageClient() {
           >
             {/* Low Stock Banner */}
             {lowStockCount > 0 && (
-              <div className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
-                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
-                  <HugeiconsIcon icon={Alert02Icon} size={22} />
+              stockReportHref ? (
+                <Link
+                  href={stockReportHref}
+                  className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm transition-transform active:scale-[0.98]"
+                >
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                    <HugeiconsIcon icon={Alert02Icon} size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
+                    <p className="text-xs leading-4 opacity-90">
+                      {lowStockCount} barang perlu restock
+                    </p>
+                  </div>
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={18}
+                    className="opacity-70"
+                  />
+                </Link>
+              ) : (
+                <div className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
+                  <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
+                    <HugeiconsIcon icon={Alert02Icon} size={22} />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
+                    <p className="text-xs leading-4 opacity-90">
+                      {lowStockCount} barang perlu restock
+                    </p>
+                  </div>
+                  <HugeiconsIcon
+                    icon={ArrowRight01Icon}
+                    size={18}
+                    className="opacity-70"
+                  />
                 </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
-                  <p className="text-xs leading-4 opacity-90">
-                    {lowStockCount} barang perlu restock
-                  </p>
-                </div>
-                <HugeiconsIcon
-                  icon={ArrowRight01Icon}
-                  size={18}
-                  className="opacity-70"
-                />
-              </div>
+              )
             )}
 
             {/* Cart Summary Banner */}

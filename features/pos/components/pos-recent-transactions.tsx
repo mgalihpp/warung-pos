@@ -13,14 +13,10 @@ import {
   CollapsibleTrigger,
 } from "@/components/ui/collapsible"
 import { Button } from "@/components/ui/button"
+import type { RecentTransaction } from "@/features/pos/types"
 
-type RecentTransaction = {
-  id: string
-  transactionNumber: string
-  total: number
-  cashierName: string
-  createdAt: string
-  itemCount: number
+type PosRecentTransactionsProps = {
+  initialTransactions: RecentTransaction[]
 }
 
 function formatTime(iso: string): string {
@@ -30,7 +26,9 @@ function formatTime(iso: string): string {
   })
 }
 
-export function PosRecentTransactions() {
+export function PosRecentTransactions({
+  initialTransactions,
+}: PosRecentTransactionsProps) {
   const [open, setOpen] = useState(false)
   const pathname = usePathname()
   const transaksiHref = pathname.startsWith("/admin")
@@ -45,7 +43,9 @@ export function PosRecentTransactions() {
       if (!res.ok) throw new Error("Gagal memuat transaksi")
       return res.json()
     },
+    initialData: { transactions: initialTransactions },
     refetchInterval: 30000, // refresh every 30s
+    refetchOnWindowFocus: true,
   })
 
   const transactions = data?.transactions ?? []
