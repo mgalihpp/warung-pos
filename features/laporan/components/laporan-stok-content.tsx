@@ -14,12 +14,12 @@ import {
 } from "@hugeicons/core-free-icons"
 
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet"
+  Drawer,
+  DrawerContent,
+  DrawerDescription,
+  DrawerHeader,
+  DrawerTitle,
+} from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatNumber, formatRupiah } from "@/lib/format-currency"
 import {
@@ -91,27 +91,32 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
             </div>
 
             <div className="lg:hidden">
-              <Sheet open={filterOpen} onOpenChange={setFilterOpen}>
-                <SheetTrigger asChild>
-                  <button
-                    type="button"
-                    className="flex h-12 w-full items-center justify-between rounded-xl border bg-background px-4 text-sm font-semibold transition active:scale-[0.99]"
-                  >
-                    <span className="flex items-center gap-2">
-                      <HugeiconsIcon icon={FilterIcon} size={16} />
-                      Filter stok
-                    </span>
-                    {hasFilter ? (
-                      <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                        {[categoryId !== "all", status !== "all"].filter(Boolean).length}
-                      </span>
-                    ) : null}
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="bottom" className="rounded-t-[20px] flex flex-col max-h-[85vh] overflow-hidden p-0">
-                  <SheetHeader className="text-left px-4 pt-4 pb-2 shrink-0">
-                    <SheetTitle>Filter Laporan Stok</SheetTitle>
-                  </SheetHeader>
+              <button
+                type="button"
+                onClick={() => setFilterOpen(true)}
+                className="flex h-12 w-full items-center justify-between rounded-xl border bg-background px-4 text-sm font-semibold transition active:scale-[0.99]"
+              >
+                <span className="flex items-center gap-2">
+                  <HugeiconsIcon icon={FilterIcon} size={16} />
+                  Filter stok
+                </span>
+                {hasFilter ? (
+                  <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
+                    {[categoryId !== "all", status !== "all"].filter(Boolean).length}
+                  </span>
+                ) : null}
+              </button>
+              <Drawer
+                open={filterOpen}
+                onOpenChange={setFilterOpen}
+              >
+                <DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 !mt-0 !max-h-[100dvh] lg:hidden">
+                  <DrawerHeader className="px-4 pt-4 pb-3 text-left">
+                    <DrawerTitle className="text-base font-bold">Filter Laporan Stok</DrawerTitle>
+                    <DrawerDescription className="text-xs">
+                      Saring barang berdasarkan kategori dan kondisi stok.
+                    </DrawerDescription>
+                  </DrawerHeader>
                   <div className="min-h-0 flex-1 overflow-y-auto px-4 py-2">
                     <div className="flex flex-col gap-6 pb-2">
                       <MobileFilterGroup label="Kategori">
@@ -157,8 +162,8 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                       Terapkan
                     </button>
                   </div>
-                </SheetContent>
-              </Sheet>
+                </DrawerContent>
+              </Drawer>
             </div>
 
             <select
@@ -405,25 +410,26 @@ function StatGrid({ stats }: { stats: StokData["stats"] }) {
   ]
 
   return (
-    <div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-4">
+    <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
       {cards.map((c) => (
         <div
           key={c.title}
-          className="flex min-h-24 items-start gap-3 rounded-2xl border bg-card p-3 shadow-sm lg:min-h-0 lg:items-center lg:rounded-xl lg:p-4"
+          className="group relative flex min-h-24 items-center gap-3.5 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 active:scale-[0.98] lg:min-h-0 lg:items-center lg:gap-3 lg:rounded-xl lg:p-4 lg:shadow-sm"
         >
           <div
-            className={`flex size-10 shrink-0 items-center justify-center rounded-xl lg:size-12 ${c.iconBg}`}
+            className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-transform duration-300 group-hover:scale-105 lg:size-12 lg:rounded-xl ${c.iconBg}`}
           >
-            <HugeiconsIcon icon={c.icon} size={20} className={c.iconColor} />
+            <HugeiconsIcon icon={c.icon} size={22} className={c.iconColor} />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-medium text-muted-foreground">
+            <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:normal-case lg:tracking-normal">
               {c.title}
             </p>
-            <p className="break-words text-base font-bold tracking-tight lg:truncate lg:text-lg">
+            <p className="break-words text-xl font-extrabold tracking-tight text-foreground lg:truncate lg:text-lg lg:font-bold">
               {c.value}
             </p>
           </div>
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity group-hover:opacity-100 lg:hidden" />
         </div>
       ))}
     </div>

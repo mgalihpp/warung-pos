@@ -115,6 +115,12 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
   ])
 
   const productMap = new Map(topProductsMeta.map((p) => [p.id, p]))
+  const cashierIds = topCashiersRaw.map((r) => r.cashierId)
+  const cashierMeta = await prisma.user.findMany({
+    where: { id: { in: cashierIds } },
+    select: { id: true, image: true },
+  })
+  const cashierMap = new Map(cashierMeta.map((cashier) => [cashier.id, cashier]))
   const labaItemRows = await prisma.$queryRaw<
     { date: string; laba: number }[]
   >`
@@ -291,12 +297,23 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
   })
 
   // Top cashiers
-  const topCashiers = topCashiersRaw.map((r) => ({
-    id: r.cashierId,
-    name: r.cashierName,
-    count: r._count,
-    revenue: r._sum.total ?? 0,
-  }))
+  const topCashiers = topCashiersRaw.map((r) => {
+    const initials = (r.cashierName || "?")
+      .split(/\s+/)
+      .map((part) => part.charAt(0))
+      .join("")
+      .slice(0, 2)
+      .toUpperCase()
+
+    return {
+      id: r.cashierId,
+      name: r.cashierName,
+      image: cashierMap.get(r.cashierId)?.image ?? null,
+      initials,
+      count: r._count,
+      revenue: r._sum.total ?? 0,
+    }
+  })
 
   return {
     range,

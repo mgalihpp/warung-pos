@@ -34,6 +34,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Drawer,
   DrawerContent,
@@ -43,6 +44,7 @@ import {
 } from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
 import { formatRupiah, formatNumber } from "@/lib/format-currency"
+import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-panel"
 import {
   useLaporanPenjualan,
   type LaporanRange,
@@ -169,14 +171,14 @@ function PenjualanDashboard({
   ]
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex min-w-0 max-w-full flex-col gap-4">
       <MobileReportHero
         data={data}
         range={range}
         onRangeChange={onRangeChange}
       />
 
-      <div className="grid grid-cols-1 gap-3 lg:grid-cols-4 lg:gap-4">
+      <div className="grid grid-cols-1 gap-4 lg:grid-cols-4">
         {stats.map((stat) => (
           <StatCard key={stat.title} {...stat} />
         ))}
@@ -194,8 +196,13 @@ function PenjualanDashboard({
           <DailySummaryTable rows={data.dailySummary} />
         </div>
 
-        <div className="grid h-fit content-start items-start gap-4 lg:grid-cols-2 2xl:grid-cols-1">
-          <TopProductsCard items={data.topProducts} />
+        <div className="flex w-full min-w-0 flex-col gap-4 lg:grid lg:grid-cols-2 2xl:flex 2xl:w-[380px] 2xl:shrink-0">
+          <BestSellersPanel
+            items={data.topProducts.map((item, index) => ({
+              ...item,
+              rank: index + 1,
+            }))}
+          />
           <TopCashiersCard items={data.topCashiers} />
           <QuickInsightCard data={data} />
         </div>
@@ -337,37 +344,47 @@ function StatCard({
 }) {
   const positive = change !== null && change >= 0
   return (
-    <div className="flex min-h-24 items-start gap-3 rounded-2xl border bg-card p-3 shadow-sm lg:min-h-0 lg:items-center lg:gap-4 lg:rounded-xl lg:p-4">
+    <div className="group relative min-h-24 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 active:scale-[0.98] lg:flex lg:min-h-0 lg:items-center lg:gap-4 lg:rounded-xl lg:p-4 lg:shadow-sm">
+      <div className="flex items-start gap-3.5 lg:contents">
       <div
-        className={`flex size-10 shrink-0 items-center justify-center rounded-xl lg:size-12 ${iconBg}`}
+        className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-transform duration-300 group-hover:scale-105 lg:size-12 lg:rounded-xl ${iconBg}`}
       >
-        <HugeiconsIcon icon={icon} size={20} className={iconColor} />
+        <HugeiconsIcon icon={icon} size={22} className={iconColor} />
       </div>
       <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-medium text-muted-foreground">{title}</p>
-        <p className="text-base font-bold tracking-tight break-words lg:truncate lg:text-lg">
+        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:normal-case lg:tracking-normal">
+          {title}
+        </p>
+        <p className="break-words text-xl font-extrabold tracking-tight text-foreground lg:truncate lg:text-lg lg:font-bold">
           {value}
         </p>
-        <p className="mt-1 flex flex-wrap items-center gap-1 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
+        <p className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
           {change !== null ? (
             <>
-              <HugeiconsIcon
-                icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
-                size={12}
-                className={positive ? "text-emerald-600" : "text-rose-600"}
-              />
               <span
-                className={`font-semibold ${positive ? "text-emerald-600" : "text-rose-600"}`}
+                className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                  positive
+                    ? "bg-emerald-500/10 text-emerald-600"
+                    : "bg-rose-500/10 text-rose-600"
+                }`}
               >
+                <HugeiconsIcon
+                  icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
+                  size={11}
+                />
                 {Math.abs(change)}%
               </span>
-              <span>vs periode lalu</span>
+              <span className="min-w-0 truncate font-medium">vs periode lalu</span>
             </>
           ) : (
-            "Belum ada pembanding"
+            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+              Belum ada pembanding
+            </span>
           )}
         </p>
       </div>
+      </div>
+      <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity group-hover:opacity-100 lg:hidden" />
     </div>
   )
 }
@@ -1075,39 +1092,6 @@ function formatPnLFull(value: number) {
   return `${sign}${formatRupiah(Math.abs(value))}`
 }
 
-function TopProductsCard({ items }: { items: PenjualanData["topProducts"] }) {
-  return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <h2 className="mb-3 text-sm font-semibold">Barang Terlaris</h2>
-      {items.length === 0 ? (
-        <EmptyState message="Belum ada barang terjual" small />
-      ) : (
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              className="grid grid-cols-[26px_1fr_auto] items-center gap-3"
-            >
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
-                {index + 1}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-xs font-bold">{item.name}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  Terjual {item.sold} {item.unit}
-                </p>
-              </div>
-              <p className="text-xs font-bold whitespace-nowrap text-primary">
-                {formatRupiah(item.revenue)}
-              </p>
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
 function TopCashiersCard({ items }: { items: PenjualanData["topCashiers"] }) {
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
@@ -1119,23 +1103,40 @@ function TopCashiersCard({ items }: { items: PenjualanData["topCashiers"] }) {
           {items.map((item, index) => (
             <div
               key={item.id}
-              className="grid grid-cols-[26px_36px_1fr_auto] items-center gap-3"
+              className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
             >
-              <span className="flex size-6 items-center justify-center rounded-full bg-primary text-xs font-bold text-primary-foreground">
+              <span
+                className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
+                  index === 0
+                    ? "bg-primary text-primary-foreground"
+                    : index === 1
+                      ? "bg-primary/70 text-primary-foreground"
+                      : index === 2
+                        ? "bg-primary/50 text-primary-foreground"
+                        : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {index + 1}
               </span>
-              <span className="flex size-9 items-center justify-center rounded-lg bg-sky-500/10 text-[11px] font-bold text-sky-600">
-                {item.name.slice(0, 1).toUpperCase()}
-              </span>
-              <div className="min-w-0">
-                <p className="truncate text-xs font-bold">{item.name}</p>
-                <p className="text-[11px] text-muted-foreground">
-                  {item.count} transaksi
-                </p>
+              <Avatar className="size-9 shrink-0 rounded-lg">
+                {item.image ? (
+                  <AvatarImage src={item.image} alt={item.name} />
+                ) : null}
+                <AvatarFallback className="rounded-lg bg-primary/10 text-[10px] font-semibold text-primary">
+                  {item.initials}
+                </AvatarFallback>
+              </Avatar>
+              <div className="min-w-0 flex-1 space-y-0.5">
+                <p className="text-xs font-medium break-words">{item.name}</p>
+                <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
+                  <p className="text-[11px] text-muted-foreground break-words">
+                    {item.count} transaksi
+                  </p>
+                  <p className="text-xs font-semibold text-primary break-words">
+                    {formatRupiah(item.revenue)}
+                  </p>
+                </div>
               </div>
-              <p className="text-xs font-bold whitespace-nowrap text-primary">
-                {formatRupiah(item.revenue)}
-              </p>
             </div>
           ))}
         </div>

@@ -47,6 +47,8 @@ export type TopProductItem = {
 export type TopCashierItem = {
   id: string
   name: string
+  image: string | null
+  initials: string
   count: number
   revenue: number
 }

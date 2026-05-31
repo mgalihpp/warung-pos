@@ -128,7 +128,7 @@ export function CashierMobileSidebar({
           <div className="mb-5 flex items-center gap-2.5 px-1">
             <div className="h-4 w-1.5 rounded-full bg-primary"></div>
             <span className="text-[14px] font-bold text-muted-foreground">
-              Main Menu
+              Menu Utama
             </span>
           </div>
 
@@ -185,7 +185,7 @@ export function CashierMobileSidebar({
         <div className="shrink-0 bg-background p-4 text-center">
           <div className="flex items-center justify-center gap-1.5 text-[11px] font-medium text-muted-foreground">
             <HugeiconsIcon icon={InformationCircleIcon} size={14} />
-            <span>Warung Sembako v1.0.10 (Build 10)</span>
+            <span>Versi 1.0.0</span>
           </div>
         </div>
       </SheetContent>

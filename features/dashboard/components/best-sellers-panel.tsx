@@ -58,7 +58,7 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
 
             {/* Info */}
             <div className="flex-1 min-w-0">
-              <p className="truncate text-xs font-medium">{item.name}</p>
+              <p className="text-xs font-medium break-words">{item.name}</p>
               <p className="text-[11px] text-muted-foreground">
                 Terjual {item.sold} {item.unit}
               </p>
@@ -66,7 +66,7 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
 
             {/* Revenue */}
             <div className="shrink-0 text-right">
-              <p className="text-xs font-semibold text-primary">
+              <p className="text-xs font-semibold text-primary break-words">
                 {formatRupiah(item.revenue)}
               </p>
             </div>

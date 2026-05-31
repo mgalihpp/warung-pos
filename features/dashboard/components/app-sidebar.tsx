@@ -1,5 +1,6 @@
 "use client"
 
+import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
@@ -36,7 +37,12 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { Skeleton } from "@/components/ui/skeleton"
 import { signOut, useSession } from "@/lib/auth-client"
+
+const subscribeToHydration = () => () => {}
+const getHydratedSnapshot = () => true
+const getServerSnapshot = () => false
 
 const menuItems = [
   { title: "Dashboard", href: "/admin", icon: DashboardSquare01Icon },
@@ -51,11 +57,18 @@ const menuItems = [
 export function AppSidebar() {
   const pathname = usePathname()
   const router = useRouter()
+  const isHydrated = React.useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerSnapshot,
+  )
   const { data: session } = useSession()
 
-  const userName = session?.user?.name ?? "..."
-  const userRole = session?.user?.role === "admin" ? "Admin" : session?.user?.role === "cashier" ? "Kasir" : "..."
-  const userInitials = userName
+  const user = isHydrated ? session?.user : undefined
+  const isUserLoading = !isHydrated || !user
+  const userName = user?.name ?? ""
+  const userRole = user?.role === "admin" ? "Admin" : user?.role === "cashier" ? "Kasir" : ""
+  const userInitials = (userName || "?")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -122,17 +135,30 @@ export function AppSidebar() {
               type="button"
               className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:outline-none focus:ring-1 focus:ring-sidebar-ring group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
             >
-              <Avatar className="size-9">
-                {session?.user?.image && (
-                  <AvatarImage src={session.user.image} alt={userName} />
-                )}
-                <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
-                  {userInitials}
-                </AvatarFallback>
-              </Avatar>
+              {isUserLoading ? (
+                <Skeleton className="size-9 shrink-0 rounded-full" />
+              ) : (
+                <Avatar className="size-9">
+                  {user?.image && (
+                    <AvatarImage src={user.image} alt={userName} />
+                  )}
+                  <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
+                    {userInitials}
+                  </AvatarFallback>
+                </Avatar>
+              )}
               <div className="min-w-0 flex-1 group-data-[collapsible=icon]:hidden">
-                <p className="truncate text-sm font-semibold leading-tight">{userName}</p>
-                <p className="truncate text-xs text-muted-foreground">{userRole}</p>
+                {isUserLoading ? (
+                  <>
+                    <Skeleton className="h-4 w-12" />
+                    <Skeleton className="mt-1 h-3 w-10" />
+                  </>
+                ) : (
+                  <>
+                    <p className="truncate text-sm font-semibold leading-tight">{userName}</p>
+                    <p className="truncate text-xs text-muted-foreground">{userRole}</p>
+                  </>
+                )}
               </div>
               <HugeiconsIcon
                 icon={ArrowDown01Icon}

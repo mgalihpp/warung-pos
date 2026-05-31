@@ -18,6 +18,7 @@ import { SidebarTrigger } from "@/components/ui/sidebar"
 import { Separator } from "@/components/ui/separator"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { Kbd } from "@/components/ui/kbd"
+import { Skeleton } from "@/components/ui/skeleton"
 
 import {
   Command,
@@ -53,17 +54,28 @@ type NotificationItem = {
   href: string
 }
 
+const subscribeToHydration = () => () => {}
+const getHydratedSnapshot = () => true
+const getServerSnapshot = () => false
+
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
   const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
   const [isLoadingNotifications, setIsLoadingNotifications] = React.useState(true)
+  const isHydrated = React.useSyncExternalStore(
+    subscribeToHydration,
+    getHydratedSnapshot,
+    getServerSnapshot,
+  )
   const router = useRouter()
   const pathname = usePathname()
   const { data: session } = useSession()
 
-  const userName = session?.user?.name ?? "..."
-  const userRole = session?.user?.role === "admin" ? "Admin" : session?.user?.role === "cashier" ? "Kasir" : "..."
-  const userInitials = userName
+  const user = isHydrated ? session?.user : undefined
+  const isUserLoading = !isHydrated || !user
+  const userName = user?.name ?? ""
+  const userRole = user?.role === "admin" ? "Admin" : user?.role === "cashier" ? "Kasir" : ""
+  const userInitials = (userName || "?")
     .split(" ")
     .filter(Boolean)
     .slice(0, 2)
@@ -199,7 +211,7 @@ export function DashboardHeader() {
       {/* Notifications via Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="relative overflow-visible rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
+          <button className="relative overflow-hidden rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
             <HugeiconsIcon icon={Notification03Icon} size={18} />
             {notificationCount > 0 && (
               <span className="absolute -top-0.5 -right-0.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
@@ -258,17 +270,30 @@ export function DashboardHeader() {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
-            <Avatar className="size-8">
-              {session?.user?.image && (
-                <AvatarImage src={session.user.image} alt={userName} />
-              )}
-              <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                {userInitials}
-              </AvatarFallback>
-            </Avatar>
+            {isUserLoading ? (
+              <Skeleton className="size-8 shrink-0 rounded-full" />
+            ) : (
+              <Avatar className="size-8">
+                {user?.image && (
+                  <AvatarImage src={user.image} alt={userName} />
+                )}
+                <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                  {userInitials}
+                </AvatarFallback>
+              </Avatar>
+            )}
             <div className="hidden flex-col items-start xl:flex">
-              <span className="text-sm font-medium leading-tight text-foreground">{userName}</span>
-              <span className="text-[11px] text-muted-foreground">{userRole}</span>
+              {isUserLoading ? (
+                <>
+                  <Skeleton className="h-4 w-10" />
+                  <Skeleton className="mt-1 h-3 w-8" />
+                </>
+              ) : (
+                <>
+                  <span className="text-sm font-medium leading-tight text-foreground">{userName}</span>
+                  <span className="text-[11px] text-muted-foreground">{userRole}</span>
+                </>
+              )}
             </div>
             <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="hidden text-muted-foreground xl:block" />
           </button>
