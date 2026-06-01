@@ -47,7 +47,7 @@ export default async function BarangPage() {
                 <HugeiconsIcon icon={PackageIcon} size={18} />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[11px] font-semibold text-muted-foreground">Total Barang</p>
+                <p className="text-[11px] leading-4 font-semibold text-muted-foreground">Total Barang</p>
                 <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.totalProducts}</p>
               </div>
             </div>
@@ -59,7 +59,7 @@ export default async function BarangPage() {
                 <HugeiconsIcon icon={Alert02Icon} size={18} />
               </div>
               <div className="min-w-0">
-                <p className="truncate text-[11px] font-semibold text-muted-foreground">Stok Menipis</p>
+                <p className="text-[11px] leading-4 font-semibold text-muted-foreground">Stok Menipis</p>
                 <p className="text-2xl font-extrabold leading-7 tracking-tight text-foreground">{data.stats.lowStock}</p>
               </div>
             </div>

@@ -6,9 +6,10 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   MoreVerticalCircle01Icon,
   Delete02Icon,
-  PencilEdit02Icon,
+  Edit02Icon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons"
+import { toast } from "sonner"
 
 import type { TransactionStatus } from "../hooks/use-transaksi-queries"
 import { useDeleteTransaction } from "../hooks/use-transaksi-actions"
@@ -60,7 +61,7 @@ export function TransaksiActionMenu({
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
           <DropdownMenuItem onClick={() => router.push(`${basePath}/${transactionId}/edit`)}>
-            <HugeiconsIcon icon={PencilEdit02Icon} size={14} className="text-blue-600" />
+            <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
             <span>Edit Transaksi</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -110,8 +111,18 @@ export function TransaksiActionMenu({
               className="w-full sm:w-auto"
               disabled={deleteMutation.isPending}
               onClick={() => {
-                deleteMutation.mutate(transactionId)
-                setDeleteOpen(false)
+                deleteMutation.mutate(transactionId, {
+                  onSuccess: (result) => {
+                    if (result.success) {
+                      toast.success("Transaksi berhasil dihapus")
+                      setDeleteOpen(false)
+                      return
+                    }
+
+                    toast.error(result.error ?? "Transaksi gagal dihapus")
+                  },
+                  onError: () => toast.error("Transaksi gagal dihapus"),
+                })
               }}
             >
               {deleteMutation.isPending ? "Menghapus..." : "Hapus"}

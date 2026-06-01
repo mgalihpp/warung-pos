@@ -18,6 +18,7 @@ import {
   ViewIcon,
   Alert02Icon,
 } from "@hugeicons/core-free-icons"
+import { toast } from "sonner"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import {
@@ -367,6 +368,16 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
               toggleMutation.mutate({
                 id: product.id,
                 isActive: product.isActive,
+              }, {
+                onSuccess: (data) => {
+                  if (data.success) {
+                    toast.success(product.isActive ? "Barang berhasil dinonaktifkan" : "Barang berhasil diaktifkan")
+                    return
+                  }
+
+                  toast.error(data.error ?? "Status barang gagal diperbarui")
+                },
+                onError: () => toast.error("Status barang gagal diperbarui"),
               })
             }
             disabled={toggleMutation.isPending}
@@ -424,8 +435,15 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
               onSubmit={(payload) =>
                 adjustMutation.mutate(payload, {
                   onSuccess: (data) => {
-                    if (data.success) setStockOpen(false)
+                    if (data.success) {
+                      toast.success("Stok berhasil diperbarui")
+                      setStockOpen(false)
+                      return
+                    }
+
+                    toast.error(data.error ?? "Stok gagal diperbarui")
                   },
+                  onError: () => toast.error("Stok gagal diperbarui"),
                 })
               }
             />
@@ -453,8 +471,15 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
               onSubmit={(payload) =>
                 adjustMutation.mutate(payload, {
                   onSuccess: (data) => {
-                    if (data.success) setStockOpen(false)
+                    if (data.success) {
+                      toast.success("Stok berhasil diperbarui")
+                      setStockOpen(false)
+                      return
+                    }
+
+                    toast.error(data.error ?? "Stok gagal diperbarui")
                   },
+                  onError: () => toast.error("Stok gagal diperbarui"),
                 })
               }
             />
@@ -494,8 +519,18 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
               className="w-full sm:w-auto"
               disabled={deleteMutation.isPending}
               onClick={() => {
-                deleteMutation.mutate(product.id)
-                setDeleteOpen(false)
+                deleteMutation.mutate(product.id, {
+                  onSuccess: (data) => {
+                    if (data.success) {
+                      toast.success("Barang berhasil dihapus")
+                      setDeleteOpen(false)
+                      return
+                    }
+
+                    toast.error(data.error ?? "Barang gagal dihapus")
+                  },
+                  onError: () => toast.error("Barang gagal dihapus"),
+                })
               }}
             >
               {deleteMutation.isPending ? "Menghapus..." : "Hapus"}

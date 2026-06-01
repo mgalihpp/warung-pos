@@ -2,11 +2,11 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function KategoriMobileListSkeleton() {
   return (
-    <div className="lg:hidden">
-      <div className="px-4 pt-4">
-        <Skeleton className="h-14 w-full rounded-2xl" />
+    <div className="flex h-full min-h-0 flex-col lg:hidden">
+      <div className="relative shrink-0 px-4 pt-3">
+        <Skeleton className="h-11 w-full rounded-xl" />
       </div>
-      <div className="space-y-3 px-4 pb-6 pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
         {Array.from({ length: 5 }).map((_, i) => (
           <div key={i} className="rounded-2xl border bg-card p-4 shadow-sm">
             <div className="flex items-center gap-4">

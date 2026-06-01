@@ -2,13 +2,13 @@ import { Skeleton } from "@/components/ui/skeleton"
 
 export function BarangMobileLandingSkeleton() {
   return (
-    <div className="lg:hidden px-4 pt-5 pb-6">
+    <div className="h-full overflow-y-auto px-4 pb-20 pt-5 lg:hidden">
       <div className="rounded-3xl bg-primary p-5 shadow-lg shadow-primary/20">
         <div className="flex items-center gap-4">
           <Skeleton className="size-14 rounded-2xl bg-primary-foreground/20" />
           <div className="min-w-0 flex-1 space-y-2">
             <Skeleton className="h-6 w-40 rounded-full bg-primary-foreground/20" />
-            <Skeleton className="h-4 w-56 rounded-full bg-primary-foreground/15" />
+            <Skeleton className="h-4 w-full max-w-52 rounded-full bg-primary-foreground/15" />
           </div>
         </div>
       </div>
@@ -45,12 +45,12 @@ export function BarangMobileLandingSkeleton() {
 
 export function BarangMobileListSkeleton() {
   return (
-    <div className="lg:hidden">
-      <div className="px-4 pt-4">
-        <Skeleton className="h-11 rounded-2xl" />
+    <div className="flex h-full min-h-0 flex-col lg:hidden">
+      <div className="relative shrink-0 px-4 pt-3">
+        <Skeleton className="h-11 rounded-xl" />
       </div>
 
-      <div className="space-y-3 px-4 pb-6 pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
         {Array.from({ length: 6 }).map((_, index) => (
           <div key={index} className="rounded-2xl border bg-card p-3 shadow-sm">
             <div className="flex items-center gap-3">

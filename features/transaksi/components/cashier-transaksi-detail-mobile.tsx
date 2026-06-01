@@ -6,12 +6,13 @@ import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
-  PencilEdit02Icon,
+  Edit02Icon,
   InformationCircleIcon,
   PackageIcon,
   Wallet02Icon,
   ShoppingBag02Icon,
 } from "@hugeicons/core-free-icons"
+import { toast } from "sonner"
 import { useTransactionDetail } from "../hooks/use-transaksi-queries"
 import { useDeleteTransaction } from "../hooks/use-transaksi-actions"
 import type { TransactionStatus, PaymentMethod, TransactionDetail } from "../hooks/use-transaksi-queries"
@@ -248,7 +249,7 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
               className="h-12 w-full rounded-xl"
               onClick={() => router.push(`${actionBasePath}/${transactionId}/edit`)}
             >
-              <HugeiconsIcon icon={PencilEdit02Icon} size={18} />
+              <HugeiconsIcon icon={Edit02Icon} size={18} />
               Edit
             </Button>
           </div>
@@ -293,10 +294,15 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
                 deleteMutation.mutate(data.id, {
                   onSuccess: (result) => {
                     if (result.success) {
+                      toast.success("Transaksi berhasil dihapus")
                       setDeleteOpen(false)
                       onBack()
+                      return
                     }
+
+                    toast.error(result.error ?? "Transaksi gagal dihapus")
                   },
+                  onError: () => toast.error("Transaksi gagal dihapus"),
                 })
               }}
             >

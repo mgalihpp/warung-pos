@@ -33,6 +33,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -137,10 +138,18 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           isActive: product.isActive ? "on" : "off",
         }),
       })
-      if (res.ok) {
-        router.push("/admin/barang")
-        router.refresh()
+
+      const result = await res.json()
+      if (!res.ok || !result.success) {
+        toast.error(result.error ?? "Barang gagal diduplikasi")
+        return
       }
+
+      toast.success("Barang berhasil diduplikasi")
+      router.push("/admin/barang")
+      router.refresh()
+    } catch {
+      toast.error("Barang gagal diduplikasi")
     } finally {
       setIsDuplicating(false)
     }
@@ -695,10 +704,14 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               onClick={async () => {
                 const result = await deleteMutation.mutateAsync(product.id)
                 if (result.success) {
+                  toast.success("Barang berhasil dihapus")
                   setDeleteOpen(false)
                   router.push("/admin/barang")
                   router.refresh()
+                  return
                 }
+
+                toast.error(result.error ?? "Barang gagal dihapus")
               }}
             >
               {deleteMutation.isPending ? "Menghapus..." : "Hapus"}

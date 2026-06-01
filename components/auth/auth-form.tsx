@@ -3,6 +3,7 @@
 import Image from "next/image"
 import { useRouter, useSearchParams } from "next/navigation"
 import * as React from "react"
+import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -71,10 +72,13 @@ export function AuthForm() {
       })
 
       if (response.error) {
-        setError(getAuthErrorMessage(response.error))
+        const message = getAuthErrorMessage(response.error)
+        setError(message)
+        toast.error(message)
         return
       }
 
+      toast.success("Berhasil masuk")
       const session = await getSession()
       const role = session.data?.user?.role
       const redirectPath = nextQuery ? nextPath : getDashboardPath(role)

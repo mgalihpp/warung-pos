@@ -162,15 +162,22 @@ export function BarangFormPage(props: BarangFormPageProps) {
           if (result.success) {
             toast.success("Barang berhasil ditambahkan")
             router.push("/admin/barang")
+            return
           }
+
+          toast.error(result.error ?? "Barang gagal ditambahkan")
         },
+        onError: () => toast.error("Barang gagal ditambahkan"),
       })
     } else {
       const stockAdjustment = collectStockAdjustment()
 
       updateMutation.mutate(data as Record<string, unknown> & { id: string }, {
         onSuccess: (result) => {
-          if (!result.success) return
+          if (!result.success) {
+            toast.error(result.error ?? "Barang gagal diperbarui")
+            return
+          }
 
           if (stockAdjustment) {
             adjustStockMutation.mutate(stockAdjustment, {
@@ -178,8 +185,12 @@ export function BarangFormPage(props: BarangFormPageProps) {
                 if (adjustResult.success) {
                   toast.success("Barang dan stok berhasil diperbarui")
                   router.push("/admin/barang")
+                  return
                 }
+
+                toast.error(adjustResult.error ?? "Stok gagal diperbarui")
               },
+              onError: () => toast.error("Stok gagal diperbarui"),
             })
             return
           }
@@ -187,6 +198,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
           toast.success("Barang berhasil diperbarui")
           router.push("/admin/barang")
         },
+        onError: () => toast.error("Barang gagal diperbarui"),
       })
     }
   }
@@ -198,8 +210,12 @@ export function BarangFormPage(props: BarangFormPageProps) {
         if (result.success) {
           toast.success("Barang berhasil dihapus")
           router.push("/admin/barang")
+          return
         }
+
+        toast.error(result.error ?? "Barang gagal dihapus")
       },
+      onError: () => toast.error("Barang gagal dihapus"),
     })
   }
 

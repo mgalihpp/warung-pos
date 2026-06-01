@@ -172,8 +172,12 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
           if (result.success) {
             toast.success("Transaksi berhasil diperbarui")
             router.push(basePath)
+            return
           }
+
+          toast.error(result.error ?? "Transaksi gagal diperbarui")
         },
+        onError: () => toast.error("Transaksi gagal diperbarui"),
       },
     )
   }
@@ -482,10 +486,15 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
                 deleteMutation.mutate(data.id, {
                   onSuccess: (result) => {
                     if (result.success) {
+                      toast.success("Transaksi berhasil dihapus")
                       setDeleteOpen(false)
                       router.push(basePath)
+                      return
                     }
+
+                    toast.error(result.error ?? "Transaksi gagal dihapus")
                   },
+                  onError: () => toast.error("Transaksi gagal dihapus"),
                 })
               }}
             >
