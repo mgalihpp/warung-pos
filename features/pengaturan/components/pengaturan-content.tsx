@@ -1140,6 +1140,7 @@ function SettingsRow({
     return (
       <Link
         href={href}
+        data-slot="button"
         className="flex w-full items-center gap-3 p-4 text-left transition-colors active:bg-muted/60"
       >
         {content}

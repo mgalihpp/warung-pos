@@ -145,6 +145,7 @@ export function CashierMobileSidebar({
                 <Link
                   key={item.href}
                   href={isLogout ? "#" : item.href}
+                  data-slot="button"
                   onClick={(e) => {
                     if (isLogout) {
                       e.preventDefault()

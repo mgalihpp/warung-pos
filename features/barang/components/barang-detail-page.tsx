@@ -263,6 +263,82 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               </div>
             </div>
           </section>
+
+          <section className="rounded-2xl border bg-card p-4 shadow-sm">
+            <div className="mb-3 flex items-center gap-2 text-sm font-semibold leading-5">
+              <span className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                <HugeiconsIcon icon={ExchangeIcon} size={16} />
+              </span>
+              Riwayat Pergerakan Stok
+            </div>
+
+            {movements.length === 0 ? (
+              <div className="rounded-lg border border-dashed py-6 text-center text-xs text-muted-foreground">
+                Belum ada riwayat pergerakan stok.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {movements.slice(0, 5).map((m) => {
+                  const sign = m.type === "OUT" ? "-" : "+"
+                  const label = movementTypeLabel[m.type] ?? m.type
+                  return (
+                    <div
+                      key={m.id}
+                      className="flex gap-3 rounded-lg border bg-muted/40 p-3"
+                    >
+                      <div
+                        className={cn(
+                          "flex size-9 shrink-0 items-center justify-center rounded-lg",
+                          movementTypeStyle[m.type] ?? "bg-slate-500/10 text-slate-600"
+                        )}
+                      >
+                        <HugeiconsIcon
+                          icon={
+                            m.type === "OUT"
+                              ? ArrowDown01Icon
+                              : m.type === "IN"
+                                ? ArrowUp01Icon
+                                : ExchangeIcon
+                          }
+                          size={16}
+                        />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex items-start justify-between gap-2">
+                          <span className="text-xs font-semibold">{label}</span>
+                          <span className="shrink-0 text-[11px] text-muted-foreground whitespace-nowrap">
+                            {formatDate(m.createdAt, true)}
+                          </span>
+                        </div>
+                        <p className={cn(
+                          "mb-2 text-xs font-semibold whitespace-nowrap",
+                          m.type === "OUT"
+                            ? "text-rose-600"
+                            : m.type === "IN"
+                              ? "text-primary"
+                              : "text-amber-600"
+                        )}>
+                          {sign}
+                          {m.quantity} {product.unit}
+                        </p>
+                        <div className="space-y-1 text-[11px] text-muted-foreground">
+                          <p>PIC: <span className="font-medium text-foreground">{m.userName}</span></p>
+                          {m.reason && (
+                            <p>Ket: <span className="font-medium text-foreground">{m.reason}</span></p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  )
+                })}
+                {movements.length > 5 && (
+                  <p className="py-2 text-center text-xs text-muted-foreground">
+                    +{movements.length - 5} riwayat lainnya
+                  </p>
+                )}
+              </div>
+            )}
+          </section>
         </div>
 
         <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">

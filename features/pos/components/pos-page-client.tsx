@@ -125,6 +125,7 @@ export function PosPageClient({
     },
     onSuccess: (result) => {
       setReceiptData(result.transaction)
+      clearCart()
       queryClient.invalidateQueries({ queryKey: ["kasir", "barang"] })
       queryClient.invalidateQueries({ queryKey: ["kasir", "transaksi-recent"] })
     },

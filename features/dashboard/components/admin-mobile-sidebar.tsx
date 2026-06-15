@@ -160,6 +160,7 @@ export function AdminMobileSidebar({
                 <Link
                   key={item.href}
                   href={item.href}
+                  data-slot="button"
                   onClick={() => onOpenChange(false)}
                   className={`flex items-center gap-4 rounded-[20px] border border-border bg-card p-4 shadow-[0_2px_10px_-4px_rgba(0,0,0,0.04)] transition-all ${
                     isActive

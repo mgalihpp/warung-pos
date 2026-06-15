@@ -136,6 +136,25 @@
     overflow: hidden;
   }
 
+  button:not(:disabled):not([aria-disabled="true"]):not([data-disabled]),
+  [data-slot="button"]:not(:disabled):not([aria-disabled="true"]):not([data-disabled]),
+  [role="button"]:not([aria-disabled="true"]):not([data-disabled]) {
+    cursor: pointer;
+  }
+
+  [data-slot="sidebar-menu-button"],
+  [data-slot="sidebar-menu-sub-button"],
+  [data-slot="pagination-link"] {
+    position: relative;
+  }
+
+  button > *,
+  [data-slot="button"] > *,
+  [role="button"] > * {
+    position: relative;
+    z-index: 2;
+  }
+
   button::after,
   button::before,
   [data-slot="button"]::after,
@@ -157,9 +176,17 @@
     transition: opacity 160ms ease-out;
   }
 
-  button:active:not(:disabled)::before,
-  [data-slot="button"]:active:not(:disabled)::before,
-  [role="button"]:active::before {
+  @media (hover: hover) {
+    button:hover:not(:disabled):not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before,
+    [data-slot="button"]:hover:not(:disabled):not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before,
+    [role="button"]:hover:not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before {
+      opacity: 0.04;
+    }
+  }
+
+  button:active:not(:disabled):not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before,
+  [data-slot="button"]:active:not(:disabled):not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before,
+  [role="button"]:active:not([aria-disabled="true"]):not([data-disabled]):not([data-variant="link"])::before {
     opacity: 0.08;
   }
 
