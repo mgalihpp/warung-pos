@@ -1,33 +1,43 @@
 # Warung Mama Nia POS
 
-Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi ini mendukung pengelolaan barang, stok, transaksi kasir, laporan penjualan, dan akses berbasis role untuk admin serta kasir.
+Aplikasi _point of sale_ untuk warung sembako Mama Nia berbasis Next.js. Aplikasi ini mendukung pengelolaan barang, stok, transaksi kasir, laporan penjualan, dan akses berbasis role untuk admin serta kasir.
+
+## Daftar Isi
+
+- [Fitur Utama](#fitur-utama)
+- [Tech Stack](#tech-stack)
+- [Prasyarat](#prasyarat)
+- [Memulai](#memulai)
+  - [1. Setup Environment](#1-setup-environment)
+  - [2. Instalasi](#2-instalasi)
+  - [3. Setup Database](#3-setup-database)
+  - [4. Menjalankan Aplikasi](#4-menjalankan-aplikasi)
+- [Role dan Akses](#role-dan-akses)
+- [Struktur Proyek](#struktur-proyek)
 
 ## Fitur Utama
 
-- Autentikasi menggunakan Better Auth.
-- Role akses `admin` dan `cashier`.
-- Dashboard admin dan kasir.
+- Autentikasi menggunakan Better Auth dengan role akses `admin` dan `cashier`.
+- Dashboard terpisah untuk admin dan kasir.
 - Manajemen barang, kategori, harga beli, harga jual, stok, dan gambar barang.
 - POS untuk pencatatan transaksi penjualan.
-- Riwayat transaksi dan edit transaksi admin.
+- Riwayat transaksi serta edit transaksi oleh admin.
 - Laporan kas, kasir, stok, dan penjualan.
 - Audit perubahan stok melalui data `StockAdjustment`.
 - Upload gambar barang menggunakan UploadThing.
-- Dukungan PWA untuk pengalaman penggunaan seperti aplikasi.
+- Dukungan PWA untuk pengalaman penggunaan seperti aplikasi native.
 
 ## Tech Stack
 
-- Next.js 16 App Router
-- React 19
-- TypeScript
-- Prisma 7
-- PostgreSQL
-- Better Auth
-- Tailwind CSS v4
-- shadcn/ui
-- UploadThing
-- Zustand
-- TanStack React Query
+| Kategori     | Teknologi                         |
+| ------------ | --------------------------------- |
+| Framework    | Next.js 16 (App Router), React 19 |
+| Bahasa       | TypeScript                        |
+| Database     | PostgreSQL, Prisma 7              |
+| Autentikasi  | Better Auth                       |
+| Styling      | Tailwind CSS v4, shadcn/ui        |
+| State & Data | Zustand, TanStack React Query     |
+| Upload       | UploadThing                       |
 
 ## Prasyarat
 
@@ -35,7 +45,9 @@ Aplikasi point of sale untuk warung sembako Mama Nia berbasis Next.js. Aplikasi 
 - Database PostgreSQL.
 - Akun UploadThing jika ingin menggunakan fitur upload gambar barang.
 
-## Setup Environment
+## Memulai
+
+### 1. Setup Environment
 
 Salin file contoh environment:
 
@@ -62,19 +74,15 @@ Catatan:
 - `DATABASE_URL` dapat diarahkan ke connection pooler atau transaction mode.
 - Password admin minimal 8 karakter.
 
-## Instalasi
+### 2. Instalasi
 
-Install dependency:
+Install dependency (Prisma Client otomatis di-generate via `postinstall`):
 
 ```bash
 npm install
 ```
 
-Generate Prisma Client:
-
-```bash
-npm run db:generate
-```
+### 3. Setup Database
 
 Sinkronkan schema database. Untuk development cepat, gunakan:
 
@@ -100,7 +108,7 @@ Buat akun admin dari environment:
 npm run db:create-admin
 ```
 
-## Menjalankan Aplikasi
+### 4. Menjalankan Aplikasi
 
 Jalankan server development:
 
@@ -108,13 +116,7 @@ Jalankan server development:
 npm run dev
 ```
 
-Buka aplikasi di:
-
-```text
-http://localhost:3000
-```
-
-Halaman root akan mengarah ke `/login`.
+Buka aplikasi di [http://localhost:3000](http://localhost:3000). Halaman root akan mengarah ke `/login`.
 
 ## Role dan Akses
 
@@ -122,61 +124,16 @@ Halaman root akan mengarah ke `/login`.
 - Cashier diarahkan ke `/cashier` dan dapat mengakses alur POS kasir.
 - Proteksi route dikontrol dari `proxy.ts` dengan aturan path di `lib/auth-routes.ts`.
 
-## Route Penting
+## Struktur Proyek
 
-- `/login` - halaman login.
-- `/register` - halaman registrasi.
-- `/admin` - dashboard admin.
-- `/admin/barang` - manajemen barang.
-- `/admin/barang/tambah` - tambah barang.
-- `/admin/pos` - POS dari sisi admin.
-- `/admin/transaksi` - daftar transaksi admin.
-- `/admin/laporan` - ringkasan laporan.
-- `/admin/laporan/kas` - laporan kas.
-- `/admin/laporan/kasir` - laporan kasir.
-- `/admin/laporan/stok` - laporan stok.
-- `/admin/pengaturan` - pengaturan admin.
-- `/cashier` - dashboard kasir.
-- `/cashier/pos` - POS kasir.
-- `/cashier/transaksi` - riwayat transaksi kasir.
-- `/cashier/pengaturan` - pengaturan kasir.
-
-## API Penting
-
-- `/api/auth/[...all]` - endpoint Better Auth.
-- `/api/barang` - data barang admin.
-- `/api/kategori` - data kategori.
-- `/api/transaksi` - transaksi admin.
-- `/api/kasir/barang` - data barang untuk kasir.
-- `/api/kasir/transaksi` - transaksi dari kasir.
-- `/api/laporan/kas` - laporan kas.
-- `/api/laporan/kasir` - laporan kasir.
-- `/api/laporan/penjualan` - laporan penjualan.
-- `/api/laporan/stok` - laporan stok.
-- `/api/uploadthing` - upload gambar barang.
-
-## Script NPM
-
-```bash
-npm run dev
-npm run build
-npm run start
-npm run lint
-npm run typecheck
-npm run format
-npm run db:generate
-npm run db:push
-npm run db:migrate
-npm run db:seed
-npm run db:create-admin
-```
-
-## Validasi
-
-Sebelum deploy atau membuat perubahan besar, jalankan:
-
-```bash
-npm run lint
-npm run typecheck
-npm run build
+```text
+.
+├── app/          # Routing App Router, halaman, dan API routes
+├── components/   # Komponen UI yang dapat digunakan ulang
+├── features/     # Modul fitur (barang, pos, transaksi, laporan, dll.)
+├── hooks/        # Custom React hooks
+├── lib/          # Utility, auth, prisma, schema, dan logika server
+├── prisma/       # Schema dan seed database
+├── public/       # Aset statis
+└── scripts/      # Script utilitas (mis. create-admin)
 ```
