@@ -67,6 +67,7 @@ export function PosPageClient({
   const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false)
   const [mobileCategorySnap, setMobileCategorySnap] = useState<number | string | null>(0.5)
   const [activeCategory, setActiveCategory] = useState<string | null>(null)
+  const [showLowStockOnly, setShowLowStockOnly] = useState(false)
   const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
     null
   )
@@ -149,9 +150,10 @@ export function PosPageClient({
       const matchSearch = p.name
         .toLowerCase()
         .includes(searchQuery.toLowerCase())
-      return matchCategory && matchSearch
+      const matchLowStock = showLowStockOnly ? p.stock <= p.minStock : true
+      return matchCategory && matchSearch && matchLowStock
     })
-  }, [data?.products, activeCategory, searchQuery])
+  }, [data?.products, activeCategory, searchQuery, showLowStockOnly])
 
   const categories = (data?.categories ?? []) as { id: string; name: string }[]
   const lowStockCount = (data?.lowStockCount ?? 0) as number
@@ -266,7 +268,7 @@ export function PosPageClient({
             className={`absolute inset-0 flex flex-col transition-transform duration-300 ${mobileTab === "barang" ? "translate-x-0" : "pointer-events-none -translate-x-full"}`}
           >
             {/* Low Stock Banner */}
-            {lowStockCount > 0 && (
+            {(lowStockCount > 0 || showLowStockOnly) && (
               stockReportHref ? (
                 <Link
                   href={stockReportHref}
@@ -288,22 +290,34 @@ export function PosPageClient({
                   />
                 </Link>
               ) : (
-                <div className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm">
+                <button
+                  type="button"
+                  onClick={() => setShowLowStockOnly((v) => !v)}
+                  className={`mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl px-4 py-3 text-white shadow-sm transition-transform active:scale-[0.98] ${
+                    showLowStockOnly
+                      ? "bg-gradient-to-r from-orange-600 to-orange-500 ring-2 ring-white/60"
+                      : "bg-gradient-to-r from-orange-500 to-orange-400"
+                  }`}
+                >
                   <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-white/20">
                     <HugeiconsIcon icon={Alert02Icon} size={22} />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
+                  <div className="min-w-0 flex-1 text-left">
+                    <p className="text-sm font-bold leading-5">
+                      {showLowStockOnly ? "Menampilkan Stok Menipis" : "Stok Hampir Habis!"}
+                    </p>
                     <p className="text-xs leading-4 opacity-90">
-                      {lowStockCount} barang perlu restock
+                      {showLowStockOnly
+                        ? "Ketuk untuk tampilkan semua barang"
+                        : `${lowStockCount} barang perlu restock`}
                     </p>
                   </div>
                   <HugeiconsIcon
-                    icon={ArrowRight01Icon}
+                    icon={showLowStockOnly ? Cancel01Icon : ArrowRight01Icon}
                     size={18}
                     className="opacity-70"
                   />
-                </div>
+                </button>
               )
             )}
 

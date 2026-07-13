@@ -7,6 +7,7 @@ export type PosPageData = {
     image: string | null
     unit: string
     stock: number
+    minStock: number
     buyPrice: number
     sellPrice: number
   }[]

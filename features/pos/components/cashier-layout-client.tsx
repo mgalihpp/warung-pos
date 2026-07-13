@@ -1,8 +1,9 @@
 "use client"
 
 import Link from "next/link"
-import Image from "next/image"
-import { useState, useSyncExternalStore } from "react"
+import { useEffect, useState, useSyncExternalStore } from "react"
+import { format } from "date-fns"
+import { id } from "date-fns/locale"
 import { usePathname, useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
@@ -26,6 +27,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { SidebarTrigger } from "@/components/ui/sidebar"
 
 type CashierLayoutClientProps = {
   userName: string
@@ -72,11 +74,6 @@ function subscribePengaturanDetail(onStoreChange: () => void) {
 
   return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
 }
-
-const navItems = [
-  { href: "/cashier/pos", label: "Kasir", icon: ShoppingCart01Icon },
-  { href: "/cashier/transaksi", label: "Riwayat", icon: Invoice01Icon },
-]
 
 export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
   const pathname = usePathname()
@@ -162,7 +159,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
   return (
     <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
       {/* Mobile Header - matches the design screenshot */}
-      <header className={`${pathname === "/cashier/pos" ? "xl:hidden" : "md:hidden"} bg-primary px-4 py-3 shrink-0`}>
+      <header className="bg-primary px-4 py-3 shrink-0 lg:hidden">
         <div className="flex items-center justify-between">
           <button
             onClick={handleMobileHeaderAction}
@@ -187,50 +184,17 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
       </header>
 
       {/* Desktop Header */}
-      <header className={`${pathname === "/cashier/pos" ? "hidden xl:block" : "hidden md:block"} bg-card border-b px-4 py-2 shrink-0`}>
+      <header className="hidden lg:block bg-card border-b px-4 py-2 shrink-0">
         <div className="flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2.5 min-w-0">
-            <div className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
-              <Image
-                src="/logo warung.png"
-                alt="Logo Warung Mama Nia"
-                width={32}
-                height={32}
-                className="h-full w-full object-contain p-0.5 scale-125"
-              />
-            </div>
-            <div className="flex flex-col min-w-0">
-              <span className="text-sm font-bold text-foreground leading-tight truncate">
-                Warung Mama Nia
-              </span>
-              <span className="text-[10px] text-muted-foreground leading-tight">
-                Halo, {displayName}
-              </span>
-            </div>
-          </div>
+          <SidebarTrigger className="-ml-1" />
 
-          {/* Center: nav tabs */}
-          <nav className="flex items-center gap-1">
-            {navItems.map((item) => {
-              const isActive = pathname === item.href
-              return (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${isActive
-                      ? "bg-primary/10 text-primary"
-                      : "text-muted-foreground hover:bg-accent hover:text-foreground"
-                    }`}
-                >
-                  <HugeiconsIcon icon={item.icon} size={14} />
-                  <span>{item.label}</span>
-                </Link>
-              )
-            })}
-          </nav>
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg px-2.5 py-1.5 text-sm text-muted-foreground">
+              <ClockLabel />
+            </div>
 
-          {/* Right: User Avatar Dropdown */}
-          <DropdownMenu>
+            {/* User Avatar Dropdown */}
+            <DropdownMenu>
             <DropdownMenuTrigger asChild>
               <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
                 <Avatar className="size-8">
@@ -266,7 +230,8 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
                 <span>Keluar</span>
               </DropdownMenuItem>
             </DropdownMenuContent>
-          </DropdownMenu>
+            </DropdownMenu>
+          </div>
         </div>
       </header>
 
@@ -288,5 +253,32 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
         }}
       />
     </div>
+  )
+}
+
+function ClockLabel() {
+  const [now, setNow] = useState<Date | null>(null)
+
+  useEffect(() => {
+    const timeout = window.setTimeout(() => setNow(new Date()), 0)
+    const interval = window.setInterval(() => setNow(new Date()), 1_000)
+
+    return () => {
+      window.clearTimeout(timeout)
+      window.clearInterval(interval)
+    }
+  }, [])
+
+  if (!now) {
+    return <span className="hidden tabular-nums xl:block">--:--:--</span>
+  }
+
+  const today = format(now, "EEEE, dd MMMM yyyy", { locale: id })
+  const time = format(now, "HH:mm:ss")
+
+  return (
+    <span className="hidden capitalize tabular-nums xl:block">
+      {today} - {time}
+    </span>
   )
 }

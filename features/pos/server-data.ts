@@ -51,6 +51,7 @@ export async function getPosPageData(): Promise<PosPageData> {
       image: product.image,
       unit: product.unit,
       stock: product.stock,
+      minStock: product.minStock,
       buyPrice: product.buyPrice,
       sellPrice: product.sellPrice,
     })),

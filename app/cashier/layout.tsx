@@ -1,6 +1,10 @@
 import { redirect } from "next/navigation"
+import { cookies } from "next/headers"
 
 import { getSessionUser } from "@/lib/server/auth-guards"
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { CashierSidebar } from "@/features/pos/components/cashier-sidebar"
 import { CashierLayoutClient } from "@/features/pos/components/cashier-layout-client"
 
 export default async function CashierLayout({
@@ -18,9 +22,20 @@ export default async function CashierLayout({
     redirect("/unauthorized")
   }
 
+  const cookieStore = await cookies()
+  const sidebarState = cookieStore.get("sidebar_state")?.value
+  const defaultOpen = sidebarState === undefined ? true : sidebarState === "true"
+
   return (
-    <CashierLayoutClient userName={user.name}>
-      {children}
-    </CashierLayoutClient>
+    <TooltipProvider>
+      <SidebarProvider defaultOpen={defaultOpen}>
+        <CashierSidebar />
+        <SidebarInset className="min-w-0 max-lg:h-[100dvh] max-lg:overflow-hidden">
+          <CashierLayoutClient userName={user.name}>
+            {children}
+          </CashierLayoutClient>
+        </SidebarInset>
+      </SidebarProvider>
+    </TooltipProvider>
   )
 }
