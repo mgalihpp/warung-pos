@@ -39,40 +39,9 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea"
+import { Field } from "@/features/shared/components/form-field"
+import { PageShell } from "@/features/shared/components/page-shell"
 import type { BarangCategory, BarangItem, BarangStats } from "../types"
-
-// ─── Field helper ────────────────────────────────────────────────────────────
-
-function Field({
-  label,
-  required,
-  children,
-  error,
-  asLabel = true,
-}: {
-  label: string
-  required?: boolean
-  children: React.ReactNode
-  error?: string[]
-  asLabel?: boolean
-}) {
-  const Wrapper = asLabel ? "label" : "div"
-
-  return (
-    <Wrapper className="grid gap-1.5 text-xs font-medium">
-      <span>
-        {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
-      </span>
-      {children}
-      {error?.[0] && (
-        <span className="text-[10px] font-normal text-destructive">
-          {error[0]}
-        </span>
-      )}
-    </Wrapper>
-  )
-}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -220,20 +189,17 @@ export function BarangFormPage(props: BarangFormPageProps) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mx-auto hidden w-full max-w-5xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
-            {mode === "create" ? "Tambah Barang" : "Edit Barang"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {mode === "create"
-              ? "Tambahkan barang baru ke katalog warung Anda"
-              : "Perbarui detail barang dan pengaturan penjualannya"}
-          </p>
-        </div>
-        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+    <PageShell
+      width="wide"
+      backHref="/admin/barang"
+      title={mode === "create" ? "Tambah Barang" : "Edit Barang"}
+      subtitle={
+        mode === "create"
+          ? "Tambahkan barang baru ke katalog warung Anda"
+          : "Perbarui detail barang dan pengaturan penjualannya"
+      }
+      actions={
+        <>
           {mode === "edit" && (
             <Button
               type="button"
@@ -267,13 +233,22 @@ export function BarangFormPage(props: BarangFormPageProps) {
                 ? "Simpan Barang"
                 : "Simpan Perubahan"}
           </Button>
-        </div>
-      </div>
-
-      {/* ── Main: Form + Preview ───────────────────────────────────────── */}
-      <div className="mx-auto flex w-full max-w-5xl min-w-0 flex-col gap-6 pb-32 lg:pb-0">
-        {/* Left: Form */}
-        <form
+        </>
+      }
+      bottomBar={
+        <Button
+          type="button"
+          className="h-12 w-full rounded-xl gap-2"
+          onClick={() => formRef.current?.requestSubmit()}
+          disabled={isPending}
+        >
+          <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+          {isPending ? "Menyimpan..." : "Simpan Barang"}
+        </Button>
+      }
+    >
+      {/* Left: Form */}
+      <form
           id="barang-form"
           ref={formRef}
           onSubmit={handleSubmit}
@@ -466,27 +441,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
             />
           </div>
 
-        </form>
-      </div>
-
-      {/* Bottom Bar for Mobile/Tablet */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-        <div className="mx-auto max-w-md">
-          <Button
-            type="button"
-            className="h-12 w-full rounded-xl gap-2"
-            onClick={() => formRef.current?.requestSubmit()}
-            disabled={isPending}
-          >
-            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-            {isPending
-              ? "Menyimpan..."
-              : mode === "create"
-                ? "Simpan Barang"
-                : "Simpan Barang"}
-          </Button>
-        </div>
-      </div>
+      </form>
 
       {/* Delete confirmation dialog */}
       {mode === "edit" && (
@@ -513,6 +468,6 @@ export function BarangFormPage(props: BarangFormPageProps) {
           </AlertDialogContent>
         </AlertDialog>
       )}
-    </div>
+    </PageShell>
   )
 }

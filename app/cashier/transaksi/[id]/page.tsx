@@ -27,11 +27,5 @@ export default async function CashierTransaksiDetailPage({
     notFound()
   }
 
-  return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4 lg:bg-transparent lg:p-6">
-      <div className="mx-auto max-w-3xl">
-        <CashierTransaksiDetailPageClient transactionId={id} initialData={data} />
-      </div>
-    </div>
-  )
+  return <CashierTransaksiDetailPageClient transactionId={id} initialData={data} />
 }

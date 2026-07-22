@@ -27,11 +27,5 @@ export default async function AdminTransaksiDetailPage({
     notFound()
   }
 
-  return (
-    <div className="h-full min-h-0 overflow-y-auto bg-slate-50 p-4 lg:bg-transparent lg:p-6">
-      <div className="mx-auto max-w-3xl">
-        <AdminTransaksiDetailPageClient transactionId={id} initialData={data} />
-      </div>
-    </div>
-  )
+  return <AdminTransaksiDetailPageClient transactionId={id} initialData={data} />
 }

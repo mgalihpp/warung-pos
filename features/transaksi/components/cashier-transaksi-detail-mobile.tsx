@@ -6,7 +6,6 @@ import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
-  ArrowLeft01Icon,
   Edit02Icon,
   InformationCircleIcon,
   PackageIcon,
@@ -140,17 +139,6 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
 
   return (
     <div ref={containerRef} className={canManage ? "space-y-4 pb-28" : "space-y-4 pb-6"}>
-      {/* ── Back (desktop only; mobile uses the layout header arrow) ── */}
-      <Button
-        type="button"
-        variant="ghost"
-        onClick={onBack}
-        className="-ml-2 hidden h-9 gap-1.5 text-muted-foreground hover:text-foreground lg:inline-flex"
-      >
-        <HugeiconsIcon icon={ArrowLeft01Icon} size={18} />
-        Kembali
-      </Button>
-
       {/* ── Informasi Transaksi ── */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">

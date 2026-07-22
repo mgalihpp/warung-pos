@@ -6,7 +6,6 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  ArrowLeft02Icon,
   ArrowRight01Icon,
   ArrowUp01Icon,
   ArrowDown01Icon,
@@ -47,6 +46,7 @@ import {
 } from "@/components/ui/alert-dialog"
 import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
+import { PageShell } from "@/features/shared/components/page-shell"
 import { useDeleteProduct } from "../hooks/use-barang-actions"
 import type { BarangDetailData } from "../server-data-detail"
 
@@ -352,61 +352,43 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
       </div>
 
       {/* Desktop */}
-      <div className="hidden lg:flex min-w-0 flex-col gap-4 p-4 pb-24 lg:gap-6 lg:p-6">
-        {/* Header */}
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-        <div className="flex items-start gap-3">
-          <Button
-            asChild
-            size="icon"
-            variant="outline"
-            className="mt-0.5 shrink-0 rounded-full"
-            aria-label="Kembali"
-          >
-            <Link href="/admin/barang">
-              <HugeiconsIcon icon={ArrowLeft02Icon} size={16} />
-            </Link>
-          </Button>
-          <div>
-            <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
-              Detail Barang
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Lihat informasi lengkap, performa, dan stok barang
-            </p>
-          </div>
-        </div>
-
-        <div className="flex flex-wrap items-center gap-2">
-          <Button
-            type="button"
-            variant="outline"
-            className="gap-2"
-            onClick={handleDuplicate}
-            disabled={isDuplicating}
-          >
-            <HugeiconsIcon icon={Copy01Icon} size={16} />
-            {isDuplicating ? "Menduplikasi..." : "Duplikat Barang"}
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => setDeleteOpen(true)}
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={16} />
-            Hapus
-          </Button>
-          <Button asChild className="gap-2">
-            <Link href={`/admin/barang/${product.id}/edit`}>
-              <HugeiconsIcon icon={Edit02Icon} size={16} />
-              Edit Barang
-            </Link>
-          </Button>
-        </div>
-      </div>
-
-      <div className="flex min-w-0 flex-col gap-4 lg:gap-6">
+      <PageShell
+        className="hidden lg:flex pb-24"
+        width="wide"
+        backHref="/admin/barang"
+        title="Detail Barang"
+        subtitle="Lihat informasi lengkap, performa, dan stok barang"
+        actions={
+          <>
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2"
+              onClick={handleDuplicate}
+              disabled={isDuplicating}
+            >
+              <HugeiconsIcon icon={Copy01Icon} size={16} />
+              {isDuplicating ? "Menduplikasi..." : "Duplikat Barang"}
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
+              onClick={() => setDeleteOpen(true)}
+            >
+              <HugeiconsIcon icon={Delete02Icon} size={16} />
+              Hapus
+            </Button>
+            <Button asChild className="gap-2">
+              <Link href={`/admin/barang/${product.id}/edit`}>
+                <HugeiconsIcon icon={Edit02Icon} size={16} />
+                Edit Barang
+              </Link>
+            </Button>
+          </>
+        }
+      >
+        <div className="flex min-w-0 flex-col gap-4 lg:gap-6">
           {/* Stat cards */}
           <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
             {topStats.map((s) => (
@@ -744,8 +726,8 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               </div>
             )}
           </section>
-      </div>
-      </div>
+        </div>
+      </PageShell>
 
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-[400px]">

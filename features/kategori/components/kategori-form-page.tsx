@@ -18,31 +18,10 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Field } from "@/features/shared/components/form-field"
+import { PageShell } from "@/features/shared/components/page-shell"
 import { useCreateKategori, useDeleteKategori, useUpdateKategori } from "../hooks/use-kategori-actions"
 import type { KategoriItem } from "../types"
-
-function Field({
-  label,
-  required,
-  children,
-  error,
-}: {
-  label: string
-  required?: boolean
-  children: React.ReactNode
-  error?: string[]
-}) {
-  return (
-    <label className="grid gap-1.5 text-xs font-medium">
-      <span>
-        {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
-      </span>
-      {children}
-      {error?.[0] && <span className="text-[10px] font-normal text-destructive">{error[0]}</span>}
-    </label>
-  )
-}
 
 type KategoriFormPageProps =
   | {
@@ -124,17 +103,15 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
   }
 
   return (
-    <div className="flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6">
-      <div className="mx-auto hidden w-full max-w-3xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
-            {mode === "create" ? "Tambah Kategori" : "Edit Kategori"}
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {mode === "create" ? "Tambahkan kategori baru untuk barang warung" : "Perbarui nama dan deskripsi kategori"}
-          </p>
-        </div>
-        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+    <PageShell
+      width="narrow"
+      backHref="/admin/kategori"
+      title={mode === "create" ? "Tambah Kategori" : "Edit Kategori"}
+      subtitle={
+        mode === "create" ? "Tambahkan kategori baru untuk barang warung" : "Perbarui nama dan deskripsi kategori"
+      }
+      actions={
+        <>
           {mode === "edit" && (
             <Button
               type="button"
@@ -155,11 +132,21 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
             {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Simpan Perubahan"}
           </Button>
-        </div>
-      </div>
-
-      <div className="mx-auto flex w-full max-w-3xl min-w-0 flex-col gap-6 pb-32 lg:pb-0">
-        <form
+        </>
+      }
+      bottomBar={
+        <Button
+          type="button"
+          className="h-12 w-full rounded-2xl gap-2"
+          onClick={() => formRef.current?.requestSubmit()}
+          disabled={mutation.isPending}
+        >
+          <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+          {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Perbarui Kategori"}
+        </Button>
+      }
+    >
+      <form
           id="kategori-form"
           ref={formRef}
           onSubmit={handleSubmit}
@@ -206,22 +193,7 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
               <input type="hidden" name="description" value={category?.description ?? ""} />
             </div>
           </div>
-        </form>
-      </div>
-
-      <div className="lg:hidden">
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <Button
-            type="button"
-            className="h-12 w-full rounded-2xl gap-2"
-            onClick={() => formRef.current?.requestSubmit()}
-            disabled={mutation.isPending}
-          >
-            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-            {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Perbarui Kategori"}
-          </Button>
-        </div>
-      </div>
+      </form>
 
       {mode === "edit" && category && (
         <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
@@ -246,6 +218,6 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
           </AlertDialogContent>
         </AlertDialog>
       )}
-    </div>
+    </PageShell>
   )
 }

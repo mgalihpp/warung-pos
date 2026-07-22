@@ -32,36 +32,9 @@ import {
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
+import { Field } from "@/features/shared/components/form-field"
+import { PageShell } from "@/features/shared/components/page-shell"
 import { formatRupiah } from "@/lib/format-currency"
-
-// ── Field helper (matches barang-form-page) ──
-
-function Field({
-  label,
-  required,
-  children,
-  error,
-}: {
-  label: string
-  required?: boolean
-  children: React.ReactNode
-  error?: string
-}) {
-  return (
-    <label className="grid gap-1.5 text-xs font-medium">
-      <span>
-        {label}
-        {required && <span className="ml-0.5 text-destructive">*</span>}
-      </span>
-      {children}
-      {error && (
-        <span className="text-[10px] font-normal text-destructive">
-          {error}
-        </span>
-      )}
-    </label>
-  )
-}
 
 // ── Payment method helpers ──
 
@@ -183,18 +156,14 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
   }
 
   return (
-    <div className="flex h-full min-w-0 flex-col gap-4 overflow-y-auto bg-slate-50 p-4 lg:bg-transparent lg:gap-6 lg:p-6">
-      {/* ── Header ─────────────────────────────────────────────────────── */}
-      <div className="mx-auto hidden w-full max-w-4xl flex-col gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between">
-        <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
-            Edit Transaksi
-          </h1>
-          <p className="text-sm text-muted-foreground">
-            {data.transactionNumber} — Ubah item, metode bayar, atau catatan
-          </p>
-        </div>
-        <div className="flex flex-wrap items-center gap-2">
+    <PageShell
+      width="wide"
+      className="h-full overflow-y-auto bg-slate-50 lg:bg-transparent"
+      backHref={`${basePath}/${data.id}`}
+      title="Edit Transaksi"
+      subtitle={`${data.transactionNumber} — Ubah item, metode bayar, atau catatan`}
+      actions={
+        <>
           <Button
             type="button"
             variant="outline"
@@ -208,7 +177,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
             type="button"
             variant="outline"
             className="gap-2"
-            onClick={() => router.push(basePath)}
+            onClick={() => router.push(`${basePath}/${data.id}`)}
           >
             <HugeiconsIcon icon={Cancel01Icon} size={14} />
             Batal
@@ -222,11 +191,22 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
             {updateMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
           </Button>
-        </div>
-      </div>
-
+        </>
+      }
+      bottomBar={
+        <Button
+          type="button"
+          className="h-12 w-full rounded-xl"
+          onClick={handleSubmit}
+          disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
+        >
+          <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
+          {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+        </Button>
+      }
+    >
       {/* ── Main Content ──────────────────────────────────────────────── */}
-      <div className="mx-auto flex w-full max-w-4xl min-w-0 flex-col gap-6 pb-32 lg:flex-row lg:pb-0">
+      <div className="flex w-full min-w-0 flex-col gap-6 lg:flex-row">
         {/* Left column: Items + Notes */}
         <div className="flex min-w-0 flex-1 flex-col gap-6">
           {/* Daftar Item */}
@@ -432,21 +412,6 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
         </div>
       </div>
 
-      {/* Mobile/Tablet bottom actions */}
-      <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
-        <div className="mx-auto max-w-md">
-          <Button
-            type="button"
-            className="h-12 w-full rounded-xl"
-            onClick={handleSubmit}
-            disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
-          >
-            <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-            {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
-          </Button>
-        </div>
-      </div>
-
       {/* Delete confirmation — matches barang delete dialog */}
       <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
         <AlertDialogContent className="sm:max-w-[400px]">
@@ -503,6 +468,6 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
-    </div>
+    </PageShell>
   )
 }
