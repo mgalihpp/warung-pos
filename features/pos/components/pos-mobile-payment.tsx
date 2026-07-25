@@ -233,7 +233,7 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
             disabled={!canPay}
             loading={isProcessing}
             loadingText="Memproses..."
-            className="mt-3 w-full rounded-2xl py-4 text-base font-bold shadow-lg shadow-primary/25"
+            className="mt-3 h-auto w-full rounded-2xl px-0 py-4 text-base font-bold shadow-lg shadow-primary/25"
           >
             <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
             Proses Pembayaran

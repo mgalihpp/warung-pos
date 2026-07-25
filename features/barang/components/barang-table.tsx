@@ -21,6 +21,7 @@ import {
 import { toast } from "sonner"
 
 import { useIsMobile } from "@/hooks/use-mobile"
+import { useSearchParam } from "@/hooks/use-search-param"
 import {
   useDeleteProduct,
   useToggleProductActive,
@@ -546,12 +547,13 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
 }
 
 export function BarangTable({ products, categories }: BarangTableProps) {
-  const [activeCategory, setActiveCategory] = React.useState("Semua")
-  const [activeStatus, setActiveStatus] = React.useState("Semua Status")
-  const [activeSort, setActiveSort] = React.useState("Nama A-Z")
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [currentPage, setCurrentPage] = React.useState(1)
+  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
+  const [activeCategory, setActiveCategory] = useSearchParam("category", "Semua")
+  const [activeStatus, setActiveStatus] = useSearchParam("status", "Semua Status")
+  const [activeSort, setActiveSort] = useSearchParam("sort", "Nama A-Z")
+  const [currentPageRaw, setCurrentPage] = useSearchParam("page", "1")
   const [isFilterOpen, setIsFilterOpen] = React.useState(false)
+  const currentPage = Number(currentPageRaw)
 
   const categoryOptions = [
     "Semua",
@@ -911,7 +913,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
         <div className="flex items-center gap-1">
           <button
             disabled={safePage === 1}
-            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
@@ -921,7 +923,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
             .map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => setCurrentPage(String(page))}
                 className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${safePage === page ? "bg-primary text-primary-foreground" : "border text-muted-foreground hover:bg-muted"}`}
               >
                 {page}
@@ -930,7 +932,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
           <button
             disabled={safePage === totalPages}
             onClick={() =>
-              setCurrentPage((page) => Math.min(totalPages, page + 1))
+              setCurrentPage(String(Math.min(totalPages, safePage + 1)))
             }
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >

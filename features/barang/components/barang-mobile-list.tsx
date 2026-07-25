@@ -14,6 +14,7 @@ import {
   Tick02Icon,
 } from "@hugeicons/core-free-icons"
 
+import { useSearchParam } from "@/hooks/use-search-param"
 import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import {
@@ -76,15 +77,16 @@ export function BarangMobileList({
   products: BarangItem[]
   categories: BarangCategory[]
 }) {
-  const [q, setQ] = React.useState("")
-  const [activeCategory, setActiveCategory] = React.useState<string | null>(null)
-  const [activeStatus, setActiveStatus] = React.useState<StatusOption>("Semua Status")
-  const [activeSort, setActiveSort] = React.useState<SortOption>("Terbaru")
+  const [q, setQ] = useSearchParam("search", "")
+  const [activeCategoryId, setActiveCategoryId] = useSearchParam("category", "")
+  const [activeStatus, setActiveStatus] = useSearchParam("status", "Semua Status")
+  const [activeSort, setActiveSort] = useSearchParam("sort", "Terbaru")
   const [isSearchActive, setIsSearchActive] = React.useState(false)
   const [isCategoryOpen, setIsCategoryOpen] = React.useState(false)
   const [categorySnap, setCategorySnap] = React.useState<number | string | null>(0.5)
   const [isFilterOpen, setIsFilterOpen] = React.useState(false)
   const query = q.trim().toLowerCase()
+  const activeCategory = activeCategoryId || null
   const hasActiveFilters = activeStatus !== "Semua Status" || activeSort !== "Terbaru"
   const activeCategoryName = activeCategory
     ? categories.find((category) => category.id === activeCategory)?.name ?? "Semua Kategori"
@@ -197,7 +199,7 @@ export function BarangMobileList({
               <button
                 type="button"
                 onClick={() => {
-                  setActiveCategory(null)
+                  setActiveCategoryId("")
                   setIsCategoryOpen(false)
                 }}
                 className={cn(
@@ -219,7 +221,7 @@ export function BarangMobileList({
                     key={category.id}
                     type="button"
                     onClick={() => {
-                      setActiveCategory(category.id)
+                      setActiveCategoryId(category.id)
                       setIsCategoryOpen(false)
                     }}
                     className={cn(

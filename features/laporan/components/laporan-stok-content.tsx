@@ -2,14 +2,21 @@
 
 import * as React from "react"
 import Image from "next/image"
+import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Alert02Icon,
+  ArrowLeft01Icon,
+  ArrowRight01Icon,
   Cancel01Icon,
+  Delete02Icon,
+  Edit02Icon,
   FilterIcon,
+  MoreVerticalCircle01Icon,
   PackageIcon,
   SearchIcon,
   Tick02Icon,
+  ViewIcon,
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 
@@ -20,8 +27,35 @@ import {
   DrawerHeader,
   DrawerTitle,
 } from "@/components/ui/drawer"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
+import {
+  AlertDialog,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSearchParam, useSearchParamsState } from "@/hooks/use-search-param"
 import { formatNumber, formatRupiah } from "@/lib/format-currency"
+import { useDeleteProduct } from "@/features/barang/hooks/use-barang-actions"
+import { useQueryClient } from "@tanstack/react-query"
+import { toast } from "sonner"
 import {
   useLaporanStok,
   type StokData,
@@ -37,11 +71,16 @@ const statusLabel: Record<StatusFilter, string> = {
   OUT: "Habis",
 }
 
+const pageSize = 10
+
 export function LaporanStokContent({ initialData }: { initialData?: StokData }) {
   const { data, isLoading, error } = useLaporanStok(initialData)
-  const [search, setSearch] = React.useState("")
-  const [categoryId, setCategoryId] = React.useState<string>("all")
-  const [status, setStatus] = React.useState<StatusFilter>("all")
+  const [search, setSearch] = useSearchParam("search", "")
+  const [categoryId, setCategoryId] = useSearchParam("category", "all")
+  const [statusParam, setStatus] = useSearchParam("status", "all")
+  const status = statusParam as StatusFilter
+  const [pageParam, setCurrentPage] = useSearchParam("page", "1")
+  const currentPage = Number(pageParam)
   const [filterOpen, setFilterOpen] = React.useState(false)
 
   if (error) {
@@ -66,7 +105,17 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
   const resetFilters = () => {
     setCategoryId("all")
     setStatus("all")
+    setCurrentPage("1")
   }
+
+  const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
+  const safePage = Math.min(currentPage, totalPages)
+  const pageProducts = filtered.slice(
+    (safePage - 1) * pageSize,
+    safePage * pageSize,
+  )
+  const startItem = filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const endItem = Math.min(safePage * pageSize, filtered.length)
 
   return (
     <div className="flex flex-col gap-4">
@@ -84,7 +133,7 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
               <input
                 type="text"
                 value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => { setSearch(e.target.value); setCurrentPage("1") }}
                 placeholder="Cari barang..."
                 className="h-12 w-full rounded-xl border bg-background py-2 pr-3 pl-9 text-sm outline-none transition-colors focus:border-primary lg:h-10 lg:rounded-lg"
               />
@@ -123,14 +172,14 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                         <MobileFilterOption
                           active={categoryId === "all"}
                           label="Semua Kategori"
-                          onClick={() => setCategoryId("all")}
+                          onClick={() => { setCategoryId("all"); setCurrentPage("1") }}
                         />
                         {data.categories.map((cat) => (
                           <MobileFilterOption
                             key={cat.id}
                             active={categoryId === cat.id}
                             label={cat.name}
-                            onClick={() => setCategoryId(cat.id)}
+                            onClick={() => { setCategoryId(cat.id); setCurrentPage("1") }}
                           />
                         ))}
                       </MobileFilterGroup>
@@ -140,7 +189,7 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                             key={item}
                             active={status === item}
                             label={statusLabel[item]}
-                            onClick={() => setStatus(item)}
+                            onClick={() => { setStatus(item); setCurrentPage("1") }}
                           />
                         ))}
                       </MobileFilterGroup>
@@ -166,28 +215,34 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
               </Drawer>
             </div>
 
-            <select
-              value={categoryId}
-              onChange={(e) => setCategoryId(e.target.value)}
-              className="hidden rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary lg:block"
-            >
-              <option value="all">Semua Kategori</option>
-              {data.categories.map((cat) => (
-                <option key={cat.id} value={cat.id}>
-                  {cat.name}
-                </option>
-              ))}
-            </select>
-            <select
-              value={status}
-              onChange={(e) => setStatus(e.target.value as StatusFilter)}
-              className="hidden rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:border-primary lg:block"
-            >
-              <option value="all">Semua Status</option>
-              <option value="OK">Aman</option>
-              <option value="LOW">Menipis</option>
-              <option value="OUT">Habis</option>
-            </select>
+            <div className="hidden lg:block">
+              <Select value={categoryId} onValueChange={(v) => { setCategoryId(v); setCurrentPage("1") }}>
+                <SelectTrigger className="w-[180px]">
+                  <SelectValue placeholder="Kategori" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Kategori</SelectItem>
+                  {data.categories.map((cat) => (
+                    <SelectItem key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <div className="hidden lg:block">
+              <Select value={status} onValueChange={(v) => { setStatus(v as StatusFilter); setCurrentPage("1") }}>
+                <SelectTrigger className="w-[160px]">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">Semua Status</SelectItem>
+                  <SelectItem value="OK">Aman</SelectItem>
+                  <SelectItem value="LOW">Menipis</SelectItem>
+                  <SelectItem value="OUT">Habis</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
           </div>
           <span className="text-xs text-muted-foreground">
             {filtered.length} dari {data.items.length} barang
@@ -210,7 +265,7 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
         </div>
 
         <div className="hidden overflow-x-auto lg:block">
-          <table className="w-full min-w-[820px] text-left text-xs">
+          <table className="w-full min-w-[860px] text-left text-xs">
             <thead className="bg-muted/50 text-muted-foreground">
               <tr>
                 <th className="px-4 py-3 font-semibold">Barang</th>
@@ -227,41 +282,82 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                   Nilai Stok
                 </th>
                 <th className="px-4 py-3 text-center font-semibold">Status</th>
+                <th className="px-4 py-3 text-center font-semibold">Aksi</th>
               </tr>
             </thead>
             <tbody>
-              {filtered.length === 0 ? (
+              {pageProducts.length === 0 ? (
                 <tr>
                   <td
-                    colSpan={8}
+                    colSpan={9}
                     className="px-4 py-10 text-center text-muted-foreground"
                   >
                     Tidak ada barang yang cocok.
                   </td>
                 </tr>
               ) : (
-                filtered.map((item) => <StokRow key={item.id} item={item} />)
+                pageProducts.map((item) => <StokRow key={item.id} item={item} />)
               )}
             </tbody>
           </table>
         </div>
 
+        <div className="hidden border-t px-4 py-3 lg:block">
+          <div className="flex items-center justify-between">
+            <p className="text-xs text-muted-foreground">
+              Menampilkan {startItem}-{endItem} dari {filtered.length} barang
+            </p>
+            {totalPages > 1 && (
+              <div className="flex items-center gap-1">
+                <button
+                  disabled={safePage === 1}
+                  onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
+                  className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                >
+                  <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+                </button>
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setCurrentPage(String(page))}
+                    className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
+                      safePage === page
+                        ? "bg-primary text-primary-foreground"
+                        : "border text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
+                <button
+                  disabled={safePage === totalPages}
+                  onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
+                  className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+                >
+                  <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* ── Mobile/Tablet Card List (<lg) ── */}
-        <div className="flex flex-col gap-2.5 p-4 pt-0 lg:hidden">
-          {filtered.length === 0 ? (
+        <div className="flex flex-col gap-2.5 p-4 pt-4 lg:hidden">
+          {pageProducts.length === 0 ? (
             <div className="py-6 text-center text-xs text-muted-foreground">
               Tidak ada barang yang cocok.
             </div>
           ) : (
-            filtered.map((item) => {
+            pageProducts.map((item) => {
               const badgeMap: Record<string, string> = { OK: "bg-emerald-500/10 text-emerald-600", LOW: "bg-amber-500/10 text-amber-600", OUT: "bg-rose-500/10 text-rose-600" }
               const labelMap: Record<string, string> = { OK: "Aman", LOW: "Menipis", OUT: "Habis" }
               const stockRatio = item.minStock > 0 ? Math.min((item.stock / item.minStock) * 100, 100) : 100
               const barColor = item.status === "OUT" ? "bg-rose-500" : item.status === "LOW" ? "bg-amber-500" : "bg-emerald-500"
               return (
-                <div
+                <Link
                   key={item.id}
-                  className="rounded-2xl border border-border/60 bg-background p-3.5 shadow-sm"
+                  href={`/admin/barang/${item.id}`}
+                  className="rounded-2xl border border-border/60 bg-background p-3.5 shadow-sm transition-colors hover:bg-muted/30"
                 >
                   <div className="flex items-start gap-3">
                     <div className="flex size-12 shrink-0 items-center justify-center overflow-hidden rounded-2xl bg-muted">
@@ -321,9 +417,41 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                       <p className="break-words text-xs font-bold text-primary">{formatRupiah(item.nilaiStok)}</p>
                     </div>
                   </div>
-                </div>
+                </Link>
               )
             })
+          )}
+
+          {totalPages > 1 && (
+            <div className="flex items-center justify-center gap-1 pt-2">
+              <button
+                disabled={safePage === 1}
+                onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
+                className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
+              </button>
+              {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
+                <button
+                  key={page}
+                  onClick={() => setCurrentPage(String(page))}
+                  className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
+                    safePage === page
+                      ? "bg-primary text-primary-foreground"
+                      : "border text-muted-foreground hover:bg-muted"
+                  }`}
+                >
+                  {page}
+                </button>
+              ))}
+              <button
+                disabled={safePage === totalPages}
+                onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
+                className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
+              >
+                <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
+              </button>
+            </div>
           )}
         </div>
       </div>
@@ -437,6 +565,10 @@ function StatGrid({ stats }: { stats: StokData["stats"] }) {
 }
 
 function StokRow({ item }: { item: StokItem }) {
+  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const queryClient = useQueryClient()
+  const deleteMutation = useDeleteProduct()
+
   const statusBadge: Record<StokItem["status"], string> = {
     OK: "bg-emerald-500/10 text-emerald-600",
     LOW: "bg-amber-500/10 text-amber-600",
@@ -447,7 +579,23 @@ function StokRow({ item }: { item: StokItem }) {
     LOW: "Menipis",
     OUT: "Habis",
   }
+
+  const handleDelete = () => {
+    deleteMutation.mutate(item.id, {
+      onSuccess: (data) => {
+        if (data.success) {
+          queryClient.invalidateQueries({ queryKey: ["laporan", "stok"] })
+          toast.success("Barang berhasil dihapus")
+          return
+        }
+        toast.error(data.error ?? "Barang gagal dihapus")
+      },
+      onError: () => toast.error("Barang gagal dihapus"),
+    })
+  }
+
   return (
+    <>
     <tr className="border-t transition-colors hover:bg-muted/30">
       <td className="px-4 py-2.5">
         <div className="flex items-center gap-3">
@@ -493,7 +641,79 @@ function StokRow({ item }: { item: StokItem }) {
           {statusLabel[item.status]}
         </span>
       </td>
+      <td className="px-4 py-2.5 text-center">
+        <div className="flex items-center justify-center gap-1">
+          <Link
+            href={`/admin/barang/${item.id}/edit`}
+            className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
+            aria-label="Edit barang"
+          >
+            <HugeiconsIcon icon={Edit02Icon} size={15} />
+          </Link>
+          <Link
+            href={`/admin/barang/${item.id}`}
+            className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+            aria-label="Lihat detail"
+          >
+            <HugeiconsIcon icon={ViewIcon} size={15} />
+          </Link>
+          <DropdownMenu>
+            <DropdownMenuTrigger asChild>
+              <button
+                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                aria-label="Aksi lainnya"
+              >
+                <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
+              </button>
+            </DropdownMenuTrigger>
+            <DropdownMenuContent align="end" className="w-44 rounded-xl p-2">
+              <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg py-2">
+                <Link href={`/admin/barang/${item.id}/edit`}>
+                  <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+                  Edit Barang
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuSeparator className="my-1" />
+              <DropdownMenuItem
+                variant="destructive"
+                className="cursor-pointer gap-2 rounded-lg py-2"
+                onSelect={() => setDeleteOpen(true)}
+              >
+                <HugeiconsIcon icon={Delete02Icon} size={16} />
+                Hapus Barang
+              </DropdownMenuItem>
+            </DropdownMenuContent>
+          </DropdownMenu>
+        </div>
+      </td>
     </tr>
+
+    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+      <AlertDialogContent className="sm:max-w-[400px]">
+        <AlertDialogHeader>
+          <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+            <HugeiconsIcon icon={Alert02Icon} size={20} />
+            Hapus Barang?
+          </AlertDialogTitle>
+          <AlertDialogDescription className="pt-2 leading-relaxed">
+            Barang <strong className="font-semibold text-foreground">{item.name}</strong> akan
+            dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter className="gap-2">
+          <AlertDialogCancel className="mt-0">Batal</AlertDialogCancel>
+          <button
+            type="button"
+            onClick={handleDelete}
+            disabled={deleteMutation.isPending}
+            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-destructive px-5 text-sm font-semibold text-destructive-foreground transition-all hover:bg-destructive/90 active:scale-[0.98] disabled:opacity-50"
+          >
+            {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+          </button>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+    </>
   )
 }
 

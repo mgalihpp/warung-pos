@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { LaporanStokContent } from "@/features/laporan/components/laporan-stok-content"
@@ -17,5 +18,5 @@ export default async function LaporanStokPage() {
 
   const data = await getLaporanStokData()
 
-  return <LaporanStokContent initialData={data} />
+  return <Suspense><LaporanStokContent initialData={data} /></Suspense>
 }

@@ -25,6 +25,7 @@ import {
 import { generateReactHelpers } from "@uploadthing/react"
 import Link from "next/link"
 import { usePathname, useRouter } from "next/navigation"
+import { useSearchParam } from "@/hooks/use-search-param"
 import { toast } from "sonner"
 
 import { authClient, useSession } from "@/lib/auth-client"
@@ -533,9 +534,8 @@ export function ProfileTab({
 }) {
   const [isPending, startTransition] = useTransition()
   const [isPwPending, startPwTransition] = useTransition()
-  const [mobileView, setMobileView] = React.useState<
-    "menu" | "profile" | "password"
-  >("menu")
+  const [mobileViewParam, setMobileView] = useSearchParam("view", "menu")
+  const mobileView = mobileViewParam as "menu" | "profile" | "password"
   const [avatarUrl, setAvatarUrl] = React.useState<string | null>(
     displayUser.image ?? null
   )

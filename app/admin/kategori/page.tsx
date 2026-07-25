@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { KategoriHeader } from "@/features/kategori/components/kategori-header"
@@ -22,12 +23,12 @@ export default async function KategoriPage() {
 
   return (
     <>
-      <KategoriMobileList categories={data.categories} />
+      <Suspense><KategoriMobileList categories={data.categories} /></Suspense>
 
       <div className="hidden lg:flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">
         <KategoriHeader />
         <KategoriStatCards stats={data.stats} />
-        <KategoriTable categories={data.categories} />
+        <Suspense><KategoriTable categories={data.categories} /></Suspense>
       </div>
     </>
   )

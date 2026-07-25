@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { PengaturanContent } from "@/features/pengaturan/components/pengaturan-content"
@@ -29,5 +30,5 @@ export default async function CashierPengaturanPage() {
       })
     : null
 
-  return <PengaturanContent currentUser={currentUser} basePath="/cashier/pengaturan" />
+  return <Suspense><PengaturanContent currentUser={currentUser} basePath="/cashier/pengaturan" /></Suspense>
 }

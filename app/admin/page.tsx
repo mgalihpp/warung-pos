@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { AdminDashboardContent } from "@/features/dashboard/components/admin-dashboard-content"
@@ -17,5 +18,5 @@ export default async function AdminDashboardPage() {
 
   const data = await getDashboardData("7d")
 
-  return <AdminDashboardContent initialData={data} />
+  return <Suspense><AdminDashboardContent initialData={data} /></Suspense>
 }

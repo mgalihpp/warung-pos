@@ -237,7 +237,7 @@ export function PosPaymentDialog({
             disabled={!canPay}
             loading={isProcessing}
             loadingText="Memproses..."
-            className="w-full rounded-xl font-bold shadow-sm"
+            className="h-auto w-full rounded-xl px-0 py-3 font-bold shadow-sm"
           >
             Bayar {formatRupiah(subtotal)}
           </Button>
@@ -246,7 +246,7 @@ export function PosPaymentDialog({
             variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isProcessing}
-            className="w-full rounded-xl font-bold shadow-sm"
+            className="h-auto w-full rounded-xl px-0 py-3 font-bold shadow-sm"
           >
             Batal
           </Button>

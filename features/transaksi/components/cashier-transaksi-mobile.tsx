@@ -12,6 +12,7 @@ import {
   MoneyReceiveFlowIcon,
   TickDouble01Icon,
 } from "@hugeicons/core-free-icons"
+import { useSearchParam } from "@/hooks/use-search-param"
 import { formatRupiah } from "@/lib/format-currency"
 import type { TransactionItem, TransactionStats, PaymentMethod } from "../hooks/use-transaksi-queries"
 import { CashierTransaksiDetailMobile } from "./cashier-transaksi-detail-mobile"
@@ -79,8 +80,9 @@ type Props = {
 
 export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }: Props) {
   const [selectedTransactionId, setSelectedTransactionId] = React.useState<string | null>(null)
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [period, setPeriod] = React.useState<Period>('month')
+  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
+  const [periodParam, setPeriod] = useSearchParam("period", "month")
+  const period = periodParam as Period
   const [isDrawerOpen, setIsDrawerOpen] = React.useState(false)
 
   const filteredTransactions = React.useMemo(() => {

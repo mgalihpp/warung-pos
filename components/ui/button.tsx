@@ -85,25 +85,14 @@ function Button({
       disabled={isDisabled}
       {...props}
     >
-      <span className="relative grid">
-        <span
-          className="col-span-1 row-span-1 flex items-center justify-center gap-1.5 truncate transition-all duration-300"
-          style={{
-            opacity: loading ? 0 : 1,
-            transform: loading
-              ? "scale(0.95) translateY(-2px)"
-              : "scale(1) translateY(0)",
-          }}
-        >
-          {children}
-        </span>
-        {loading ? (
-          <span className="col-span-1 row-span-1 flex items-center justify-center gap-1.5 truncate animate-in fade-in zoom-in-75 slide-in-from-left-1 duration-300">
-            <Spinner className="size-4 shrink-0" />
-            {loadingText ?? (typeof children === "string" ? children : "")}
-          </span>
-        ) : null}
-      </span>
+      {loading ? (
+        <>
+          <Spinner className="size-4 shrink-0 animate-in fade-in zoom-in-75 duration-200" />
+          {loadingText ?? (typeof children === "string" ? children : "")}
+        </>
+      ) : (
+        children
+      )}
     </Comp>
   )
 }

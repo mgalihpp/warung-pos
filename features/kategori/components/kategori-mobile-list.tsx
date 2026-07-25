@@ -5,10 +5,11 @@ import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon, Edit02Icon, Search01Icon, TagsIcon } from "@hugeicons/core-free-icons"
 
+import { useSearchParam } from "@/hooks/use-search-param"
 import type { KategoriItem } from "../types"
 
 export function KategoriMobileList({ categories }: { categories: KategoriItem[] }) {
-  const [q, setQ] = React.useState("")
+  const [q, setQ] = useSearchParam("search", "")
   const query = q.trim().toLowerCase()
   const filtered = React.useMemo(() => {
     if (!query) return categories

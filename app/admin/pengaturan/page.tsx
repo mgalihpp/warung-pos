@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { PengaturanContent } from "@/features/pengaturan/components/pengaturan-content"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
@@ -29,5 +30,5 @@ export default async function PengaturanPage() {
       })
     : null
 
-  return <PengaturanContent currentUser={currentUser} />
+  return <Suspense><PengaturanContent currentUser={currentUser} /></Suspense>
 }

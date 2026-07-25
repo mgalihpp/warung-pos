@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { TransaksiStatCards } from "@/features/transaksi/components/transaksi-stat-cards"
@@ -28,19 +29,19 @@ export default async function CashierTransaksiPage() {
 
       <div className="hidden lg:flex lg:flex-col lg:gap-6">
         <TransaksiStatCards stats={data.stats} />
-        <TransaksiTable
+        <Suspense><TransaksiTable
           transactions={data.transactions}
           cashierList={data.cashierList}
           detailBasePath="/cashier/transaksi"
-        />
+        /></Suspense>
       </div>
 
       <div className="block min-h-0 flex-1 lg:hidden">
-        <CashierTransaksiMobile
+        <Suspense><CashierTransaksiMobile
           transactions={data.transactions}
           stats={data.stats}
           detailBasePath="/cashier/transaksi"
-        />
+        /></Suspense>
       </div>
     </div>
   )

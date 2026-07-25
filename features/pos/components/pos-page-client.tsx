@@ -15,6 +15,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
 
+import { useSearchParam } from "@/hooks/use-search-param"
 import { formatRupiah } from "@/lib/format-currency"
 import type { PosPageData } from "@/features/pos/types"
 import {
@@ -61,13 +62,16 @@ export function PosPageClient({
   stockReportHref,
 }: PosPageClientProps) {
   const queryClient = useQueryClient()
-  const [mobileTab, setMobileTab] = useState<MobileTab>("barang")
-  const [searchQuery, setSearchQuery] = useState("")
+  const [mobileTabParam, setMobileTab] = useSearchParam("tab", "barang")
+  const mobileTab = mobileTabParam as MobileTab
+  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
+  const [activeCategoryParam, setActiveCategory] = useSearchParam("category", "")
+  const activeCategory = activeCategoryParam || null
+  const [showLowStockOnlyParam, setShowLowStockOnly] = useSearchParam("lowstock", "false")
+  const showLowStockOnly = showLowStockOnlyParam === "true"
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false)
   const [mobileCategorySnap, setMobileCategorySnap] = useState<number | string | null>(0.5)
-  const [activeCategory, setActiveCategory] = useState<string | null>(null)
-  const [showLowStockOnly, setShowLowStockOnly] = useState(false)
   const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
     null
   )
@@ -230,7 +234,7 @@ export function PosPageClient({
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
-                    <DropdownMenuItem onSelect={() => setActiveCategory(null)}>
+                    <DropdownMenuItem onSelect={() => setActiveCategory("")}>
                       <span>Semua Kategori</span>
                       {!activeCategory && <HugeiconsIcon icon={Tick02Icon} size={16} className="ml-auto" />}
                     </DropdownMenuItem>
@@ -293,7 +297,7 @@ export function PosPageClient({
               ) : (
                 <button
                   type="button"
-                  onClick={() => setShowLowStockOnly((v) => !v)}
+                  onClick={() => setShowLowStockOnly(showLowStockOnly ? "false" : "true")}
                   className={`mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl px-4 py-3 text-white shadow-sm transition-transform active:scale-[0.98] ${
                     showLowStockOnly
                       ? "bg-gradient-to-r from-orange-600 to-orange-500 ring-2 ring-white/60"
@@ -453,7 +457,7 @@ export function PosPageClient({
               <button
                 type="button"
                 onClick={() => {
-                  setActiveCategory(null)
+                  setActiveCategory("")
                   setIsMobileCategoryOpen(false)
                 }}
                 className={`flex items-center justify-between rounded-2xl border px-4 py-3 text-left transition-colors ${

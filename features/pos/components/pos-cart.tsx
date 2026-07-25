@@ -172,7 +172,7 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                 disabled={isProcessing}
                 loading={isProcessing}
                 loadingText="Memproses..."
-                className="w-full rounded-xl font-bold shadow-sm"
+                className="h-auto w-full rounded-xl px-0 py-3 font-bold shadow-sm"
               >
                 Bayar {formatRupiah(subtotal)}
               </Button>
@@ -182,7 +182,7 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
                   <Button
                     type="button"
                     variant="outline"
-                    className="w-full rounded-xl border-destructive/20 font-bold text-destructive shadow-sm hover:bg-destructive/10"
+                    className="h-auto w-full rounded-xl border-destructive/20 px-0 py-3 font-bold text-destructive shadow-sm hover:bg-destructive/10"
                   >
                     <HugeiconsIcon icon={Delete02Icon} size={18} />
                     <span>Hapus Keranjang</span>

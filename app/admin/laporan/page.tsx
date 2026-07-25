@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { LaporanContent } from "@/features/laporan/components/laporan-content"
@@ -17,5 +18,5 @@ export default async function LaporanPage() {
 
   const data = await getLaporanPenjualanData("30d")
 
-  return <LaporanContent initialData={data} />
+  return <Suspense><LaporanContent initialData={data} /></Suspense>
 }

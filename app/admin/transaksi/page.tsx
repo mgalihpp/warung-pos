@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
 import { TransaksiHeader } from "@/features/transaksi/components/transaksi-header"
@@ -32,24 +33,24 @@ export default async function TransaksiPage() {
         <TransaksiStatCards stats={data.stats} />
 
         {/* Transaction Table */}
-        <TransaksiTable
+        <Suspense><TransaksiTable
           transactions={data.transactions}
           cashierList={data.cashierList}
           detailBasePath="/admin/transaksi"
           actionBasePath="/admin/transaksi"
-        />
+        /></Suspense>
 
         {/* Recent Activity */}
         <TransaksiAktivitas activities={data.activities} />
       </div>
 
       <div className="block min-h-0 flex-1 lg:hidden">
-        <TransaksiMobile
+        <Suspense><TransaksiMobile
           transactions={data.transactions}
           stats={data.stats}
           actionBasePath="/admin/transaksi"
           detailBasePath="/admin/transaksi"
-        />
+        /></Suspense>
       </div>
     </div>
   )

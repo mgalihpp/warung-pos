@@ -11,6 +11,7 @@ import {
   ChartLineData01Icon,
   Clock01Icon,
   DollarCircleIcon,
+  FileExportIcon,
   InvoiceIcon,
   StarIcon,
   TickDouble01Icon,
@@ -43,8 +44,11 @@ import {
   DrawerTrigger,
 } from "@/components/ui/drawer"
 import { Skeleton } from "@/components/ui/skeleton"
+import { useSearchParam } from "@/hooks/use-search-param"
+import { downloadCSV } from "@/lib/export-csv"
 import { formatRupiah, formatNumber } from "@/lib/format-currency"
 import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-panel"
+import type { RawExportRow } from "@/features/laporan/server-export-data"
 import {
   useLaporanPenjualan,
   type LaporanRange,
@@ -68,10 +72,75 @@ export function LaporanContent({
 }: {
   initialData?: PenjualanData
 }) {
-  const [range, setRange] = React.useState<LaporanRange>(
-    initialData?.range ?? "30d"
-  )
+  const [rangeParam, setRange] = useSearchParam("range", initialData?.range ?? "30d")
+  const range = rangeParam as LaporanRange
   const { data, isLoading, error } = useLaporanPenjualan(range, initialData)
+
+  const handleExportCSV = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/laporan/penjualan/export?range=${range}`)
+      if (!res.ok) throw new Error("Gagal mengambil data export")
+      const json = await res.json()
+      const rawRows: RawExportRow[] = json.rows
+
+      if (rawRows.length === 0) {
+        alert("Tidak ada data untuk diexport pada periode ini.")
+        return
+      }
+
+      const header = [
+        "ID Transaksi",
+        "No. Transaksi",
+        "Kasir",
+        "Metode Bayar",
+        "Status",
+        "Subtotal",
+        "Total",
+        "Bayar",
+        "Kembali",
+        "Catatan",
+        "Waktu Transaksi",
+        "ID Item",
+        "ID Produk",
+        "Nama Produk",
+        "Harga Jual",
+        "Harga Modal",
+        "Jumlah",
+        "Subtotal Item",
+        "Laba Kotor",
+        "Kategori",
+        "Satuan",
+      ]
+
+      const csvRows = rawRows.map((r) => [
+        r.transactionId,
+        r.transactionNumber,
+        r.cashierName,
+        r.paymentMethod,
+        r.status,
+        r.subtotal.toString(),
+        r.total.toString(),
+        r.amountPaid.toString(),
+        r.change.toString(),
+        r.notes ?? "",
+        r.createdAt,
+        r.itemId,
+        r.productId,
+        r.productName,
+        r.unitPrice.toString(),
+        r.costPrice.toString(),
+        r.quantity.toString(),
+        r.itemSubtotal.toString(),
+        r.grossProfit.toString(),
+        r.categoryName,
+        r.productUnit,
+      ])
+
+      downloadCSV(`transaksi-${range}-${new Date().toISOString().slice(0, 10)}.csv`, header, csvRows)
+    } catch (e) {
+      alert("Gagal mengexport data. Silakan coba lagi.")
+    }
+  }, [range])
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
@@ -79,7 +148,16 @@ export function LaporanContent({
         <p className="text-sm text-muted-foreground">
           Ringkasan penjualan {RANGE_LABEL[range]}
         </p>
-        <RangeSelector value={range} onChange={setRange} />
+        <div className="flex items-center gap-2">
+          <button
+            onClick={handleExportCSV}
+            className="inline-flex items-center gap-2 rounded-lg border bg-card px-3 py-1.5 text-xs font-medium transition-colors hover:bg-muted"
+          >
+            <HugeiconsIcon icon={FileExportIcon} size={14} />
+            Export CSV
+          </button>
+          <RangeSelector value={range} onChange={setRange} />
+        </div>
       </div>
 
       {error ? (
@@ -193,7 +271,7 @@ function PenjualanDashboard({
               <PaymentMethodCard data={data.paymentMethods} />
             </div>
           </div>
-          <DailySummaryTable rows={data.dailySummary} />
+          <DailySummaryTable rows={data.dailySummary} range={range} />
         </div>
 
         <div className="flex w-full min-w-0 flex-col gap-4 lg:grid lg:grid-cols-2 2xl:flex 2xl:w-[380px] 2xl:shrink-0">
@@ -636,7 +714,13 @@ function PaymentMethodCard({
 
 type DailySummaryView = "table" | "calendar"
 
-function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
+function DailySummaryTable({
+  rows,
+  range,
+}: {
+  rows: PenjualanData["dailySummary"]
+  range: LaporanRange
+}) {
   const [view, setView] = React.useState<DailySummaryView>("table")
 
   return (
@@ -682,9 +766,9 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
       </div>
 
       {view === "calendar" ? (
-        <DailySummaryCalendar rows={rows} />
+        <DailySummaryCalendar rows={rows} range={range} />
       ) : (
-        <DailySummaryTableView rows={rows} />
+        <DailySummaryTableView rows={rows} range={range} />
       )}
     </div>
   )
@@ -692,9 +776,16 @@ function DailySummaryTable({ rows }: { rows: PenjualanData["dailySummary"] }) {
 
 function DailySummaryTableView({
   rows,
+  range,
 }: {
   rows: PenjualanData["dailySummary"]
+  range: LaporanRange
 }) {
+  const [showAll, setShowAll] = React.useState(false)
+  const INITIAL_SHOW = 10
+  const hasMore = range === "30d" && rows.length > INITIAL_SHOW
+  const displayRows = showAll ? rows : rows.slice(0, INITIAL_SHOW)
+
   const totalTransaksi = rows.reduce((sum, r) => sum + r.transaksi, 0)
   const totalPenjualan = rows.reduce((sum, r) => sum + r.penjualan, 0)
   const totalLaba = rows.reduce((sum, r) => sum + r.laba, 0)
@@ -727,7 +818,7 @@ function DailySummaryTableView({
               </tr>
             ) : (
               <>
-                {rows.map((row) => (
+                {displayRows.map((row) => (
                   <tr
                     key={row.dateKey}
                     className="border-t transition-colors hover:bg-muted/30"
@@ -745,21 +836,37 @@ function DailySummaryTableView({
                     </td>
                   </tr>
                 ))}
-                <tr className="border-t-2 border-border bg-muted/40 font-bold">
-                  <td className="px-4 py-3">Total Semua</td>
-                  <td className="px-4 py-3 text-center">{totalTransaksi}</td>
-                  <td className="px-4 py-3 text-right text-primary">
-                    {formatRupiah(totalPenjualan)}
-                  </td>
-                  <td
-                    className={`px-4 py-3 text-right ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}
-                  >
-                    {formatRupiah(totalLaba)}
-                  </td>
-                  <td className="px-4 py-3 text-right">
-                    {formatRupiah(rataBelanja)}
-                  </td>
-                </tr>
+                {hasMore && !showAll ? (
+                  <tr>
+                    <td colSpan={5} className="px-4 py-3 text-center">
+                      <button
+                        type="button"
+                        onClick={() => setShowAll(true)}
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-primary transition-colors hover:text-primary/80"
+                      >
+                        <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
+                        Lihat {rows.length - INITIAL_SHOW} hari lainnya
+                      </button>
+                    </td>
+                  </tr>
+                ) : null}
+                {showAll || !hasMore ? (
+                  <tr className="border-t-2 border-border bg-muted/40 font-bold">
+                    <td className="px-4 py-3">Total Semua</td>
+                    <td className="px-4 py-3 text-center">{totalTransaksi}</td>
+                    <td className="px-4 py-3 text-right text-primary">
+                      {formatRupiah(totalPenjualan)}
+                    </td>
+                    <td
+                      className={`px-4 py-3 text-right ${totalLaba > 0 ? "text-emerald-600 dark:text-emerald-400" : totalLaba < 0 ? "text-rose-600 dark:text-rose-400" : ""}`}
+                    >
+                      {formatRupiah(totalLaba)}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      {formatRupiah(rataBelanja)}
+                    </td>
+                  </tr>
+                ) : null}
               </>
             )}
           </tbody>
@@ -773,7 +880,7 @@ function DailySummaryTableView({
           </div>
         ) : (
           <>
-            {rows.map((row) => (
+            {displayRows.map((row) => (
               <div
                 key={row.dateKey}
                 className="flex items-center justify-between gap-3 rounded-lg border border-border/50 bg-background px-3 py-2.5"
@@ -794,6 +901,17 @@ function DailySummaryTableView({
                 </div>
               </div>
             ))}
+
+            {hasMore && !showAll ? (
+              <button
+                type="button"
+                onClick={() => setShowAll(true)}
+                className="inline-flex items-center justify-center gap-1.5 rounded-lg border border-border py-2.5 text-xs font-semibold text-primary transition-colors hover:bg-muted/50"
+              >
+                <HugeiconsIcon icon={ArrowDown01Icon} size={14} />
+                Lihat {rows.length - INITIAL_SHOW} hari lainnya
+              </button>
+            ) : null}
 
             <div className="mt-2 flex flex-col gap-2 rounded-xl border border-dashed border-border bg-muted/30 p-3">
               <p className="text-xs font-bold text-foreground">Total Semua</p>
@@ -841,6 +959,252 @@ function DailySummaryTableView({
 
 function DailySummaryCalendar({
   rows,
+  range,
+}: {
+  rows: PenjualanData["dailySummary"]
+  range: LaporanRange
+}) {
+  if (rows.length === 0) {
+    return (
+      <div className="p-8 text-center text-xs text-muted-foreground">
+        Belum ada data penjualan
+      </div>
+    )
+  }
+
+  if (range === "ytd") return <YearCalendarGrid rows={rows} />
+  if (range === "7d") return <WeekCalendarGrid rows={rows} />
+
+  return <MonthCalendarGrid rows={rows} />
+}
+
+function WeekCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
+  const sorted = [...rows].reverse()
+  const rowMap = new Map(sorted.map((row) => [row.dateKey, row]))
+  const totalLaba = sorted.reduce((s, r) => s + r.laba, 0)
+  const activeDays = sorted.filter((r) => r.transaksi > 0).length
+
+  if (sorted.length === 0) {
+    return (
+      <div className="p-8 text-center text-xs text-muted-foreground">
+        Belum ada data penjualan
+      </div>
+    )
+  }
+
+  const firstDate = new Date(`${sorted[0].dateKey}T00:00:00+07:00`)
+  const lastDate = new Date(`${sorted[sorted.length - 1].dateKey}T00:00:00+07:00`)
+  const rangeLabel = `${firstDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} - ${lastDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}`
+
+  const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
+  const firstDayOfWeek = firstDate.getDay()
+  const blanks = Array.from({ length: firstDayOfWeek }, (_, i) => i)
+  const cells: Array<{ dateKey: string; day: number } | null> = [
+    ...blanks.map(() => null),
+    ...sorted.map((r) => ({
+      dateKey: r.dateKey,
+      day: parseInt(r.dateKey.split("-")[2], 10),
+    })),
+  ]
+
+  return (
+    <div className="p-2 sm:p-4">
+      <div className="rounded-[22px] bg-background p-2.5 shadow-sm sm:p-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="min-w-[70px] truncate px-1 text-center text-xs font-semibold sm:min-w-[90px] sm:text-sm">
+              {rangeLabel}
+            </span>
+            <div className="hidden rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground sm:block">
+              {activeDays} hari aktif
+            </div>
+          </div>
+          <div className="text-left sm:text-right">
+            <span className="block text-[8px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[9px]">
+              Total Laba
+            </span>
+            <span
+              className={`text-sm font-bold tracking-tight sm:text-base ${totalLaba > 0 ? "text-emerald-500" : totalLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}
+            >
+              {formatPnLFull(totalLaba)}
+            </span>
+          </div>
+        </div>
+
+        <div className="mb-2 grid grid-cols-7 gap-1 border-b pb-2 text-center text-[10px] font-semibold text-muted-foreground">
+          {dayNames.map((day) => (
+            <div key={day} className="py-1">{day}</div>
+          ))}
+        </div>
+
+        <div className="mt-1 grid grid-cols-7 gap-1 sm:gap-1.5">
+          {cells.map((cell, index) => {
+            if (!cell)
+              return (
+                <div
+                  key={`blank-${index}`}
+                  className="aspect-square rounded-lg bg-muted/5 opacity-30 sm:aspect-auto sm:h-12 md:h-14 lg:h-16"
+                />
+              )
+
+            const row = rowMap.get(cell.dateKey)
+            const laba = row ? row.laba : 0
+            const hasTransactions = !!row && row.transaksi > 0
+
+            let cellStyle = "border-border/60 bg-card hover:bg-muted/40"
+            let borderLeftStyle = "border-l-transparent"
+            let numberColor = "text-muted-foreground"
+            let valColor = "text-muted-foreground/60"
+
+            if (hasTransactions) {
+              if (laba > 0) {
+                cellStyle =
+                  "border-emerald-500/20 bg-emerald-500/8 dark:bg-emerald-500/12 hover:bg-emerald-500/12 dark:hover:bg-emerald-500/18"
+                borderLeftStyle = "border-l-[3px] border-l-emerald-500"
+                numberColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
+                valColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
+              } else if (laba < 0) {
+                cellStyle =
+                  "border-rose-500/20 bg-rose-500/8 dark:bg-rose-500/12 hover:bg-rose-500/12 dark:hover:bg-rose-500/18"
+                borderLeftStyle = "border-l-[3px] border-l-rose-500"
+                numberColor = "text-rose-600 dark:text-rose-400 font-semibold"
+                valColor = "text-rose-600 dark:text-rose-400 font-semibold"
+              } else {
+                cellStyle = "border-border/80 bg-muted/20 hover:bg-muted/30"
+                borderLeftStyle = "border-l-[3px] border-l-muted-foreground/30"
+                numberColor = "text-foreground font-medium"
+                valColor = "text-muted-foreground font-medium"
+              }
+            }
+
+            return (
+              <div
+                key={cell.dateKey}
+                className={`relative flex aspect-square flex-col justify-between rounded-lg border p-1 text-left transition sm:aspect-auto sm:h-12 sm:p-1.5 md:h-14 lg:h-16 ${cellStyle} ${borderLeftStyle}`}
+              >
+                <span
+                  className={`block text-[10px] font-semibold sm:text-xs sm:text-[13px] ${numberColor}`}
+                >
+                  {cell.day}
+                </span>
+                <span
+                  className={`block truncate text-[7.5px] leading-tight font-semibold tracking-tight min-[360px]:text-[8.5px] sm:text-[10px] ${valColor}`}
+                >
+                  {formatPnLCompact(laba)}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function YearCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
+  const months = buildCalendarMonthsYear(rows)
+  const totalLaba = rows.reduce((s, r) => s + r.laba, 0)
+
+  if (months.length === 0) {
+    return (
+      <div className="p-8 text-center text-xs text-muted-foreground">
+        Belum ada data penjualan
+      </div>
+    )
+  }
+
+  return (
+    <div className="p-2 sm:p-4">
+      <div className="rounded-[22px] bg-background p-2.5 shadow-sm sm:p-4">
+        <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-wrap items-center gap-2">
+            <span className="min-w-[70px] truncate px-1 text-center text-xs font-semibold sm:min-w-[90px] sm:text-sm">
+              Tahun Ini
+            </span>
+            <div className="hidden rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground sm:block">
+              {months.length} bulan
+            </div>
+          </div>
+          <div className="text-left sm:text-right">
+            <span className="block text-[8px] font-semibold tracking-wider text-muted-foreground uppercase sm:text-[9px]">
+              Total Laba
+            </span>
+            <span
+              className={`text-sm font-bold tracking-tight sm:text-base ${totalLaba > 0 ? "text-emerald-500" : totalLaba < 0 ? "text-rose-500" : "text-muted-foreground"}`}
+            >
+              {formatPnLFull(totalLaba)}
+            </span>
+          </div>
+        </div>
+
+        <div className="mt-1 grid grid-cols-4 gap-2 sm:gap-3">
+          {months.map((month) => {
+            const monthRows = rows.filter((r) => r.dateKey.startsWith(month.key))
+            const laba = monthRows.reduce((s, r) => s + r.laba, 0)
+            const hasTransactions = monthRows.some((r) => r.transaksi > 0)
+
+            let cellStyle = "border-border/60 bg-card"
+            let numberColor = "text-muted-foreground"
+            let valColor = "text-muted-foreground/60"
+
+            if (hasTransactions) {
+              if (laba > 0) {
+                cellStyle =
+                  "border-emerald-500/20 bg-emerald-500/8 dark:bg-emerald-500/12"
+                numberColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
+                valColor =
+                  "text-emerald-600 dark:text-emerald-400 font-semibold"
+              } else if (laba < 0) {
+                cellStyle =
+                  "border-rose-500/20 bg-rose-500/8 dark:bg-rose-500/12"
+                numberColor = "text-rose-600 dark:text-rose-400 font-semibold"
+                valColor = "text-rose-600 dark:text-rose-400 font-semibold"
+              } else {
+                cellStyle = "border-border/80 bg-muted/20"
+                numberColor = "text-foreground font-medium"
+                valColor = "text-muted-foreground font-medium"
+              }
+            }
+
+            return (
+              <div
+                key={month.key}
+                className={`relative flex aspect-square flex-col justify-between rounded-lg border p-1 text-left transition sm:aspect-auto sm:h-12 sm:p-1.5 md:h-14 lg:h-16 ${cellStyle}`}
+              >
+                <span
+                  className={`block text-[10px] font-semibold sm:text-xs sm:text-[13px] ${numberColor}`}
+                >
+                  {month.label}
+                </span>
+                <span
+                  className={`block truncate text-[7.5px] leading-tight font-semibold tracking-tight min-[360px]:text-[8.5px] sm:text-[10px] ${valColor}`}
+                >
+                  {formatPnLCompact(laba)}
+                </span>
+              </div>
+            )
+          })}
+        </div>
+      </div>
+    </div>
+  )
+}
+
+function buildCalendarMonthsYear(rows: PenjualanData["dailySummary"]) {
+  const keys = rows.map((r) => r.dateKey.slice(0, 7))
+  const uniqueKeys = [...new Set(keys)].sort()
+  return uniqueKeys.map((key) => {
+    const [year, month] = key.split("-").map(Number)
+    const label = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(new Date(year, month - 1))
+    return { key, label }
+  })
+}
+
+function MonthCalendarGrid({
+  rows,
 }: {
   rows: PenjualanData["dailySummary"]
 }) {
@@ -857,14 +1221,6 @@ function DailySummaryCalendar({
   const monthRows = currentMonth
     ? rows.filter((row) => row.dateKey.startsWith(currentMonth.key))
     : []
-
-  if (rows.length === 0) {
-    return (
-      <div className="p-8 text-center text-xs text-muted-foreground">
-        Belum ada data penjualan
-      </div>
-    )
-  }
 
   if (!currentMonth) return null
 

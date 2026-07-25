@@ -1,3 +1,4 @@
+import { Suspense } from "react"
 import { PosPageClient } from "@/features/pos/components/pos-page-client"
 import { getPosPageData } from "@/features/pos/server-data"
 
@@ -6,10 +7,10 @@ export default async function PosPage() {
 
   return (
     <div className="h-full w-full">
-      <PosPageClient
+      <Suspense><PosPageClient
         initialData={initialData}
         stockReportHref="/admin/laporan/stok"
-      />
+      /></Suspense>
     </div>
   )
 }

@@ -1,7 +1,6 @@
 "use client"
 
-import { useState } from "react"
-
+import { useSearchParam } from "@/hooks/use-search-param"
 import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-panel"
 import { CategoryChart } from "@/features/dashboard/components/category-chart"
 import { LowStockPanel } from "@/features/dashboard/components/low-stock-panel"
@@ -17,7 +16,8 @@ type AdminDashboardContentProps = {
 }
 
 export function AdminDashboardContent({ initialData }: AdminDashboardContentProps) {
-  const [range, setRange] = useState<SalesRange>(initialData.range)
+  const [rangeParam, setRange] = useSearchParam("range", initialData.range)
+  const range = rangeParam as SalesRange
   const { data = initialData } = useDashboard(range, initialData)
 
   return (

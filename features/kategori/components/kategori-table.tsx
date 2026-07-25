@@ -33,6 +33,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import { useSearchParam } from "@/hooks/use-search-param"
 import { useDeleteKategori } from "../hooks/use-kategori-actions"
 import type { KategoriItem } from "../types"
 
@@ -126,8 +127,9 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
 }
 
 export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
-  const [searchQuery, setSearchQuery] = React.useState("")
-  const [currentPage, setCurrentPage] = React.useState(1)
+  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
+  const [currentPageRaw, setCurrentPage] = useSearchParam("page", "1")
+  const currentPage = Number(currentPageRaw)
 
   const filteredCategories = React.useMemo(() => {
     const query = searchQuery.toLowerCase()
@@ -163,7 +165,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
           value={searchQuery}
           onChange={(event) => {
             setSearchQuery(event.target.value)
-            setCurrentPage(1)
+            setCurrentPage("1")
           }}
           className="h-9 rounded-lg bg-background pr-3 pl-9 text-sm"
         />
@@ -259,7 +261,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
         <div className="flex items-center gap-1">
           <button
             disabled={safePage === 1}
-            onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+            onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
@@ -269,7 +271,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
             .map((page) => (
               <button
                 key={page}
-                onClick={() => setCurrentPage(page)}
+                onClick={() => setCurrentPage(String(page))}
                 className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${safePage === page ? "bg-primary text-primary-foreground" : "border text-muted-foreground hover:bg-muted"}`}
               >
                 {page}
@@ -277,7 +279,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
             ))}
           <button
             disabled={safePage === totalPages}
-            onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+            onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
