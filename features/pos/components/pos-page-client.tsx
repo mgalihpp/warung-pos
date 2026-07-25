@@ -95,6 +95,7 @@ export function PosPageClient({
     },
     initialData: initialProductsData,
     refetchInterval: 10000,
+    refetchIntervalInBackground: true,
     refetchOnWindowFocus: true,
   })
 
