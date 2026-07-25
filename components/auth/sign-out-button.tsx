@@ -19,8 +19,8 @@ export function SignOutButton() {
   }
 
   return (
-    <Button disabled={isPending} onClick={handleSignOut} variant="outline">
-      {isPending ? "Keluar..." : "Keluar"}
+    <Button loading={isPending} loadingText="Keluar..." onClick={handleSignOut} variant="outline">
+      Keluar
     </Button>
   )
 }

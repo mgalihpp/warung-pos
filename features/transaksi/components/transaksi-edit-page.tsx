@@ -186,10 +186,12 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
             type="button"
             className="gap-2"
             onClick={handleSubmit}
-            disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
+            disabled={items.length === 0 || isPaymentShort}
+            loading={updateMutation.isPending}
+            loadingText="Menyimpan..."
           >
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
-            {updateMutation.isPending ? "Menyimpan..." : "Simpan Perubahan"}
+            Simpan Perubahan
           </Button>
         </>
       }
@@ -198,10 +200,12 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
           type="button"
           className="h-12 w-full rounded-xl"
           onClick={handleSubmit}
-          disabled={updateMutation.isPending || items.length === 0 || isPaymentShort}
+          disabled={items.length === 0 || isPaymentShort}
+          loading={updateMutation.isPending}
+          loadingText="Menyimpan..."
         >
           <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-          {updateMutation.isPending ? "Menyimpan..." : "Simpan"}
+          Simpan
         </Button>
       }
     >
@@ -446,7 +450,8 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={() => {
                 deleteMutation.mutate(data.id, {
                   onSuccess: (result) => {
@@ -463,7 +468,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
                 })
               }}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

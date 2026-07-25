@@ -128,9 +128,9 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
             <HugeiconsIcon icon={Cancel01Icon} size={14} />
             Batal
           </Button>
-          <Button type="submit" form="kategori-form" className="gap-2" disabled={mutation.isPending}>
+          <Button type="submit" form="kategori-form" className="gap-2" loading={mutation.isPending} loadingText="Menyimpan...">
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
-            {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Simpan Perubahan"}
+            {mode === "create" ? "Simpan Kategori" : "Simpan Perubahan"}
           </Button>
         </>
       }
@@ -139,10 +139,11 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
           type="button"
           className="h-12 w-full rounded-2xl gap-2"
           onClick={() => formRef.current?.requestSubmit()}
-          disabled={mutation.isPending}
+          loading={mutation.isPending}
+          loadingText="Menyimpan..."
         >
           <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-          {mutation.isPending ? "Menyimpan..." : mode === "create" ? "Simpan Kategori" : "Perbarui Kategori"}
+          {mode === "create" ? "Simpan Kategori" : "Perbarui Kategori"}
         </Button>
       }
     >
@@ -210,9 +211,11 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
               <Button
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending || productCount > 0}
+                disabled={productCount > 0}
+                loading={deleteMutation.isPending}
+                loadingText="Menghapus..."
               >
-                {deleteMutation.isPending ? "Menghapus..." : "Ya, Hapus"}
+                Ya, Hapus
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

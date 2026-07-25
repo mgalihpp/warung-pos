@@ -26,6 +26,7 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog"
+import { Button } from "@/components/ui/button"
 import { PosPaymentDialog } from "./pos-payment-dialog"
 
 type PosCartProps = {
@@ -165,20 +166,27 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
 
           <div className="p-4 pt-0">
             <div className="flex flex-col gap-2">
-              <button
+              <Button
+                type="button"
                 onClick={() => setIsPaymentOpen(true)}
                 disabled={isProcessing}
-                className="flex w-full items-center justify-center rounded-xl bg-primary py-3 font-bold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+                loading={isProcessing}
+                loadingText="Memproses..."
+                className="w-full rounded-xl font-bold shadow-sm"
               >
-                {`Bayar ${formatRupiah(subtotal)}`}
-              </button>
+                Bayar {formatRupiah(subtotal)}
+              </Button>
 
               <AlertDialog>
                 <AlertDialogTrigger asChild>
-                  <button className="flex w-full items-center justify-center gap-2 rounded-xl border border-destructive/20 bg-card py-3 font-bold text-destructive shadow-sm transition-colors hover:bg-destructive/10">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="w-full rounded-xl border-destructive/20 font-bold text-destructive shadow-sm hover:bg-destructive/10"
+                  >
                     <HugeiconsIcon icon={Delete02Icon} size={18} />
                     <span>Hapus Keranjang</span>
-                  </button>
+                  </Button>
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                   <AlertDialogHeader>

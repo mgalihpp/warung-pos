@@ -224,14 +224,11 @@ export function BarangFormPage(props: BarangFormPageProps) {
             type="submit"
             form="barang-form"
             className="gap-2"
-            disabled={isPending}
+            loading={isPending}
+            loadingText="Menyimpan..."
           >
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
-            {isPending
-              ? "Menyimpan..."
-              : mode === "create"
-                ? "Simpan Barang"
-                : "Simpan Perubahan"}
+            {mode === "create" ? "Simpan Barang" : "Simpan Perubahan"}
           </Button>
         </>
       }
@@ -240,10 +237,11 @@ export function BarangFormPage(props: BarangFormPageProps) {
           type="button"
           className="h-12 w-full rounded-xl gap-2"
           onClick={() => formRef.current?.requestSubmit()}
-          disabled={isPending}
+          loading={isPending}
+          loadingText="Menyimpan..."
         >
           <HugeiconsIcon icon={FloppyDiskIcon} size={18} />
-          {isPending ? "Menyimpan..." : "Simpan Barang"}
+          Simpan Barang
         </Button>
       }
     >
@@ -460,9 +458,10 @@ export function BarangFormPage(props: BarangFormPageProps) {
               <Button
                 variant="destructive"
                 onClick={handleDelete}
-                disabled={deleteMutation.isPending}
+                loading={deleteMutation.isPending}
+                loadingText="Menghapus..."
               >
-                {deleteMutation.isPending ? "Menghapus..." : "Ya, Hapus"}
+                Ya, Hapus
               </Button>
             </AlertDialogFooter>
           </AlertDialogContent>

@@ -3,6 +3,7 @@ import { cva, type VariantProps } from "class-variance-authority"
 import { Slot } from "radix-ui"
 
 import { cn } from "@/lib/utils"
+import { Spinner } from "@/components/ui/spinner"
 
 const buttonVariants = cva(
   "group/button relative inline-flex shrink-0 cursor-pointer items-center justify-center overflow-hidden rounded-4xl border border-transparent bg-clip-padding text-sm font-medium whitespace-nowrap transition-all outline-none select-none focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/50 active:not-aria-[haspopup]:translate-y-px disabled:pointer-events-none disabled:opacity-50 aria-invalid:border-destructive aria-invalid:ring-[3px] aria-invalid:ring-destructive/20 dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40 [&_svg]:pointer-events-none [&_svg]:shrink-0 [&_svg:not([class*='size-'])]:size-4",
@@ -44,21 +45,66 @@ function Button({
   variant = "default",
   size = "default",
   asChild = false,
+  loading,
+  loadingText,
+  children,
+  disabled,
   ...props
 }: React.ComponentProps<"button"> &
   VariantProps<typeof buttonVariants> & {
     asChild?: boolean
+    loading?: boolean
+    loadingText?: string
   }) {
+  const isDisabled = disabled || loading
   const Comp = asChild ? Slot.Root : "button"
+
+  if (asChild) {
+    return (
+      <Comp
+        data-slot="button"
+        data-variant={variant}
+        data-size={size}
+        className={cn(buttonVariants({ variant, size, className }))}
+        disabled={isDisabled}
+        {...props}
+      >
+        {children}
+      </Comp>
+    )
+  }
 
   return (
     <Comp
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(buttonVariants({ variant, size, className }))}
+      className={cn(
+        buttonVariants({ variant, size, className }),
+      )}
+      disabled={isDisabled}
       {...props}
-    />
+    >
+      <span className="relative grid">
+        <span
+          className="col-span-1 row-span-1 flex items-center justify-center gap-1.5 truncate transition-all duration-300"
+          style={{
+            opacity: loading ? 0 : 1,
+            transform: loading
+              ? "scale(0.95) translateY(-2px)"
+              : "scale(1) translateY(0)",
+          }}
+        >
+          {children}
+        </span>
+        {loading ? (
+          <span className="col-span-1 row-span-1 flex items-center justify-center gap-1.5 truncate animate-in fade-in zoom-in-75 slide-in-from-left-1 duration-300">
+            <Spinner className="size-4 shrink-0" />
+            {loadingText ?? (typeof children === "string" ? children : "")}
+          </span>
+        ) : null}
+      </span>
+    </Comp>
   )
 }
 

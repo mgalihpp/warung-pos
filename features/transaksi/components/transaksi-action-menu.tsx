@@ -109,7 +109,8 @@ export function TransaksiActionMenu({
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={() => {
                 deleteMutation.mutate(transactionId, {
                   onSuccess: (result) => {
@@ -125,7 +126,7 @@ export function TransaksiActionMenu({
                 })
               }}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

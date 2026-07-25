@@ -365,10 +365,11 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               variant="outline"
               className="gap-2"
               onClick={handleDuplicate}
-              disabled={isDuplicating}
+              loading={isDuplicating}
+              loadingText="Menduplikasi..."
             >
               <HugeiconsIcon icon={Copy01Icon} size={16} />
-              {isDuplicating ? "Menduplikasi..." : "Duplikat Barang"}
+              Duplikat Barang
             </Button>
             <Button
               type="button"
@@ -758,7 +759,8 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={async () => {
                 const result = await deleteMutation.mutateAsync(product.id)
                 if (result.success) {
@@ -772,7 +774,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                 toast.error(result.error ?? "Barang gagal dihapus")
               }}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

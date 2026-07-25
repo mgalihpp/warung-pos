@@ -412,10 +412,11 @@ export function PengaturanPenggunaContent({
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={isDeletePending}
+              loading={isDeletePending}
+              loadingText="Menghapus..."
               onClick={handleDeleteUser}
             >
-              {isDeletePending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>
@@ -506,8 +507,8 @@ function UserAccountEditForm({
         <Button type="button" variant="outline" className="h-11 rounded-2xl" onClick={onCancel}>
           Batal
         </Button>
-        <Button type="submit" disabled={isAccessPending} className="h-11 rounded-2xl font-black">
-          {isAccessPending ? "Menyimpan..." : "Simpan"}
+        <Button type="submit" loading={isAccessPending} loadingText="Menyimpan..." className="h-11 rounded-2xl font-black">
+          Simpan
         </Button>
       </div>
 
@@ -836,10 +837,12 @@ export function ProfileTab({
                 <div className="grid gap-2 pt-2">
                   <Button
                     type="submit"
-                    disabled={isPending || !isProfileChanged}
+                    disabled={!isProfileChanged}
+                    loading={isPending}
+                    loadingText="Menyimpan..."
                     className="h-12 rounded-2xl font-black"
                   >
-                    {isPending ? "Menyimpan..." : "Simpan Perubahan"}
+                    Simpan Perubahan
                   </Button>
                   {avatarUrl && (
                     <Button
@@ -909,10 +912,12 @@ export function ProfileTab({
 
                 <Button
                   type="submit"
-                  disabled={isPwPending || !isPasswordReady}
+                  disabled={!isPasswordReady}
+                  loading={isPwPending}
+                  loadingText="Mengubah..."
                   className="mt-2 h-12 rounded-2xl font-black"
                 >
-                  {isPwPending ? "Mengubah..." : "Update Password"}
+                  Update Password
                 </Button>
               </form>
             </div>
@@ -1025,8 +1030,8 @@ export function ProfileTab({
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={isPending || !isProfileChanged}>
-                {isPending ? "Menyimpan..." : "Simpan Profile"}
+              <Button type="submit" disabled={!isProfileChanged} loading={isPending} loadingText="Menyimpan...">
+                Simpan Profile
               </Button>
             </div>
           </form>
@@ -1086,8 +1091,8 @@ export function ProfileTab({
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={isPwPending || !isPasswordReady}>
-                {isPwPending ? "Mengubah..." : "Ganti Password"}
+              <Button type="submit" disabled={!isPasswordReady} loading={isPwPending} loadingText="Mengubah...">
+                Ganti Password
               </Button>
             </div>
           </form>

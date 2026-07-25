@@ -295,9 +295,10 @@ function StockForm({
           <Button
             type="submit"
             className="w-full sm:w-auto"
-            disabled={isPending}
+            loading={isPending}
+            loadingText="Menyimpan..."
           >
-            {isPending ? "Menyimpan..." : "Simpan Stok"}
+            Simpan Stok
           </Button>
         </DialogFooter>
       ) : (
@@ -314,9 +315,10 @@ function StockForm({
           <Button
             type="submit"
             className="w-full sm:w-auto"
-            disabled={isPending}
+            loading={isPending}
+            loadingText="Menyimpan..."
           >
-            {isPending ? "Menyimpan..." : "Simpan Stok"}
+            Simpan Stok
           </Button>
         </DialogFooter>
       )}
@@ -517,7 +519,8 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={() => {
                 deleteMutation.mutate(product.id, {
                   onSuccess: (data) => {
@@ -533,7 +536,7 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
                 })
               }}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Spinner } from "@/components/ui/spinner"
 import { signIn, getSession } from "@/lib/auth-client"
 import { getDashboardPath } from "@/lib/auth-routes"
 
@@ -149,9 +148,8 @@ export function AuthForm() {
               </p>
             ) : null}
 
-            <Button className="h-11 w-full text-sm font-medium sm:text-base" disabled={isPending} type="submit">
-              {isPending ? <Spinner className="mr-2 size-5" /> : null}
-              {isPending ? "Memproses..." : "Masuk"}
+            <Button className="h-11 w-full text-sm font-medium sm:text-base" loading={isPending} loadingText="Memproses..." type="submit">
+              Masuk
             </Button>
           </form>
 

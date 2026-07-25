@@ -289,7 +289,8 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={() => {
                 deleteMutation.mutate(data.id, {
                   onSuccess: (result) => {
@@ -306,7 +307,7 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
                 })
               }}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

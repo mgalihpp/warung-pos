@@ -109,8 +109,8 @@ export function TambahAkunContent() {
               <Button type="button" variant="outline" className="h-12 rounded-2xl" onClick={() => router.push("/admin/pengaturan/akun")}>
                 Batal
               </Button>
-              <Button type="submit" className="h-12 rounded-2xl font-black" disabled={isPending}>
-                {isPending ? "Menyimpan..." : "Simpan Akun"}
+              <Button type="submit" className="h-12 rounded-2xl font-black" loading={isPending} loadingText="Menyimpan...">
+                Simpan Akun
               </Button>
             </div>
           </div>

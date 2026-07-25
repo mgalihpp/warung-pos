@@ -11,6 +11,7 @@ import {
   Invoice01Icon,
   ArrowDown01Icon,
 } from "@hugeicons/core-free-icons"
+import { Button } from "@/components/ui/button"
 import {
   formatRupiah,
   formatNumber,
@@ -226,23 +227,17 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
             </div>
           )}
 
-          <button
+          <Button
+            type="button"
             onClick={onPayment}
             disabled={!canPay}
-            className="mt-3 flex w-full items-center justify-center gap-2.5 rounded-2xl bg-primary py-4 text-base font-bold text-primary-foreground shadow-lg shadow-primary/25 transition-all active:scale-[0.98] disabled:opacity-50"
+            loading={isProcessing}
+            loadingText="Memproses..."
+            className="mt-3 w-full rounded-2xl py-4 text-base font-bold shadow-lg shadow-primary/25"
           >
-            {isProcessing ? (
-              <span className="flex items-center gap-2">
-                <span className="size-5 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
-                Memproses...
-              </span>
-            ) : (
-              <>
-                <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
-                Proses Pembayaran
-              </>
-            )}
-          </button>
+            <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} />
+            Proses Pembayaran
+          </Button>
         </div>
       </div>
     </div>

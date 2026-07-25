@@ -111,10 +111,12 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
               type="button"
               variant="destructive"
               className="w-full sm:w-auto"
-              disabled={deleteMutation.isPending || category.productCount > 0}
+              disabled={category.productCount > 0}
+              loading={deleteMutation.isPending}
+              loadingText="Menghapus..."
               onClick={handleDelete}
             >
-              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+              Hapus
             </Button>
           </AlertDialogFooter>
         </AlertDialogContent>

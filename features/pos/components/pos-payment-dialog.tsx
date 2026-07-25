@@ -19,6 +19,7 @@ import {
   useCartChange,
   type PaymentMethod,
 } from "@/features/pos/hooks/use-cart"
+import { Button } from "@/components/ui/button"
 import {
   Dialog,
   DialogContent,
@@ -230,27 +231,25 @@ export function PosPaymentDialog({
 
         {/* Actions */}
         <div className="flex flex-col gap-2">
-          <button
+          <Button
+            type="button"
             onClick={onConfirm}
             disabled={!canPay}
-            className="flex w-full items-center justify-center rounded-xl bg-primary py-3 font-bold text-primary-foreground shadow-sm transition-colors hover:bg-primary/90 disabled:cursor-not-allowed disabled:opacity-50"
+            loading={isProcessing}
+            loadingText="Memproses..."
+            className="w-full rounded-xl font-bold shadow-sm"
           >
-            {isProcessing ? (
-              <span className="flex items-center gap-2">
-                <span className="size-4 animate-spin rounded-full border-2 border-primary-foreground/30 border-t-primary-foreground" />
-                Memproses...
-              </span>
-            ) : (
-              `Bayar ${formatRupiah(subtotal)}`
-            )}
-          </button>
-          <button
+            Bayar {formatRupiah(subtotal)}
+          </Button>
+          <Button
+            type="button"
+            variant="outline"
             onClick={() => onOpenChange(false)}
             disabled={isProcessing}
-            className="flex w-full items-center justify-center rounded-xl border bg-card py-3 font-bold text-foreground shadow-sm transition-colors hover:bg-accent disabled:cursor-not-allowed disabled:opacity-50"
+            className="w-full rounded-xl font-bold shadow-sm"
           >
             Batal
-          </button>
+          </Button>
         </div>
       </DialogContent>
     </Dialog>
