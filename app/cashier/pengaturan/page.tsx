@@ -30,5 +30,12 @@ export default async function CashierPengaturanPage() {
       })
     : null
 
-  return <Suspense><PengaturanContent currentUser={currentUser} basePath="/cashier/pengaturan" /></Suspense>
+  return (
+    <Suspense>
+      <PengaturanContent
+        currentUser={currentUser}
+        basePath="/cashier/pengaturan"
+      />
+    </Suspense>
+  )
 }

@@ -65,7 +65,9 @@ function buildStats(stats: DashboardStats) {
       value: stats.monthSales.value,
       formatted: true,
       change: monthChange?.text ?? null,
-      changeLabel: monthChange ? "dibanding bulan lalu" : "Belum ada pembanding",
+      changeLabel: monthChange
+        ? "dibanding bulan lalu"
+        : "Belum ada pembanding",
       positive: monthChange?.positive ?? true,
       icon: ChartHistogramIcon,
       iconBg: "bg-emerald-500/10",
@@ -110,12 +112,23 @@ function ChartCard({
     <div className="h-16 w-full">
       <ResponsiveContainer width="100%" height="100%">
         {type === "bar" ? (
-          <BarChart data={chartData} margin={{ top: 4, bottom: 0, left: 0, right: 0 }}>
+          <BarChart
+            data={chartData}
+            margin={{ top: 4, bottom: 0, left: 0, right: 0 }}
+          >
             <YAxis hide domain={["dataMin - 1", "dataMax + 1"]} />
-            <Bar dataKey="v" fill={accent} radius={[3, 3, 0, 0]} isAnimationActive={false} />
+            <Bar
+              dataKey="v"
+              fill={accent}
+              radius={[3, 3, 0, 0]}
+              isAnimationActive={false}
+            />
           </BarChart>
         ) : (
-          <AreaChart data={chartData} margin={{ top: 2, bottom: 0, left: 0, right: 0 }}>
+          <AreaChart
+            data={chartData}
+            margin={{ top: 2, bottom: 0, left: 0, right: 0 }}
+          >
             <defs>
               <linearGradient id={gradientId} x1="0" y1="0" x2="0" y2="1">
                 <stop offset="0%" stopColor={accent} stopOpacity={0.35} />
@@ -187,14 +200,14 @@ export function StatCards({ stats }: { stats: DashboardStats }) {
             )}
           </div>
 
-          <div className="px-4 mt-3 flex items-center gap-1.5">
+          <div className="mt-3 flex items-center gap-1.5 px-4">
             {stat.change ? (
               <span className="text-[10px] font-medium text-muted-foreground sm:text-[11px]">
                 {stat.changeLabel}
               </span>
             ) : (
               <span
-                className={`text-[11px] font-semibold rounded-full px-2 py-0.5 ${
+                className={`rounded-full px-2 py-0.5 text-[11px] font-semibold ${
                   stat.positive === false && !stat.change
                     ? "bg-destructive/10 text-destructive"
                     : "bg-muted text-muted-foreground"
@@ -206,7 +219,11 @@ export function StatCards({ stats }: { stats: DashboardStats }) {
           </div>
 
           <div className="mt-2">
-            <ChartCard data={stat.chartData} accent={stat.accent} type={stat.chartType} />
+            <ChartCard
+              data={stat.chartData}
+              accent={stat.accent}
+              type={stat.chartType}
+            />
           </div>
         </div>
       ))}

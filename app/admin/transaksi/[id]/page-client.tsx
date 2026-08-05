@@ -4,7 +4,7 @@ import { useCallback } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Delete02Icon, Edit02Icon } from "@hugeicons/core-free-icons"
+import { Edit02Icon } from "@hugeicons/core-free-icons"
 
 import { Button } from "@/components/ui/button"
 import { CashierTransaksiDetailMobile } from "@/features/transaksi/components/cashier-transaksi-detail-mobile"
@@ -19,7 +19,10 @@ export function AdminTransaksiDetailPageClient({
   initialData: TransactionDetail
 }) {
   const router = useRouter()
-  const handleBack = useCallback(() => router.push("/admin/transaksi"), [router])
+  const handleBack = useCallback(
+    () => router.push("/admin/transaksi"),
+    [router]
+  )
 
   return (
     <PageShell
@@ -30,15 +33,6 @@ export function AdminTransaksiDetailPageClient({
       subtitle={`Rincian transaksi ${initialData.transactionNumber}`}
       actions={
         <>
-          <Button
-            type="button"
-            variant="outline"
-            className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-            onClick={() => window.dispatchEvent(new Event("transaksi-delete-request"))}
-          >
-            <HugeiconsIcon icon={Delete02Icon} size={16} />
-            Hapus
-          </Button>
           <Button asChild className="gap-2">
             <Link href={`/admin/transaksi/${transactionId}/edit`}>
               <HugeiconsIcon icon={Edit02Icon} size={16} />

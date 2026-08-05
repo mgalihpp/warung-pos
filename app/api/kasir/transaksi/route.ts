@@ -17,7 +17,10 @@ async function generateTransactionNumber(): Promise<string> {
 
   let nextSeq = 1
   if (lastTransaction) {
-    const lastSeq = parseInt(lastTransaction.transactionNumber.replace(prefix, ""), 10)
+    const lastSeq = parseInt(
+      lastTransaction.transactionNumber.replace(prefix, ""),
+      10
+    )
     if (!isNaN(lastSeq)) nextSeq = lastSeq + 1
   }
 
@@ -59,7 +62,9 @@ export async function POST(request: Request) {
   for (const item of items) {
     const product = productMap.get(item.productId)
     if (!product) {
-      validationErrors.push(`Barang "${item.productId}" tidak ditemukan atau tidak aktif`)
+      validationErrors.push(
+        `Barang "${item.productId}" tidak ditemukan atau tidak aktif`
+      )
       continue
     }
     if (product.stock < item.quantity) {
@@ -92,13 +97,19 @@ export async function POST(request: Request) {
     }
   })
 
-  const subtotal = transactionItems.reduce((sum, item) => sum + item.subtotal, 0)
+  const subtotal = transactionItems.reduce(
+    (sum, item) => sum + item.subtotal,
+    0
+  )
   const total = subtotal
   const change = amountPaid - total
 
   if (change < 0 && paymentMethod === "CASH") {
     return NextResponse.json(
-      { success: false, errors: { amountPaid: ["Uang yang dibayarkan kurang dari total"] } },
+      {
+        success: false,
+        errors: { amountPaid: ["Uang yang dibayarkan kurang dari total"] },
+      },
       { status: 400 }
     )
   }

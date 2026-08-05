@@ -23,12 +23,16 @@ export default async function KategoriPage() {
 
   return (
     <>
-      <Suspense><KategoriMobileList categories={data.categories} /></Suspense>
+      <Suspense>
+        <KategoriMobileList categories={data.categories} />
+      </Suspense>
 
-      <div className="hidden lg:flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">
+      <div className="hidden min-w-0 flex-col gap-3 p-4 pb-28 lg:flex lg:gap-6 lg:p-6">
         <KategoriHeader />
         <KategoriStatCards stats={data.stats} />
-        <Suspense><KategoriTable categories={data.categories} /></Suspense>
+        <Suspense>
+          <KategoriTable categories={data.categories} />
+        </Suspense>
       </div>
     </>
   )

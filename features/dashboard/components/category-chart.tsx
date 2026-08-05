@@ -15,7 +15,7 @@ export function CategoryChart({ data }: { data: CategoryChartItem[] }) {
   const categoryData = data
   if (categoryData.length === 0) {
     return (
-      <div className="rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
+      <div className="overflow-hidden rounded-xl border bg-card p-4 shadow-sm">
         <h3 className="mb-4 text-sm font-semibold">Kategori Terlaris</h3>
         <div className="flex h-[200px] items-center justify-center text-xs text-muted-foreground">
           Belum ada data penjualan bulan ini
@@ -24,11 +24,14 @@ export function CategoryChart({ data }: { data: CategoryChartItem[] }) {
     )
   }
   return (
-    <div className="rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
+    <div className="overflow-hidden rounded-xl border bg-card p-4 shadow-sm">
       <h3 className="mb-4 text-sm font-semibold">Kategori Terlaris</h3>
       <div className="flex flex-col items-center justify-center gap-6 sm:flex-row xl:flex-col 2xl:flex-row">
         {/* Donut Chart */}
-        <ChartContainer config={chartConfig} className="aspect-square h-[200px]">
+        <ChartContainer
+          config={chartConfig}
+          className="aspect-square h-[200px]"
+        >
           <PieChart>
             <ChartTooltip content={<ChartTooltipContent />} />
             <Pie
@@ -87,7 +90,9 @@ export function CategoryChart({ data }: { data: CategoryChartItem[] }) {
                 style={{ backgroundColor: item.fill }}
               />
               <span className="text-xs text-muted-foreground">{item.name}</span>
-              <span className="ml-auto text-xs font-semibold">{item.value}%</span>
+              <span className="ml-auto text-xs font-semibold">
+                {item.value}%
+              </span>
             </div>
           ))}
         </div>

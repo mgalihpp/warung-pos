@@ -140,7 +140,9 @@ export function PengaturanPenggunaContent({
   users,
 }: PengaturanPenggunaContentProps) {
   const [isAccessPending, startAccessTransition] = useTransition()
-  const [selectedUser, setSelectedUser] = React.useState<SettingsUser | null>(null)
+  const [selectedUser, setSelectedUser] = React.useState<SettingsUser | null>(
+    null
+  )
   const [deleteUser, setDeleteUser] = React.useState<SettingsUser | null>(null)
   const [isDesktopSheet, setIsDesktopSheet] = React.useState(false)
   const [isDeletePending, startDeleteTransition] = useTransition()
@@ -259,7 +261,9 @@ export function PengaturanPenggunaContent({
                           <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
                             {formatRole(user.role)}
                           </span>
-                          <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}>
+                          <span
+                            className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}
+                          >
                             {user.banned ? "Nonaktif" : "Aktif"}
                           </span>
                           {isCurrentUser && (
@@ -289,74 +293,86 @@ export function PengaturanPenggunaContent({
                 const isCurrentUser = currentUser?.id === user.id
 
                 return (
-                <div
-                  key={user.id}
-                  className="grid grid-cols-[1fr_180px_140px_120px] items-center gap-4 px-4 py-4"
-                >
-                  <div className="flex min-w-0 items-center gap-3">
-                    <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
-                      {getInitials(user.name)}
+                  <div
+                    key={user.id}
+                    className="grid grid-cols-[1fr_180px_140px_120px] items-center gap-4 px-4 py-4"
+                  >
+                    <div className="flex min-w-0 items-center gap-3">
+                      <div className="flex size-10 shrink-0 items-center justify-center rounded-full border border-primary/20 bg-primary/10 text-xs font-bold text-primary">
+                        {getInitials(user.name)}
+                      </div>
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold">
+                          {user.name}
+                        </p>
+                        <p className="truncate text-xs text-muted-foreground">
+                          {user.email}
+                        </p>
+                        {isCurrentUser && (
+                          <Badge className="mt-2" variant="outline">
+                            Akun Anda
+                          </Badge>
+                        )}
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <p className="truncate text-sm font-semibold">
-                        {user.name}
-                      </p>
-                      <p className="truncate text-xs text-muted-foreground">
-                        {user.email}
-                      </p>
-                      {isCurrentUser && (
-                        <Badge className="mt-2" variant="outline">
-                          Akun Anda
-                        </Badge>
-                      )}
+
+                    <div>
+                      <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
+                        {formatRole(user.role)}
+                      </span>
+                    </div>
+
+                    <div>
+                      <span
+                        className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}
+                      >
+                        {user.banned ? "Nonaktif" : "Aktif"}
+                      </span>
+                    </div>
+
+                    <div className="flex items-center justify-end">
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <button
+                            type="button"
+                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
+                            aria-label="Aksi akun"
+                            disabled={isCurrentUser}
+                          >
+                            <HugeiconsIcon
+                              icon={MoreVerticalCircle01Icon}
+                              size={15}
+                            />
+                          </button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent
+                          align="end"
+                          className="w-44 rounded-xl p-2"
+                        >
+                          <DropdownMenuItem
+                            className="cursor-pointer gap-2 rounded-lg py-2"
+                            onSelect={() => setSelectedUser(user)}
+                          >
+                            <HugeiconsIcon
+                              icon={Edit02Icon}
+                              size={16}
+                              className="text-muted-foreground"
+                            />
+                            Edit Akun
+                          </DropdownMenuItem>
+                          <DropdownMenuSeparator className="my-1" />
+                          <DropdownMenuItem
+                            variant="destructive"
+                            className="cursor-pointer gap-2 rounded-lg py-2"
+                            onSelect={() => setDeleteUser(user)}
+                          >
+                            <HugeiconsIcon icon={Delete02Icon} size={16} />
+                            Hapus Akun
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </div>
                   </div>
-
-                  <div>
-                    <span className="rounded-full bg-primary/10 px-2.5 py-1 text-[11px] font-bold text-primary">
-                      {formatRole(user.role)}
-                    </span>
-                  </div>
-
-                  <div>
-                    <span className={`rounded-full px-2.5 py-1 text-[11px] font-bold ${user.banned ? "bg-muted text-muted-foreground" : "bg-primary text-primary-foreground"}`}>
-                      {user.banned ? "Nonaktif" : "Aktif"}
-                    </span>
-                  </div>
-
-                  <div className="flex items-center justify-end">
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <button
-                          type="button"
-                          className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                          aria-label="Aksi akun"
-                          disabled={isCurrentUser}
-                        >
-                          <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
-                        </button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" className="w-44 rounded-xl p-2">
-                        <DropdownMenuItem
-                          className="cursor-pointer gap-2 rounded-lg py-2"
-                          onSelect={() => setSelectedUser(user)}
-                        >
-                          <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
-                          Edit Akun
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator className="my-1" />
-                        <DropdownMenuItem
-                          variant="destructive"
-                          className="cursor-pointer gap-2 rounded-lg py-2"
-                          onSelect={() => setDeleteUser(user)}
-                        >
-                          <HugeiconsIcon icon={Delete02Icon} size={16} />
-                          Hapus Akun
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </div>
                 )
               })}
             </div>
@@ -376,10 +392,15 @@ export function PengaturanPenggunaContent({
         </Button>
       </div>
 
-      <Sheet open={!!selectedUser} onOpenChange={(open) => !open && setSelectedUser(null)}>
+      <Sheet
+        open={!!selectedUser}
+        onOpenChange={(open) => !open && setSelectedUser(null)}
+      >
         <SheetContent
           side={isDesktopSheet ? "right" : "bottom"}
-          className={isDesktopSheet ? "w-[420px] p-0" : "rounded-t-[2rem] border-0 p-0"}
+          className={
+            isDesktopSheet ? "w-[420px] p-0" : "rounded-t-[2rem] border-0 p-0"
+          }
           showCloseButton={false}
         >
           {selectedUser && (
@@ -394,7 +415,10 @@ export function PengaturanPenggunaContent({
         </SheetContent>
       </Sheet>
 
-      <AlertDialog open={!!deleteUser} onOpenChange={(open) => !open && setDeleteUser(null)}>
+      <AlertDialog
+        open={!!deleteUser}
+        onOpenChange={(open) => !open && setDeleteUser(null)}
+      >
         <AlertDialogContent className="sm:max-w-[400px]">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2 text-destructive">
@@ -402,13 +426,19 @@ export function PengaturanPenggunaContent({
               Hapus Akun?
             </AlertDialogTitle>
             <AlertDialogDescription className="pt-2 leading-relaxed">
-              Akun <strong className="font-semibold text-foreground">{deleteUser?.name}</strong> akan dihapus permanen.
-              Jika akun memiliki riwayat transaksi atau stok, sistem akan menolak penghapusan.
+              Akun{" "}
+              <strong className="font-semibold text-foreground">
+                {deleteUser?.name}
+              </strong>{" "}
+              akan dihapus permanen. Jika akun memiliki riwayat transaksi atau
+              stok, sistem akan menolak penghapusan.
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter className="gap-2 pt-4">
-            <AlertDialogCancel className="mt-0 w-full sm:w-auto">Batal</AlertDialogCancel>
+            <AlertDialogCancel className="mt-0 w-full sm:w-auto">
+              Batal
+            </AlertDialogCancel>
             <Button
               type="button"
               variant="destructive"
@@ -444,7 +474,10 @@ function UserAccountEditForm({
   onDelete: () => void
 }) {
   return (
-    <form onSubmit={onSubmit} className="grid gap-3 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] lg:h-full lg:content-start lg:p-4">
+    <form
+      onSubmit={onSubmit}
+      className="grid gap-3 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] lg:h-full lg:content-start lg:p-4"
+    >
       <input type="hidden" name="userId" value={user.id} />
 
       <SheetHeader className="p-0 text-left">
@@ -467,13 +500,22 @@ function UserAccountEditForm({
       <div className="grid gap-3">
         <label className="grid gap-1.5 text-xs font-bold text-foreground">
           <span className="px-1">Email Akun</span>
-          <Input name="email" type="email" defaultValue={user.email} required className="h-11 rounded-2xl border-0 bg-muted shadow-none" />
+          <Input
+            name="email"
+            type="email"
+            defaultValue={user.email}
+            required
+            className="h-11 rounded-2xl border-0 bg-muted shadow-none"
+          />
         </label>
 
         <div className="grid grid-cols-2 gap-3">
           <label className="grid gap-1.5 text-xs font-bold text-foreground">
             <span className="px-1">Role Akun</span>
-            <Select name="role" defaultValue={user.role === "admin" ? "admin" : "cashier"}>
+            <Select
+              name="role"
+              defaultValue={user.role === "admin" ? "admin" : "cashier"}
+            >
               <SelectTrigger className="h-11 rounded-2xl border-0 bg-muted shadow-none">
                 <SelectValue />
               </SelectTrigger>
@@ -486,7 +528,10 @@ function UserAccountEditForm({
 
           <label className="grid gap-1.5 text-xs font-bold text-foreground">
             <span className="px-1">Status Akun</span>
-            <Select name="status" defaultValue={user.banned ? "inactive" : "active"}>
+            <Select
+              name="status"
+              defaultValue={user.banned ? "inactive" : "active"}
+            >
               <SelectTrigger className="h-11 rounded-2xl border-0 bg-muted shadow-none">
                 <SelectValue />
               </SelectTrigger>
@@ -500,15 +545,31 @@ function UserAccountEditForm({
 
         <label className="grid gap-1.5 text-xs font-bold text-foreground">
           <span className="px-1">Reset Password</span>
-          <Input name="newPassword" type="password" minLength={8} placeholder="Kosongkan jika tidak diganti" className="h-11 rounded-2xl border-0 bg-muted shadow-none" />
+          <Input
+            name="newPassword"
+            type="password"
+            minLength={8}
+            placeholder="Kosongkan jika tidak diganti"
+            className="h-11 rounded-2xl border-0 bg-muted shadow-none"
+          />
         </label>
       </div>
 
       <div className="grid grid-cols-2 gap-3 pt-1">
-        <Button type="button" variant="outline" className="h-11 rounded-2xl" onClick={onCancel}>
+        <Button
+          type="button"
+          variant="outline"
+          className="h-11 rounded-2xl"
+          onClick={onCancel}
+        >
           Batal
         </Button>
-        <Button type="submit" loading={isAccessPending} loadingText="Menyimpan..." className="h-11 rounded-2xl font-black">
+        <Button
+          type="submit"
+          loading={isAccessPending}
+          loadingText="Menyimpan..."
+          className="h-11 rounded-2xl font-black"
+        >
           Simpan
         </Button>
       </div>
@@ -1030,7 +1091,12 @@ export function ProfileTab({
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={!isProfileChanged} loading={isPending} loadingText="Menyimpan...">
+              <Button
+                type="submit"
+                disabled={!isProfileChanged}
+                loading={isPending}
+                loadingText="Menyimpan..."
+              >
                 Simpan Profile
               </Button>
             </div>
@@ -1091,7 +1157,12 @@ export function ProfileTab({
             </FieldGroup>
 
             <div className="md:col-span-2">
-              <Button type="submit" disabled={!isPasswordReady} loading={isPwPending} loadingText="Mengubah...">
+              <Button
+                type="submit"
+                disabled={!isPasswordReady}
+                loading={isPwPending}
+                loadingText="Mengubah..."
+              >
                 Ganti Password
               </Button>
             </div>

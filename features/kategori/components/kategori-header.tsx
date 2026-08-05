@@ -25,8 +25,12 @@ export function KategoriHeader() {
     <>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Manajemen Kategori</h1>
-          <p className="text-sm text-muted-foreground">Kelola kategori barang untuk katalog warung Anda</p>
+          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
+            Manajemen Kategori
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Kelola kategori barang untuk katalog warung Anda
+          </p>
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -49,7 +53,11 @@ export function KategoriHeader() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${isMobileMenuOpen ? "border bg-card text-foreground" : "bg-primary text-primary-foreground"}`}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={28} className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`} />
+            <HugeiconsIcon
+              icon={PlusSignIcon}
+              size={28}
+              className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`}
+            />
           </button>
         </div>
       </div>

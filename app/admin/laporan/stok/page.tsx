@@ -18,5 +18,9 @@ export default async function LaporanStokPage() {
 
   const data = await getLaporanStokData()
 
-  return <Suspense><LaporanStokContent initialData={data} /></Suspense>
+  return (
+    <Suspense>
+      <LaporanStokContent initialData={data} />
+    </Suspense>
+  )
 }

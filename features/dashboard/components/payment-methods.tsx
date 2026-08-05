@@ -11,7 +11,11 @@ const METHOD_STYLE: Record<
   PaymentMethodItem["name"],
   { icon: typeof Money01Icon; bg: string; color: string }
 > = {
-  Tunai: { icon: Money01Icon, bg: "bg-emerald-500/10", color: "text-emerald-600" },
+  Tunai: {
+    icon: Money01Icon,
+    bg: "bg-emerald-500/10",
+    color: "text-emerald-600",
+  },
   QRIS: { icon: QrCodeIcon, bg: "bg-blue-500/10", color: "text-blue-600" },
   Transfer: {
     icon: ArrowDataTransferHorizontalIcon,
@@ -31,16 +35,28 @@ export function PaymentMethods({ methods }: { methods: PaymentMethodItem[] }) {
             key={method.name}
             className="flex items-center justify-between gap-2 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
           >
-            <div className="flex items-center gap-3 min-w-0">
-              <div className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${method.bg}`}>
-                <HugeiconsIcon icon={method.icon} size={18} className={method.color} />
+            <div className="flex min-w-0 items-center gap-3">
+              <div
+                className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${method.bg}`}
+              >
+                <HugeiconsIcon
+                  icon={method.icon}
+                  size={18}
+                  className={method.color}
+                />
               </div>
-              <div className="flex flex-col items-start min-w-0">
-                <span className="truncate text-xs font-medium">{method.name}</span>
-                <span className="text-[10px] text-muted-foreground">{method.percentage}% total</span>
+              <div className="flex min-w-0 flex-col items-start">
+                <span className="truncate text-xs font-medium">
+                  {method.name}
+                </span>
+                <span className="text-[10px] text-muted-foreground">
+                  {method.percentage}% total
+                </span>
               </div>
             </div>
-            <p className="shrink-0 text-right text-xs font-semibold">{formatRupiah(method.amount)}</p>
+            <p className="shrink-0 text-right text-xs font-semibold">
+              {formatRupiah(method.amount)}
+            </p>
           </div>
         ))}
       </div>

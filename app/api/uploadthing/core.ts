@@ -1,7 +1,7 @@
-import { createUploadthing, type FileRouter } from "uploadthing/next";
-import { getSessionUser } from "@/lib/server/auth-guards";
+import { createUploadthing, type FileRouter } from "uploadthing/next"
+import { getSessionUser } from "@/lib/server/auth-guards"
 
-const f = createUploadthing();
+const f = createUploadthing()
 
 export const uploadRouter = {
   productImage: f({
@@ -13,11 +13,11 @@ export const uploadRouter = {
     image: { maxFileSize: "2MB", maxFileCount: 1 },
   })
     .middleware(async () => {
-      const user = await getSessionUser();
-      if (!user?.id) throw new Error("Unauthorized");
-      return { userId: user.id };
+      const user = await getSessionUser()
+      if (!user?.id) throw new Error("Unauthorized")
+      return { userId: user.id }
     })
     .onUploadComplete(async ({ file }) => ({ url: file.url })),
-} satisfies FileRouter;
+} satisfies FileRouter
 
-export type AppFileRouter = typeof uploadRouter;
+export type AppFileRouter = typeof uploadRouter

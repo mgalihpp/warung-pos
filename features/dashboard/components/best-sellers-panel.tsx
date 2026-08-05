@@ -1,4 +1,3 @@
-import Link from "next/link"
 import Image from "next/image"
 import { formatRupiah } from "@/lib/format-currency"
 import type { BestSellerItem } from "@/features/dashboard/hooks/use-dashboard-queries"
@@ -9,17 +8,13 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Barang Terlaris</h3>
-        <Link
-          href="/admin/barang"
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          Lihat Semua
-        </Link>
       </div>
 
       <div className="space-y-3">
         {bestSellers.length === 0 ? (
-          <p className="py-6 text-center text-xs text-muted-foreground">Belum ada penjualan bulan ini</p>
+          <p className="py-6 text-center text-xs text-muted-foreground">
+            Belum ada penjualan bulan ini
+          </p>
         ) : null}
         {bestSellers.map((item) => (
           <div
@@ -57,7 +52,7 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
             )}
 
             {/* Info */}
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-xs font-medium break-words">{item.name}</p>
               <p className="text-[11px] text-muted-foreground">
                 Terjual {item.sold} {item.unit}
@@ -66,7 +61,7 @@ export function BestSellersPanel({ items }: { items: BestSellerItem[] }) {
 
             {/* Revenue */}
             <div className="shrink-0 text-right">
-              <p className="text-xs font-semibold text-primary break-words">
+              <p className="text-xs font-semibold break-words text-primary">
                 {formatRupiah(item.revenue)}
               </p>
             </div>

@@ -22,7 +22,9 @@ export async function updateProfile(
   }
 
   const name = String(formData.get("name") ?? "").trim()
-  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase()
 
   if (!name || !email) {
     return { success: false, message: "Nama dan email tidak boleh kosong." }
@@ -71,7 +73,10 @@ export async function changePassword(
     })
     return { success: true, message: "Password berhasil diubah." }
   } catch {
-    return { success: false, message: "Password saat ini salah atau gagal diubah." }
+    return {
+      success: false,
+      message: "Password saat ini salah atau gagal diubah.",
+    }
   }
 }
 
@@ -89,13 +94,20 @@ export async function updateAvatar(
       data: { image: url },
     })
     revalidatePath("/admin/pengaturan")
-    return { success: true, message: url ? "Foto profil berhasil diperbarui." : "Foto profil dihapus." }
+    return {
+      success: true,
+      message: url
+        ? "Foto profil berhasil diperbarui."
+        : "Foto profil dihapus.",
+    }
   } catch {
     return { success: false, message: "Gagal memperbarui foto profil." }
   }
 }
 
-export async function updateUserAccess(formData: FormData): Promise<ActionResult> {
+export async function updateUserAccess(
+  formData: FormData
+): Promise<ActionResult> {
   const admin = await requireAdmin()
   if (!admin) {
     return { success: false, message: "Akses ditolak." }
@@ -103,7 +115,9 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
 
   const userId = String(formData.get("userId") ?? "")
   const role = asRole(formData.get("role"))
-  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase()
   const newPassword = String(formData.get("newPassword") ?? "")
 
   if (!userId || !role) {
@@ -119,7 +133,10 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
   }
 
   if (admin.id === userId) {
-    return { success: false, message: "Akun sendiri tidak bisa diubah dari tab ini." }
+    return {
+      success: false,
+      message: "Akun sendiri tidak bisa diubah dari tab ini.",
+    }
   }
 
   const targetUser = await prisma.user.findUnique({
@@ -132,7 +149,9 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
   }
 
   const status = String(formData.get("status") ?? "")
-  const nextBanned = status ? status === "inactive" : formData.get("banned") === "on"
+  const nextBanned = status
+    ? status === "inactive"
+    : formData.get("banned") === "on"
   const nextRole = role
   const willRemainActiveAdmin = nextRole === "admin" && !nextBanned
 
@@ -142,7 +161,10 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
     })
 
     if (activeAdminCount <= 1) {
-      return { success: false, message: "Tidak bisa menonaktifkan admin terakhir." }
+      return {
+        success: false,
+        message: "Tidak bisa menonaktifkan admin terakhir.",
+      }
     }
   }
 
@@ -169,7 +191,9 @@ export async function updateUserAccess(formData: FormData): Promise<ActionResult
   return { success: true, message: "Data pengguna berhasil diperbarui." }
 }
 
-export async function deleteUserAccount(formData: FormData): Promise<ActionResult> {
+export async function deleteUserAccount(
+  formData: FormData
+): Promise<ActionResult> {
   const admin = await requireAdmin()
   if (!admin) {
     return { success: false, message: "Akses ditolak." }
@@ -213,10 +237,14 @@ export async function deleteUserAccount(formData: FormData): Promise<ActionResul
     }
   }
 
-  if (targetUser._count.transactions > 0 || targetUser._count.stockAdjustments > 0) {
+  if (
+    targetUser._count.transactions > 0 ||
+    targetUser._count.stockAdjustments > 0
+  ) {
     return {
       success: false,
-      message: "Akun memiliki riwayat transaksi/stok. Nonaktifkan akun sebagai gantinya.",
+      message:
+        "Akun memiliki riwayat transaksi/stok. Nonaktifkan akun sebagai gantinya.",
     }
   }
 
@@ -226,14 +254,18 @@ export async function deleteUserAccount(formData: FormData): Promise<ActionResul
   return { success: true, message: "Akun berhasil dihapus." }
 }
 
-export async function createUserAccount(formData: FormData): Promise<ActionResult> {
+export async function createUserAccount(
+  formData: FormData
+): Promise<ActionResult> {
   const admin = await requireAdmin()
   if (!admin) {
     return { success: false, message: "Akses ditolak." }
   }
 
   const name = String(formData.get("name") ?? "").trim()
-  const email = String(formData.get("email") ?? "").trim().toLowerCase()
+  const email = String(formData.get("email") ?? "")
+    .trim()
+    .toLowerCase()
   const password = String(formData.get("password") ?? "")
   const role = asRole(formData.get("role")) ?? "cashier"
 
@@ -259,7 +291,8 @@ export async function createUserAccount(formData: FormData): Promise<ActionResul
     revalidatePath("/admin/pengaturan")
     return { success: true, message: "Akun baru berhasil dibuat." }
   } catch (error) {
-    const message = error instanceof Error ? error.message : "Gagal membuat akun baru."
+    const message =
+      error instanceof Error ? error.message : "Gagal membuat akun baru."
     return { success: false, message }
   }
 }

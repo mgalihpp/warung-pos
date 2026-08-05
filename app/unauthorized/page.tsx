@@ -2,12 +2,7 @@ import Image from "next/image"
 import Link from "next/link"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 
 export default function UnauthorizedPage() {
   return (
@@ -44,7 +39,9 @@ export default function UnauthorizedPage() {
           <div className="rounded-xl border border-destructive/15 bg-destructive/5 px-4 py-3.5 text-center">
             <p className="text-sm leading-relaxed text-muted-foreground">
               Akun Anda tidak memiliki{" "}
-              <span className="font-medium text-foreground">role yang sesuai</span>{" "}
+              <span className="font-medium text-foreground">
+                role yang sesuai
+              </span>{" "}
               untuk mengakses halaman ini. Hubungi admin jika Anda merasa ini
               adalah kesalahan.
             </p>
@@ -61,7 +58,10 @@ export default function UnauthorizedPage() {
 
           {/* Action buttons */}
           <div className="flex flex-col gap-3">
-            <Button asChild className="h-11 w-full text-sm font-medium sm:text-base">
+            <Button
+              asChild
+              className="h-11 w-full text-sm font-medium sm:text-base"
+            >
               <Link href="/cashier">Kembali ke Kasir</Link>
             </Button>
             <Button
@@ -76,8 +76,8 @@ export default function UnauthorizedPage() {
           {/* Footer hint */}
           <div className="pt-1 text-center sm:rounded-xl sm:border sm:border-border/50 sm:bg-muted/50 sm:p-4">
             <p className="text-xs leading-relaxed text-muted-foreground/70">
-              Jika masalah berlanjut, hubungi pemilik toko untuk mendapatkan akses
-              yang sesuai.
+              Jika masalah berlanjut, hubungi pemilik toko untuk mendapatkan
+              akses yang sesuai.
             </p>
           </div>
         </CardContent>

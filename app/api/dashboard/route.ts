@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { getDashboardData, parseDashboardRange } from "@/features/dashboard/server-data"
+import {
+  getDashboardData,
+  parseDashboardRange,
+} from "@/features/dashboard/server-data"
 import { requireAdmin } from "@/lib/server/auth-guards"
 
 export async function GET(req: NextRequest) {

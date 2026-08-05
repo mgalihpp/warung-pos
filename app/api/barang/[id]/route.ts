@@ -60,7 +60,10 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const { id } = await context.params
   if (!id) {
-    return NextResponse.json({ error: "ID barang tidak valid" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID barang tidak valid" },
+      { status: 400 }
+    )
   }
 
   const body = await request.json()
@@ -118,7 +121,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   const { id } = await context.params
   if (!id) {
-    return NextResponse.json({ error: "ID barang tidak valid" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID barang tidak valid" },
+      { status: 400 }
+    )
   }
 
   const [transactionItems, stockAdjustments] = await Promise.all([
@@ -146,7 +152,10 @@ export async function PATCH(request: Request, context: RouteContext) {
 
   const { id } = await context.params
   if (!id) {
-    return NextResponse.json({ error: "ID barang tidak valid" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID barang tidak valid" },
+      { status: 400 }
+    )
   }
 
   const body = await request.json()
@@ -176,7 +185,8 @@ export async function PATCH(request: Request, context: RouteContext) {
       }
 
       const wholeQuantity = Math.trunc(quantity)
-      const stockAfter = mode === "set" ? wholeQuantity : product.stock + wholeQuantity
+      const stockAfter =
+        mode === "set" ? wholeQuantity : product.stock + wholeQuantity
       if (stockAfter < 0) {
         throw new Error("Stok tidak boleh negatif")
       }

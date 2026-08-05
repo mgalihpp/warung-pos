@@ -46,13 +46,16 @@ const posMobileTabs = ["barang", "keranjang", "pembayaran"] as const
 function getPosMobileTabSnapshot(): PosMobileTab {
   const tab = document.body.dataset.posMobileTab
 
-  return posMobileTabs.includes(tab as PosMobileTab) ? (tab as PosMobileTab) : "barang"
+  return posMobileTabs.includes(tab as PosMobileTab)
+    ? (tab as PosMobileTab)
+    : "barang"
 }
 
 function subscribePosMobileTab(onStoreChange: () => void) {
   window.addEventListener("pos-mobile-tab-change", onStoreChange)
 
-  return () => window.removeEventListener("pos-mobile-tab-change", onStoreChange)
+  return () =>
+    window.removeEventListener("pos-mobile-tab-change", onStoreChange)
 }
 
 function getTransaksiDetailSnapshot(): boolean {
@@ -62,7 +65,8 @@ function getTransaksiDetailSnapshot(): boolean {
 function subscribeTransaksiDetail(onStoreChange: () => void) {
   window.addEventListener("transaksi-detail-change", onStoreChange)
 
-  return () => window.removeEventListener("transaksi-detail-change", onStoreChange)
+  return () =>
+    window.removeEventListener("transaksi-detail-change", onStoreChange)
 }
 
 function getPengaturanDetailSnapshot(): string | null {
@@ -72,10 +76,14 @@ function getPengaturanDetailSnapshot(): string | null {
 function subscribePengaturanDetail(onStoreChange: () => void) {
   window.addEventListener("pengaturan-detail-change", onStoreChange)
 
-  return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
+  return () =>
+    window.removeEventListener("pengaturan-detail-change", onStoreChange)
 }
 
-export function CashierLayoutClient({ userName, children }: CashierLayoutClientProps) {
+export function CashierLayoutClient({
+  userName,
+  children,
+}: CashierLayoutClientProps) {
   const pathname = usePathname()
   const router = useRouter()
   const { data: session } = useSession()
@@ -128,7 +136,11 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
   const isPosSubStep = pathname === "/cashier/pos" && posMobileTab !== "barang"
   const isPengaturanDetail = isPengaturanPage && !!pengaturanDetailTitle
-  const showBackArrow = isPosSubStep || isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail) || isPengaturanDetail
+  const showBackArrow =
+    isPosSubStep ||
+    isTransaksiDetailPage ||
+    (isTransaksiPage && isTransaksiDetail) ||
+    isPengaturanDetail
 
   const handleMobileHeaderAction = () => {
     if (isPengaturanDetail) {
@@ -147,9 +159,13 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
     }
 
     if (isPosSubStep) {
-      window.dispatchEvent(new CustomEvent("pos-mobile-tab-request", {
-        detail: { tab: posMobileTab === "pembayaran" ? "keranjang" : "barang" },
-      }))
+      window.dispatchEvent(
+        new CustomEvent("pos-mobile-tab-request", {
+          detail: {
+            tab: posMobileTab === "pembayaran" ? "keranjang" : "barang",
+          },
+        })
+      )
       return
     }
 
@@ -157,15 +173,18 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
       {/* Mobile Header - matches the design screenshot */}
-      <header className="bg-primary px-4 py-3 shrink-0 lg:hidden">
+      <header className="shrink-0 bg-primary px-4 py-3 lg:hidden">
         <div className="flex items-center justify-between">
           <button
             onClick={handleMobileHeaderAction}
             className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
           >
-            <HugeiconsIcon icon={showBackArrow ? ArrowLeft01Icon : Menu01Icon} size={20} />
+            <HugeiconsIcon
+              icon={showBackArrow ? ArrowLeft01Icon : Menu01Icon}
+              size={20}
+            />
           </button>
           <div className="flex items-center gap-2">
             {mobileHeader.icon ? (
@@ -184,7 +203,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
       </header>
 
       {/* Desktop Header */}
-      <header className="hidden lg:block bg-card border-b px-4 py-2 shrink-0">
+      <header className="hidden shrink-0 border-b bg-card px-4 py-2 lg:block">
         <div className="flex items-center justify-between gap-3">
           <SidebarTrigger className="-ml-1" />
 
@@ -195,41 +214,61 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
             {/* User Avatar Dropdown */}
             <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
-                <Avatar className="size-8">
-                  {avatarUrl ? (
-                    <AvatarImage src={avatarUrl} alt={displayName} />
-                  ) : null}
-                  <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
-                    {initials || "K"}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden flex-col items-start xl:flex">
-                  <span className="text-sm font-medium leading-tight text-foreground truncate max-w-[100px]">{displayName}</span>
-                  <span className="text-[11px] text-muted-foreground">Kasir</span>
-                </div>
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem asChild>
-                <Link href="/cashier/pengaturan">
-                  <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
-                  <span>Pengaturan</span>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer"
-                onClick={() => authClient.signOut({ fetchOptions: { onSuccess: () => { window.location.href = "/login" } } })}
-              >
-                <HugeiconsIcon icon={Logout03Icon} size={16} className="mr-2" />
-                <span>Keluar</span>
-              </DropdownMenuItem>
-            </DropdownMenuContent>
+              <DropdownMenuTrigger asChild>
+                <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:ring-1 focus:ring-ring focus:outline-none">
+                  <Avatar className="size-8">
+                    {avatarUrl ? (
+                      <AvatarImage src={avatarUrl} alt={displayName} />
+                    ) : null}
+                    <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
+                      {initials || "K"}
+                    </AvatarFallback>
+                  </Avatar>
+                  <div className="hidden flex-col items-start xl:flex">
+                    <span className="max-w-[100px] truncate text-sm leading-tight font-medium text-foreground">
+                      {displayName}
+                    </span>
+                    <span className="text-[11px] text-muted-foreground">
+                      Kasir
+                    </span>
+                  </div>
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuLabel>Akun Saya</DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link href="/cashier/pengaturan">
+                    <HugeiconsIcon
+                      icon={Settings01Icon}
+                      size={16}
+                      className="mr-2"
+                    />
+                    <span>Pengaturan</span>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer"
+                  onClick={() =>
+                    authClient.signOut({
+                      fetchOptions: {
+                        onSuccess: () => {
+                          window.location.href = "/login"
+                        },
+                      },
+                    })
+                  }
+                >
+                  <HugeiconsIcon
+                    icon={Logout03Icon}
+                    size={16}
+                    className="mr-2"
+                  />
+                  <span>Keluar</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
         </div>
@@ -237,7 +276,7 @@ export function CashierLayoutClient({ userName, children }: CashierLayoutClientP
 
       {/* Content */}
       <main
-        className={`flex min-h-0 flex-1 flex-col ${pathname === "/cashier/pos" ? "overflow-hidden" : "overflow-y-auto overflow-x-hidden"}`}
+        className={`flex min-h-0 flex-1 flex-col ${pathname === "/cashier/pos" ? "overflow-hidden" : "overflow-x-hidden overflow-y-auto"}`}
       >
         {children}
       </main>

@@ -19,7 +19,12 @@ export function SignOutButton() {
   }
 
   return (
-    <Button loading={isPending} loadingText="Keluar..." onClick={handleSignOut} variant="outline">
+    <Button
+      loading={isPending}
+      loadingText="Keluar..."
+      onClick={handleSignOut}
+      variant="outline"
+    >
       Keluar
     </Button>
   )

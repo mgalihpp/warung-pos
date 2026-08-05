@@ -35,8 +35,21 @@ import {
 import { Button } from "@/components/ui/button"
 import type { BarangCategory, BarangItem } from "../types"
 
-const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Stok Habis", "Nonaktif"] as const
-const sortOptions = ["Terbaru", "Nama A-Z", "Harga Tertinggi", "Harga Terendah", "Stok Terbanyak", "Stok Tersedikit"] as const
+const statusOptions = [
+  "Semua Status",
+  "Aktif",
+  "Stok Menipis",
+  "Stok Habis",
+  "Nonaktif",
+] as const
+const sortOptions = [
+  "Terbaru",
+  "Nama A-Z",
+  "Harga Tertinggi",
+  "Harga Terendah",
+  "Stok Terbanyak",
+  "Stok Tersedikit",
+] as const
 
 type StatusOption = (typeof statusOptions)[number]
 type SortOption = (typeof sortOptions)[number]
@@ -79,24 +92,32 @@ export function BarangMobileList({
 }) {
   const [q, setQ] = useSearchParam("search", "")
   const [activeCategoryId, setActiveCategoryId] = useSearchParam("category", "")
-  const [activeStatus, setActiveStatus] = useSearchParam("status", "Semua Status")
+  const [activeStatus, setActiveStatus] = useSearchParam(
+    "status",
+    "Semua Status"
+  )
   const [activeSort, setActiveSort] = useSearchParam("sort", "Terbaru")
   const [isSearchActive, setIsSearchActive] = React.useState(false)
   const [isCategoryOpen, setIsCategoryOpen] = React.useState(false)
-  const [categorySnap, setCategorySnap] = React.useState<number | string | null>(0.5)
+  const [categorySnap, setCategorySnap] = React.useState<
+    number | string | null
+  >(0.5)
   const [isFilterOpen, setIsFilterOpen] = React.useState(false)
   const query = q.trim().toLowerCase()
   const activeCategory = activeCategoryId || null
-  const hasActiveFilters = activeStatus !== "Semua Status" || activeSort !== "Terbaru"
+  const hasActiveFilters =
+    activeStatus !== "Semua Status" || activeSort !== "Terbaru"
   const activeCategoryName = activeCategory
-    ? categories.find((category) => category.id === activeCategory)?.name ?? "Semua Kategori"
+    ? (categories.find((category) => category.id === activeCategory)?.name ??
+      "Semua Kategori")
     : "Semua Kategori"
 
   const filtered = React.useMemo(() => {
     const list = products.filter((p) => {
       const matchSearch = !query || p.name.toLowerCase().includes(query)
       const matchCategory = !activeCategory || p.categoryId === activeCategory
-      const matchStatus = activeStatus === "Semua Status" || getProductStatus(p) === activeStatus
+      const matchStatus =
+        activeStatus === "Semua Status" || getProductStatus(p) === activeStatus
 
       return matchSearch && matchCategory && matchStatus
     })
@@ -130,10 +151,14 @@ export function BarangMobileList({
                 <button
                   type="button"
                   onClick={() => setIsCategoryOpen(true)}
-                  className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-[13px] outline-none transition-colors hover:bg-muted/50 focus:ring-0"
+                  className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-[13px] transition-colors outline-none hover:bg-muted/50 focus:ring-0"
                 >
                   <span className="truncate">{activeCategoryName}</span>
-                  <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="shrink-0 text-muted-foreground" />
+                  <HugeiconsIcon
+                    icon={ArrowDown01Icon}
+                    size={14}
+                    className="shrink-0 text-muted-foreground"
+                  />
                 </button>
               </div>
               <div className="h-6 w-px bg-border" />
@@ -151,7 +176,11 @@ export function BarangMobileList({
             </>
           ) : (
             <div className="flex h-full flex-1 items-center px-2">
-              <HugeiconsIcon icon={Search01Icon} size={16} className="ml-2 shrink-0 text-muted-foreground" />
+              <HugeiconsIcon
+                icon={Search01Icon}
+                size={16}
+                className="ml-2 shrink-0 text-muted-foreground"
+              />
               <input
                 autoFocus
                 type="text"
@@ -187,9 +216,11 @@ export function BarangMobileList({
         activeSnapPoint={categorySnap}
         setActiveSnapPoint={setCategorySnap}
       >
-        <DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 !mt-0 !max-h-[100dvh] lg:hidden">
+        <DrawerContent className="!mt-0 h-[100dvh] !max-h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 lg:hidden">
           <DrawerHeader className="px-4 pt-4 pb-3 text-left">
-            <DrawerTitle className="text-base font-bold">Pilih Kategori</DrawerTitle>
+            <DrawerTitle className="text-base font-bold">
+              Pilih Kategori
+            </DrawerTitle>
             <DrawerDescription className="text-xs">
               Tampilkan barang berdasarkan kategori.
             </DrawerDescription>
@@ -210,7 +241,9 @@ export function BarangMobileList({
                 )}
               >
                 <span className="text-sm font-semibold">Semua Kategori</span>
-                {!activeCategory && <HugeiconsIcon icon={Tick02Icon} size={18} />}
+                {!activeCategory && (
+                  <HugeiconsIcon icon={Tick02Icon} size={18} />
+                )}
               </button>
 
               {categories.map((category) => {
@@ -231,7 +264,9 @@ export function BarangMobileList({
                         : "border-border bg-card text-foreground hover:bg-muted/50"
                     )}
                   >
-                    <span className="truncate text-sm font-semibold">{category.name}</span>
+                    <span className="truncate text-sm font-semibold">
+                      {category.name}
+                    </span>
                     {isActive && <HugeiconsIcon icon={Tick02Icon} size={18} />}
                   </button>
                 )
@@ -242,7 +277,11 @@ export function BarangMobileList({
       </Drawer>
 
       <Sheet open={isFilterOpen} onOpenChange={setIsFilterOpen}>
-        <SheetContent side="bottom" className="max-h-[80vh] rounded-t-3xl border-t p-0" showCloseButton={false}>
+        <SheetContent
+          side="bottom"
+          className="max-h-[80vh] rounded-t-3xl border-t p-0"
+          showCloseButton={false}
+        >
           <SheetHeader className="px-4 py-4 text-left">
             <div className="mx-auto mb-2 h-1 w-10 rounded-full bg-muted-foreground/25" />
             <SheetTitle>Filter & Urutkan</SheetTitle>
@@ -250,7 +289,9 @@ export function BarangMobileList({
 
           <div className="grid max-h-[56vh] gap-5 overflow-y-auto px-4 pb-2">
             <div className="grid gap-2">
-              <p className="px-1 text-xs font-semibold text-muted-foreground">Status</p>
+              <p className="px-1 text-xs font-semibold text-muted-foreground">
+                Status
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {statusOptions.map((status) => (
                   <button
@@ -259,7 +300,9 @@ export function BarangMobileList({
                     onClick={() => setActiveStatus(status)}
                     className={cn(
                       "h-10 rounded-xl px-3 text-sm font-medium transition-colors",
-                      activeStatus === status ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"
+                      activeStatus === status
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/60 text-foreground"
                     )}
                   >
                     {status}
@@ -269,7 +312,9 @@ export function BarangMobileList({
             </div>
 
             <div className="grid gap-2">
-              <p className="px-1 text-xs font-semibold text-muted-foreground">Urutkan</p>
+              <p className="px-1 text-xs font-semibold text-muted-foreground">
+                Urutkan
+              </p>
               <div className="grid grid-cols-2 gap-2">
                 {sortOptions.map((sort) => (
                   <button
@@ -278,7 +323,9 @@ export function BarangMobileList({
                     onClick={() => setActiveSort(sort)}
                     className={cn(
                       "h-10 rounded-xl px-3 text-sm font-medium transition-colors",
-                      activeSort === sort ? "bg-primary text-primary-foreground" : "bg-muted/60 text-foreground"
+                      activeSort === sort
+                        ? "bg-primary text-primary-foreground"
+                        : "bg-muted/60 text-foreground"
                     )}
                   >
                     {sort}
@@ -306,7 +353,7 @@ export function BarangMobileList({
         </SheetContent>
       </Sheet>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
         {filtered.map((product) => {
           const badge = getStockBadge(product)
           const isOut = product.isActive && product.stock <= 0
@@ -339,10 +386,10 @@ export function BarangMobileList({
 
                 <div className="min-w-0 flex-1">
                   <div className="flex items-start justify-between gap-2">
-                    <p className="line-clamp-2 min-w-0 break-words text-[15px] font-semibold leading-5">
+                    <p className="line-clamp-2 min-w-0 text-[15px] leading-5 font-semibold break-words">
                       {product.name}
                     </p>
-                    <p className="shrink-0 whitespace-nowrap text-sm font-bold leading-5 text-primary">
+                    <p className="shrink-0 text-sm leading-5 font-bold whitespace-nowrap text-primary">
                       {formatRupiah(product.sellPrice)}
                     </p>
                   </div>

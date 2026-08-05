@@ -1,7 +1,12 @@
 "use client"
 
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Alert02Icon, CheckmarkCircle02Icon, PackageIcon, TagsIcon } from "@hugeicons/core-free-icons"
+import {
+  Alert02Icon,
+  CheckmarkCircle02Icon,
+  PackageIcon,
+  TagsIcon,
+} from "@hugeicons/core-free-icons"
 
 import type { KategoriStats } from "../types"
 
@@ -44,14 +49,25 @@ export function KategoriStatCards({ stats }: KategoriStatCardsProps) {
   return (
     <div className="grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
       {cards.map((card) => (
-        <div key={card.title} className="rounded-xl border bg-card p-4 shadow-sm">
+        <div
+          key={card.title}
+          className="rounded-xl border bg-card p-4 shadow-sm"
+        >
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <p className="text-xs font-medium text-muted-foreground">{card.title}</p>
-              <p className="mt-1 text-2xl font-bold tracking-tight">{card.value}</p>
-              <p className="mt-1 truncate text-[11px] text-muted-foreground">{card.description}</p>
+              <p className="text-xs font-medium text-muted-foreground">
+                {card.title}
+              </p>
+              <p className="mt-1 text-2xl font-bold tracking-tight">
+                {card.value}
+              </p>
+              <p className="mt-1 truncate text-[11px] text-muted-foreground">
+                {card.description}
+              </p>
             </div>
-            <span className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${card.tone}`}>
+            <span
+              className={`flex size-9 shrink-0 items-center justify-center rounded-lg ${card.tone}`}
+            >
               <HugeiconsIcon icon={card.icon} size={18} />
             </span>
           </div>

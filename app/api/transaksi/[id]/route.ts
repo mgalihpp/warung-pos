@@ -22,7 +22,7 @@ export async function GET(_request: Request, { params }: RouteParams) {
   if (!transaction) {
     return NextResponse.json(
       { error: "Transaksi tidak ditemukan" },
-      { status: 404 },
+      { status: 404 }
     )
   }
 
@@ -43,10 +43,13 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   const body = await request.json()
   const { status } = body as { status?: string }
 
-  if (!status || !VALID_STATUSES.includes(status as typeof VALID_STATUSES[number])) {
+  if (
+    !status ||
+    !VALID_STATUSES.includes(status as (typeof VALID_STATUSES)[number])
+  ) {
     return NextResponse.json(
       { success: false, error: "Status tidak valid" },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -58,7 +61,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   if (!transaction) {
     return NextResponse.json(
       { success: false, error: "Transaksi tidak ditemukan" },
-      { status: 404 },
+      { status: 404 }
     )
   }
 
@@ -67,7 +70,7 @@ export async function PATCH(request: Request, { params }: RouteParams) {
   }
 
   const oldStatus = transaction.status
-  const newStatus = status as typeof VALID_STATUSES[number]
+  const newStatus = status as (typeof VALID_STATUSES)[number]
 
   await prisma.$transaction(async (tx) => {
     // If changing FROM COMPLETED to something else → restore stock
@@ -148,7 +151,10 @@ export async function PATCH(request: Request, { params }: RouteParams) {
 export async function DELETE(_request: Request, { params }: RouteParams) {
   const user = await requireAdmin()
   if (!user) {
-    return NextResponse.json({ error: "Hanya admin yang dapat menghapus transaksi" }, { status: 403 })
+    return NextResponse.json(
+      { error: "Hanya admin yang dapat menghapus transaksi" },
+      { status: 403 }
+    )
   }
 
   const { id } = await params
@@ -161,7 +167,7 @@ export async function DELETE(_request: Request, { params }: RouteParams) {
   if (!transaction) {
     return NextResponse.json(
       { success: false, error: "Transaksi tidak ditemukan" },
-      { status: 404 },
+      { status: 404 }
     )
   }
 
@@ -218,7 +224,7 @@ const updateTransactionSchema = z.object({
       z.object({
         productId: z.string().min(1),
         quantity: z.number().int().min(1),
-      }),
+      })
     )
     .min(1, "Minimal 1 item"),
   paymentMethod: z.enum(["CASH", "QRIS_MANUAL", "MANUAL_TRANSFER"]),
@@ -257,7 +263,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (!existing) {
     return NextResponse.json(
       { success: false, error: "Transaksi tidak ditemukan" },
-      { status: 404 },
+      { status: 404 }
     )
   }
 
@@ -285,7 +291,7 @@ export async function PUT(request: Request, { params }: RouteParams) {
   if (validationErrors.length > 0) {
     return NextResponse.json(
       { success: false, errors: { items: validationErrors } },
-      { status: 400 },
+      { status: 400 }
     )
   }
 
@@ -305,15 +311,21 @@ export async function PUT(request: Request, { params }: RouteParams) {
     }
   })
 
-  const newSubtotal = newTransactionItems.reduce((sum, i) => sum + i.subtotal, 0)
+  const newSubtotal = newTransactionItems.reduce(
+    (sum, i) => sum + i.subtotal,
+    0
+  )
   const newTotal = newSubtotal
   const newChange = Math.max(0, amountPaid - newTotal)
 
   // Validate payment for cash
   if (paymentMethod === "CASH" && amountPaid < newTotal) {
     return NextResponse.json(
-      { success: false, errors: { amountPaid: ["Uang yang dibayarkan kurang dari total"] } },
-      { status: 400 },
+      {
+        success: false,
+        errors: { amountPaid: ["Uang yang dibayarkan kurang dari total"] },
+      },
+      { status: 400 }
     )
   }
 

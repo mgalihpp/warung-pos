@@ -18,5 +18,9 @@ export default async function LaporanPage() {
 
   const data = await getLaporanPenjualanData("30d")
 
-  return <Suspense><LaporanContent initialData={data} /></Suspense>
+  return (
+    <Suspense>
+      <LaporanContent initialData={data} />
+    </Suspense>
+  )
 }

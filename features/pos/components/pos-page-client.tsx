@@ -65,13 +65,21 @@ export function PosPageClient({
   const [mobileTabParam, setMobileTab] = useSearchParam("tab", "barang")
   const mobileTab = mobileTabParam as MobileTab
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
-  const [activeCategoryParam, setActiveCategory] = useSearchParam("category", "")
+  const [activeCategoryParam, setActiveCategory] = useSearchParam(
+    "category",
+    ""
+  )
   const activeCategory = activeCategoryParam || null
-  const [showLowStockOnlyParam, setShowLowStockOnly] = useSearchParam("lowstock", "false")
+  const [showLowStockOnlyParam, setShowLowStockOnly] = useSearchParam(
+    "lowstock",
+    "false"
+  )
   const showLowStockOnly = showLowStockOnlyParam === "true"
   const [isMobileSearchActive, setIsMobileSearchActive] = useState(false)
   const [isMobileCategoryOpen, setIsMobileCategoryOpen] = useState(false)
-  const [mobileCategorySnap, setMobileCategorySnap] = useState<number | string | null>(0.5)
+  const [mobileCategorySnap, setMobileCategorySnap] = useState<
+    number | string | null
+  >(0.5)
   const [receiptData, setReceiptData] = useState<TransactionReceipt | null>(
     null
   )
@@ -163,7 +171,8 @@ export function PosPageClient({
   const categories = (data?.categories ?? []) as { id: string; name: string }[]
   const lowStockCount = (data?.lowStockCount ?? 0) as number
   const activeCategoryName = activeCategory
-    ? categories.find((category) => category.id === activeCategory)?.name ?? "Semua Kategori"
+    ? (categories.find((category) => category.id === activeCategory)?.name ??
+      "Semua Kategori")
     : "Semua Kategori"
 
   const handlePayment = () => payMutation.mutate()
@@ -227,16 +236,26 @@ export function PosPageClient({
                   <DropdownMenuTrigger asChild>
                     <button
                       type="button"
-                      className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-sm outline-none transition-colors hover:bg-muted/50 focus:ring-0"
+                      className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-sm transition-colors outline-none hover:bg-muted/50 focus:ring-0"
                     >
                       <span className="truncate">{activeCategoryName}</span>
-                      <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="shrink-0 text-muted-foreground" />
+                      <HugeiconsIcon
+                        icon={ArrowDown01Icon}
+                        size={14}
+                        className="shrink-0 text-muted-foreground"
+                      />
                     </button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end" className="w-56">
                     <DropdownMenuItem onSelect={() => setActiveCategory("")}>
                       <span>Semua Kategori</span>
-                      {!activeCategory && <HugeiconsIcon icon={Tick02Icon} size={16} className="ml-auto" />}
+                      {!activeCategory && (
+                        <HugeiconsIcon
+                          icon={Tick02Icon}
+                          size={16}
+                          className="ml-auto"
+                        />
+                      )}
                     </DropdownMenuItem>
                     {categories.map((category) => (
                       <DropdownMenuItem
@@ -245,7 +264,11 @@ export function PosPageClient({
                       >
                         <span>{category.name}</span>
                         {activeCategory === category.id && (
-                          <HugeiconsIcon icon={Tick02Icon} size={16} className="ml-auto" />
+                          <HugeiconsIcon
+                            icon={Tick02Icon}
+                            size={16}
+                            className="ml-auto"
+                          />
                         )}
                       </DropdownMenuItem>
                     ))}
@@ -273,8 +296,8 @@ export function PosPageClient({
             className={`absolute inset-0 flex flex-col transition-transform duration-300 ${mobileTab === "barang" ? "translate-x-0" : "pointer-events-none -translate-x-full"}`}
           >
             {/* Low Stock Banner */}
-            {(lowStockCount > 0 || showLowStockOnly) && (
-              stockReportHref ? (
+            {(lowStockCount > 0 || showLowStockOnly) &&
+              (stockReportHref ? (
                 <Link
                   href={stockReportHref}
                   className="mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl bg-gradient-to-r from-orange-500 to-orange-400 px-4 py-3 text-white shadow-sm transition-transform active:scale-[0.98]"
@@ -283,7 +306,9 @@ export function PosPageClient({
                     <HugeiconsIcon icon={Alert02Icon} size={22} />
                   </div>
                   <div className="min-w-0 flex-1">
-                    <p className="text-sm font-bold leading-5">Stok Hampir Habis!</p>
+                    <p className="text-sm leading-5 font-bold">
+                      Stok Hampir Habis!
+                    </p>
                     <p className="text-xs leading-4 opacity-90">
                       {lowStockCount} barang perlu restock
                     </p>
@@ -297,7 +322,9 @@ export function PosPageClient({
               ) : (
                 <button
                   type="button"
-                  onClick={() => setShowLowStockOnly(showLowStockOnly ? "false" : "true")}
+                  onClick={() =>
+                    setShowLowStockOnly(showLowStockOnly ? "false" : "true")
+                  }
                   className={`mx-3 mt-3 flex min-h-[76px] items-center gap-3 rounded-2xl px-4 py-3 text-white shadow-sm transition-transform active:scale-[0.98] ${
                     showLowStockOnly
                       ? "bg-gradient-to-r from-orange-600 to-orange-500 ring-2 ring-white/60"
@@ -308,8 +335,10 @@ export function PosPageClient({
                     <HugeiconsIcon icon={Alert02Icon} size={22} />
                   </div>
                   <div className="min-w-0 flex-1 text-left">
-                    <p className="text-sm font-bold leading-5">
-                      {showLowStockOnly ? "Menampilkan Stok Menipis" : "Stok Hampir Habis!"}
+                    <p className="text-sm leading-5 font-bold">
+                      {showLowStockOnly
+                        ? "Menampilkan Stok Menipis"
+                        : "Stok Hampir Habis!"}
                     </p>
                     <p className="text-xs leading-4 opacity-90">
                       {showLowStockOnly
@@ -323,8 +352,7 @@ export function PosPageClient({
                     className="opacity-70"
                   />
                 </button>
-              )
-            )}
+              ))}
 
             {/* Cart Summary Banner */}
             <button
@@ -344,7 +372,7 @@ export function PosPageClient({
                     Total Belanja
                   </span>
                 </div>
-                <p className="mt-0.5 text-xl font-extrabold leading-6 tracking-tight">
+                <p className="mt-0.5 text-xl leading-6 font-extrabold tracking-tight">
                   {formatRupiah(cartTotal)}
                 </p>
               </div>
@@ -371,10 +399,14 @@ export function PosPageClient({
                       <button
                         type="button"
                         onClick={() => setIsMobileCategoryOpen(true)}
-                        className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-[13px] outline-none transition-colors hover:bg-muted/50 focus:ring-0"
+                        className="flex h-full w-full items-center justify-between gap-2 bg-transparent px-3 text-left text-[13px] transition-colors outline-none hover:bg-muted/50 focus:ring-0"
                       >
                         <span className="truncate">{activeCategoryName}</span>
-                        <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="shrink-0 text-muted-foreground" />
+                        <HugeiconsIcon
+                          icon={ArrowDown01Icon}
+                          size={14}
+                          className="shrink-0 text-muted-foreground"
+                        />
                       </button>
                     </div>
                   </>
@@ -443,11 +475,11 @@ export function PosPageClient({
         activeSnapPoint={mobileCategorySnap}
         setActiveSnapPoint={setMobileCategorySnap}
       >
-        <DrawerContent
-          className="h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 !mt-0 !max-h-[100dvh] xl:hidden"
-        >
+        <DrawerContent className="!mt-0 h-[100dvh] !max-h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 xl:hidden">
           <DrawerHeader className="px-4 pt-4 pb-3 text-left">
-            <DrawerTitle className="text-base font-bold">Pilih Kategori</DrawerTitle>
+            <DrawerTitle className="text-base font-bold">
+              Pilih Kategori
+            </DrawerTitle>
             <DrawerDescription className="text-xs">
               Tampilkan barang berdasarkan kategori.
             </DrawerDescription>
@@ -467,7 +499,9 @@ export function PosPageClient({
                 }`}
               >
                 <span className="text-sm font-semibold">Semua Kategori</span>
-                {!activeCategory && <HugeiconsIcon icon={Tick02Icon} size={18} />}
+                {!activeCategory && (
+                  <HugeiconsIcon icon={Tick02Icon} size={18} />
+                )}
               </button>
 
               {categories.map((category) => {
@@ -487,7 +521,9 @@ export function PosPageClient({
                         : "border-border bg-card text-foreground hover:bg-muted/50"
                     }`}
                   >
-                    <span className="truncate text-sm font-semibold">{category.name}</span>
+                    <span className="truncate text-sm font-semibold">
+                      {category.name}
+                    </span>
                     {isActive && <HugeiconsIcon icon={Tick02Icon} size={18} />}
                   </button>
                 )

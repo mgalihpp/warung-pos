@@ -3,9 +3,7 @@
 import * as React from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  PlusSignIcon,
-} from "@hugeicons/core-free-icons"
+import { PlusSignIcon } from "@hugeicons/core-free-icons"
 
 export function TransaksiHeader() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = React.useState(false)
@@ -14,12 +12,16 @@ export function TransaksiHeader() {
     <>
       <div className="flex flex-col gap-3 xl:flex-row xl:items-center xl:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Manajemen Transaksi</h1>
-          <p className="text-sm text-muted-foreground">Pantau, cari, dan kelola seluruh transaksi warung Anda</p>
+          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
+            Manajemen Transaksi
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Pantau, cari, dan kelola seluruh transaksi warung Anda
+          </p>
         </div>
 
         {/* Desktop Actions */}
-        <div className="hidden xl:flex items-center gap-2">
+        <div className="hidden items-center gap-2 xl:flex">
           <Link
             href="/admin/pos"
             className="inline-flex items-center gap-2 rounded-lg bg-primary px-4 py-2.5 text-sm font-medium text-primary-foreground shadow-sm transition-colors hover:bg-primary/90"
@@ -33,14 +35,12 @@ export function TransaksiHeader() {
       {/* Mobile Floating Action Button Overlay & Menu */}
       <div className="contents xl:hidden">
         {isMobileMenuOpen && (
-          <div
-            className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px] transition-opacity"
-          />
+          <div className="pointer-events-none fixed inset-0 z-30 bg-background/60 backdrop-blur-[2px] transition-opacity" />
         )}
 
         <div className="pointer-events-none fixed right-4 bottom-[calc(5rem+env(safe-area-inset-bottom))] z-40 flex flex-col items-end gap-3 sm:right-6 lg:bottom-6">
           <div
-            className={`flex flex-col items-end gap-3 transition-all duration-200 origin-bottom ${
+            className={`flex origin-bottom flex-col items-end gap-3 transition-all duration-200 ${
               isMobileMenuOpen
                 ? "pointer-events-auto translate-y-0 scale-100 opacity-100"
                 : "pointer-events-none translate-y-4 scale-95 opacity-0"
@@ -62,7 +62,9 @@ export function TransaksiHeader() {
           <button
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${
-              isMobileMenuOpen ? "bg-card text-foreground border" : "bg-primary text-primary-foreground"
+              isMobileMenuOpen
+                ? "border bg-card text-foreground"
+                : "bg-primary text-primary-foreground"
             }`}
           >
             <HugeiconsIcon

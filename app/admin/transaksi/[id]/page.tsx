@@ -27,5 +27,7 @@ export default async function AdminTransaksiDetailPage({
     notFound()
   }
 
-  return <AdminTransaksiDetailPageClient transactionId={id} initialData={data} />
+  return (
+    <AdminTransaksiDetailPageClient transactionId={id} initialData={data} />
+  )
 }

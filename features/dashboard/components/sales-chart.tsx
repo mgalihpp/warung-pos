@@ -1,12 +1,6 @@
 "use client"
 
-import {
-  Bar,
-  BarChart,
-  CartesianGrid,
-  XAxis,
-  YAxis,
-} from "recharts"
+import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts"
 import {
   ChartContainer,
   ChartTooltip,
@@ -21,7 +15,10 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { formatRupiah } from "@/lib/format-currency"
-import type { SalesChartPoint, SalesRange } from "@/features/dashboard/hooks/use-dashboard-queries"
+import type {
+  SalesChartPoint,
+  SalesRange,
+} from "@/features/dashboard/hooks/use-dashboard-queries"
 
 const chartConfig = {
   penjualan: {
@@ -42,10 +39,13 @@ type SalesChartProps = {
 
 export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
   return (
-    <div className="flex h-full flex-col rounded-xl border bg-card p-4 shadow-sm overflow-hidden">
+    <div className="flex h-full flex-col overflow-hidden rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
         <h3 className="text-sm font-semibold">Grafik Penjualan & Laba</h3>
-        <Select value={range} onValueChange={(v) => onRangeChange(v as SalesRange)}>
+        <Select
+          value={range}
+          onValueChange={(v) => onRangeChange(v as SalesRange)}
+        >
           <SelectTrigger className="h-7 w-[130px] text-xs">
             <SelectValue placeholder="Pilih rentang" />
           </SelectTrigger>
@@ -56,7 +56,7 @@ export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
           </SelectContent>
         </Select>
       </div>
-      <div className="flex-1 min-h-[220px] min-w-0 min-h-0">
+      <div className="min-h-0 min-h-[220px] min-w-0 flex-1">
         <ChartContainer config={chartConfig} className="h-full w-full">
           <BarChart data={data} maxBarSize={40}>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -72,7 +72,9 @@ export function SalesChart({ data, range, onRangeChange }: SalesChartProps) {
               axisLine={false}
               fontSize={11}
               tickMargin={4}
-              tickFormatter={(v) => `${(v / 1000000).toFixed(1).replace('.', ',')} jt`}
+              tickFormatter={(v) =>
+                `${(v / 1000000).toFixed(1).replace(".", ",")} jt`
+              }
             />
             <ChartTooltip
               content={

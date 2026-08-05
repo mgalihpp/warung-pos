@@ -1,4 +1,3 @@
-import Link from "next/link"
 import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import type { LowStockItem } from "@/features/dashboard/hooks/use-dashboard-queries"
@@ -14,17 +13,13 @@ export function LowStockPanel({ items }: { items: LowStockItem[] }) {
             {lowStockItems.length}
           </Badge>
         </div>
-        <Link
-          href="/admin/laporan/stok"
-          className="text-xs font-medium text-primary hover:underline"
-        >
-          Lihat Semua
-        </Link>
       </div>
 
       <div className="space-y-3">
         {lowStockItems.length === 0 ? (
-          <p className="py-6 text-center text-xs text-muted-foreground">Semua stok aman 🎉</p>
+          <p className="py-6 text-center text-xs text-muted-foreground">
+            Semua stok aman 🎉
+          </p>
         ) : null}
         {lowStockItems.map((item) => {
           const isOut = item.status === "OUT"
@@ -49,7 +44,9 @@ export function LowStockPanel({ items }: { items: LowStockItem[] }) {
                 )}
                 <div className="min-w-0 flex-1">
                   <p className="truncate text-xs font-medium">{item.name}</p>
-                  <p className="text-[11px] text-muted-foreground">Stok: {item.stock}</p>
+                  <p className="text-[11px] text-muted-foreground">
+                    Stok: {item.stock}
+                  </p>
                 </div>
               </div>
               <div className="flex shrink-0 items-center gap-2">

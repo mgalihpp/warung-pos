@@ -52,7 +52,7 @@ export function CashierSidebar() {
   const isHydrated = React.useSyncExternalStore(
     subscribeToHydration,
     getHydratedSnapshot,
-    getServerSnapshot,
+    getServerSnapshot
   )
   const { data: session } = useSession()
 
@@ -68,19 +68,24 @@ export function CashierSidebar() {
 
   return (
     <Sidebar collapsible="icon" className="border-r-0">
-      <SidebarHeader className="h-14 px-4 flex items-center border-b">
-        <Link href="/cashier/pos" className="flex items-center gap-2.5 group-data-[collapsible=icon]:justify-center">
-          <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/10 overflow-hidden">
+      <SidebarHeader className="flex h-14 items-center border-b px-4">
+        <Link
+          href="/cashier/pos"
+          className="flex items-center gap-2.5 group-data-[collapsible=icon]:justify-center"
+        >
+          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-primary/10">
             <Image
               src="/logo warung.png"
               alt="Logo Warung Mama Nia"
               width={36}
               height={36}
-              className="h-full w-full object-contain p-0.5 scale-125"
+              className="h-full w-full scale-125 object-contain p-0.5"
             />
           </div>
           <div className="flex flex-col group-data-[collapsible=icon]:hidden">
-            <span className="text-sm font-bold leading-tight">Warung Mama Nia</span>
+            <span className="text-sm leading-tight font-bold">
+              Warung Mama Nia
+            </span>
           </div>
         </Link>
       </SidebarHeader>
@@ -105,7 +110,11 @@ export function CashierSidebar() {
                       }
                     >
                       <Link href={item.href}>
-                        <HugeiconsIcon icon={item.icon} size={18} strokeWidth={isActive ? 2.5 : 2} />
+                        <HugeiconsIcon
+                          icon={item.icon}
+                          size={18}
+                          strokeWidth={isActive ? 2.5 : 2}
+                        />
                         <span>{item.title}</span>
                       </Link>
                     </SidebarMenuButton>
@@ -122,13 +131,15 @@ export function CashierSidebar() {
           <DropdownMenuTrigger asChild>
             <button
               type="button"
-              className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:outline-none focus:ring-1 focus:ring-sidebar-ring group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0"
+              className="flex w-full items-center gap-3 rounded-xl px-2 py-2 text-left transition-colors group-data-[collapsible=icon]:justify-center group-data-[collapsible=icon]:px-0 hover:bg-sidebar-accent hover:text-sidebar-accent-foreground focus:ring-1 focus:ring-sidebar-ring focus:outline-none"
             >
               {isUserLoading ? (
                 <Skeleton className="size-9 shrink-0 rounded-full" />
               ) : (
                 <Avatar className="size-9">
-                  {user?.image && <AvatarImage src={user.image} alt={userName} />}
+                  {user?.image && (
+                    <AvatarImage src={user.image} alt={userName} />
+                  )}
                   <AvatarFallback className="bg-primary/10 text-xs font-bold text-primary">
                     {userInitials}
                   </AvatarFallback>
@@ -142,8 +153,12 @@ export function CashierSidebar() {
                   </>
                 ) : (
                   <>
-                    <p className="truncate text-sm font-semibold leading-tight">{userName}</p>
-                    <p className="truncate text-xs text-muted-foreground">Kasir</p>
+                    <p className="truncate text-sm leading-tight font-semibold">
+                      {userName}
+                    </p>
+                    <p className="truncate text-xs text-muted-foreground">
+                      Kasir
+                    </p>
                   </>
                 )}
               </div>
@@ -160,7 +175,11 @@ export function CashierSidebar() {
             <DropdownMenuGroup>
               <DropdownMenuItem asChild>
                 <Link href="/cashier/pengaturan">
-                  <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+                  <HugeiconsIcon
+                    icon={Settings01Icon}
+                    size={16}
+                    className="mr-2"
+                  />
                   <span>Pengaturan</span>
                 </Link>
               </DropdownMenuItem>

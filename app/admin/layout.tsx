@@ -12,7 +12,8 @@ export default async function AdminLayout({
 }) {
   const cookieStore = await cookies()
   const sidebarState = cookieStore.get("sidebar_state")?.value
-  const defaultOpen = sidebarState === undefined ? true : sidebarState === "true"
+  const defaultOpen =
+    sidebarState === undefined ? true : sidebarState === "true"
 
   return (
     <TooltipProvider>
@@ -23,7 +24,9 @@ export default async function AdminLayout({
             <div className="hidden lg:block">
               <DashboardHeader />
             </div>
-            <div className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden">{children}</div>
+            <div className="min-h-0 flex-1 overflow-x-hidden overflow-y-auto">
+              {children}
+            </div>
           </AdminLayoutClient>
         </SidebarInset>
       </SidebarProvider>

@@ -28,7 +28,9 @@ function mapPaymentMethod(method: string): "Tunai" | "QRIS" | "Transfer" {
   }
 }
 
-function mapActivityIcon(status: string): "completed" | "pending" | "cancelled" {
+function mapActivityIcon(
+  status: string
+): "completed" | "pending" | "cancelled" {
   switch (status) {
     case "COMPLETED":
       return "completed"
@@ -58,7 +60,11 @@ export async function getTransaksiPageData() {
   const cashierWhere = {}
 
   const now = new Date()
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  )
   const startOfYesterday = new Date(startOfToday)
   startOfYesterday.setDate(startOfYesterday.getDate() - 1)
 
@@ -141,15 +147,20 @@ export async function getTransaksiPageData() {
 
   let todayTrend: number | null = null
   if (yesterdayCount > 0) {
-    todayTrend = Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100 * 10) / 10
+    todayTrend =
+      Math.round(((todayCount - yesterdayCount) / yesterdayCount) * 100 * 10) /
+      10
   }
 
   let salesTrend: number | null = null
   if (yesterdaySales > 0) {
-    salesTrend = Math.round(((todaySales - yesterdaySales) / yesterdaySales) * 100 * 10) / 10
+    salesTrend =
+      Math.round(((todaySales - yesterdaySales) / yesterdaySales) * 100 * 10) /
+      10
   }
 
-  const avgTransaction = todayCompletedCount > 0 ? Math.round(todaySales / todayCompletedCount) : 0
+  const avgTransaction =
+    todayCompletedCount > 0 ? Math.round(todaySales / todayCompletedCount) : 0
 
   const dateFormatter = new Intl.DateTimeFormat("id-ID", {
     day: "numeric",

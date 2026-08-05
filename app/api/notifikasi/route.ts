@@ -26,7 +26,10 @@ export async function GET() {
   const lowStockProducts = await prisma.product.findMany({
     where: {
       isActive: true,
-      OR: [{ stock: { lte: 0 } }, { stock: { lte: prisma.product.fields.minStock } }],
+      OR: [
+        { stock: { lte: 0 } },
+        { stock: { lte: prisma.product.fields.minStock } },
+      ],
     },
     orderBy: [{ stock: "asc" }, { name: "asc" }],
     take: 6,
@@ -44,7 +47,8 @@ export async function GET() {
   const stockNotifications = lowStockProducts.map((product) => ({
     id: `stock-${product.id}`,
     type: product.stock <= 0 ? "stock-out" : "stock-low",
-    title: product.stock <= 0 ? `${product.name} Habis` : `${product.name} Menipis`,
+    title:
+      product.stock <= 0 ? `${product.name} Habis` : `${product.name} Menipis`,
     image: product.image,
     description:
       product.stock <= 0
@@ -57,7 +61,11 @@ export async function GET() {
   }))
 
   const items = stockNotifications
-    .sort((a, b) => a.priority - b.priority || Date.parse(b.createdAt) - Date.parse(a.createdAt))
+    .sort(
+      (a, b) =>
+        a.priority - b.priority ||
+        Date.parse(b.createdAt) - Date.parse(a.createdAt)
+    )
     .slice(0, 6)
 
   return NextResponse.json({ count: items.length, items })

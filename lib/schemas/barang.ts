@@ -25,13 +25,11 @@ export const productBaseSchema = {
     .string()
     .min(1, "Satuan wajib diisi")
     .max(20, "Satuan maksimal 20 karakter"),
-  stock: z
-    .coerce
+  stock: z.coerce
     .number()
     .int("Stok harus bilangan bulat")
     .min(0, "Stok tidak boleh negatif"),
-  minStock: z
-    .coerce
+  minStock: z.coerce
     .number()
     .int("Stok minimum harus bilangan bulat")
     .min(0, "Stok minimum tidak boleh negatif"),
@@ -48,7 +46,10 @@ export const productBaseSchema = {
 export const createProductSchema = z
   .object({
     ...productBaseSchema,
-    stock: z.number().int("Stok harus bilangan bulat").min(0, "Stok tidak boleh negatif"),
+    stock: z
+      .number()
+      .int("Stok harus bilangan bulat")
+      .min(0, "Stok tidak boleh negatif"),
     minStock: z
       .number()
       .int("Stok minimum harus bilangan bulat")

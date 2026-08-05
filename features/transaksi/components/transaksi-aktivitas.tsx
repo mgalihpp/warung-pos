@@ -26,19 +26,29 @@ const iconMap = {
   },
 } as const
 
-export function TransaksiAktivitas({ activities }: { activities: TransactionActivity[] }) {
+export function TransaksiAktivitas({
+  activities,
+}: {
+  activities: TransactionActivity[]
+}) {
   if (activities.length === 0) {
     return (
       <div className="rounded-xl border bg-card p-4 shadow-sm">
-        <h3 className="mb-3 text-sm font-semibold">Aktivitas Transaksi Terbaru</h3>
-        <p className="py-6 text-center text-sm text-muted-foreground">Belum ada aktivitas transaksi.</p>
+        <h3 className="mb-3 text-sm font-semibold">
+          Aktivitas Transaksi Terbaru
+        </h3>
+        <p className="py-6 text-center text-sm text-muted-foreground">
+          Belum ada aktivitas transaksi.
+        </p>
       </div>
     )
   }
 
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
-      <h3 className="mb-3 text-sm font-semibold">Aktivitas Transaksi Terbaru</h3>
+      <h3 className="mb-3 text-sm font-semibold">
+        Aktivitas Transaksi Terbaru
+      </h3>
       <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
         {activities.map((activity) => {
           const visual = iconMap[activity.type] ?? iconMap.completed
@@ -58,7 +68,9 @@ export function TransaksiAktivitas({ activities }: { activities: TransactionActi
                 />
               </div>
               <div className="min-w-0 flex-1">
-                <p className="text-[11px] font-medium text-muted-foreground">{activity.label}</p>
+                <p className="text-[11px] font-medium text-muted-foreground">
+                  {activity.label}
+                </p>
                 <p className="truncate text-xs font-medium">
                   {activity.transactionNumber}
                 </p>

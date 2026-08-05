@@ -25,7 +25,11 @@ export function Field({
         {required && <span className="ml-0.5 text-destructive">*</span>}
       </span>
       {children}
-      {message && <span className="text-[10px] font-normal text-destructive">{message}</span>}
+      {message && (
+        <span className="text-[10px] font-normal text-destructive">
+          {message}
+        </span>
+      )}
     </Wrapper>
   )
 }

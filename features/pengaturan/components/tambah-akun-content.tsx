@@ -74,22 +74,44 @@ export function TambahAkunContent() {
                 <HugeiconsIcon icon={UserCircleIcon} size={22} />
               </div>
               <div className="min-w-0">
-                <p className="text-sm font-black text-foreground">Informasi Akun</p>
-                <p className="text-xs text-muted-foreground">Buat akun admin atau kasir baru.</p>
+                <p className="text-sm font-black text-foreground">
+                  Informasi Akun
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  Buat akun admin atau kasir baru.
+                </p>
               </div>
             </div>
 
             <div className="grid gap-3 sm:grid-cols-2">
               <Field label="Nama Lengkap" required>
-                <Input name="name" required placeholder="Nama pengguna" className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                <Input
+                  name="name"
+                  required
+                  placeholder="Nama pengguna"
+                  className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                />
               </Field>
 
               <Field label="Email" required>
-                <Input name="email" type="email" required placeholder="nama@email.com" className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                <Input
+                  name="email"
+                  type="email"
+                  required
+                  placeholder="nama@email.com"
+                  className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                />
               </Field>
 
               <Field label="Password Awal" required>
-                <Input name="password" type="password" minLength={8} required placeholder="Minimal 8 karakter" className="h-12 rounded-2xl border-0 bg-muted shadow-none" />
+                <Input
+                  name="password"
+                  type="password"
+                  minLength={8}
+                  required
+                  placeholder="Minimal 8 karakter"
+                  className="h-12 rounded-2xl border-0 bg-muted shadow-none"
+                />
               </Field>
 
               <Field label="Role" required>
@@ -106,10 +128,20 @@ export function TambahAkunContent() {
             </div>
 
             <div className="mt-5 grid grid-cols-2 gap-3">
-              <Button type="button" variant="outline" className="h-12 rounded-2xl" onClick={() => router.push("/admin/pengaturan/akun")}>
+              <Button
+                type="button"
+                variant="outline"
+                className="h-12 rounded-2xl"
+                onClick={() => router.push("/admin/pengaturan/akun")}
+              >
                 Batal
               </Button>
-              <Button type="submit" className="h-12 rounded-2xl font-black" loading={isPending} loadingText="Menyimpan...">
+              <Button
+                type="submit"
+                className="h-12 rounded-2xl font-black"
+                loading={isPending}
+                loadingText="Menyimpan..."
+              >
                 Simpan Akun
               </Button>
             </div>

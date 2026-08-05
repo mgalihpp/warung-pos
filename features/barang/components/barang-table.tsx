@@ -75,7 +75,13 @@ import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import type { BarangCategory, BarangItem } from "../types"
 
-const statusOptions = ["Semua Status", "Aktif", "Stok Menipis", "Stok Habis", "Nonaktif"]
+const statusOptions = [
+  "Semua Status",
+  "Aktif",
+  "Stok Menipis",
+  "Stok Habis",
+  "Nonaktif",
+]
 const sortOptions = [
   "Nama A-Z",
   "Nama Z-A",
@@ -118,7 +124,7 @@ function FilterDropdown({
       </DropdownMenuTrigger>
       <DropdownMenuContent
         align="start"
-        className="w-[var(--radix-dropdown-menu-trigger-width)] max-h-72 overflow-y-auto"
+        className="max-h-72 w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto"
       >
         {options.map((option) => (
           <DropdownMenuItem
@@ -172,18 +178,20 @@ function getStatus(product: BarangItem) {
 
 function getStatusClass(status: string) {
   if (status === "Aktif") return "bg-primary/10 text-primary ring-primary/20"
-  if (status === "Stok Menipis") return "bg-amber-500/10 text-amber-600 ring-amber-500/20"
-  if (status === "Stok Habis") return "bg-rose-500/10 text-rose-600 ring-rose-500/20"
+  if (status === "Stok Menipis")
+    return "bg-amber-500/10 text-amber-600 ring-amber-500/20"
+  if (status === "Stok Habis")
+    return "bg-rose-500/10 text-rose-600 ring-rose-500/20"
   return "bg-slate-500/10 text-slate-600 ring-slate-500/20"
 }
 
-function ProductEditDialog({
-  product,
-}: {
-  product: BarangItem
-}) {
+function ProductEditDialog({ product }: { product: BarangItem }) {
   return (
-    <Button asChild variant="ghost" className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex">
+    <Button
+      asChild
+      variant="ghost"
+      className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
+    >
       <Link href={`/admin/barang/${product.id}/edit`} aria-label="Edit barang">
         <HugeiconsIcon icon={Edit02Icon} size={15} />
       </Link>
@@ -347,9 +355,16 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
-          <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg py-2">
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer gap-2 rounded-lg py-2"
+          >
             <Link href={`/admin/barang/${product.id}/edit`}>
-              <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+              <HugeiconsIcon
+                icon={Edit02Icon}
+                size={16}
+                className="text-muted-foreground"
+              />
               Edit Barang
             </Link>
           </DropdownMenuItem>
@@ -368,20 +383,27 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
           <DropdownMenuSeparator className="my-1" />
           <DropdownMenuItem
             onSelect={() =>
-              toggleMutation.mutate({
-                id: product.id,
-                isActive: product.isActive,
-              }, {
-                onSuccess: (data) => {
-                  if (data.success) {
-                    toast.success(product.isActive ? "Barang berhasil dinonaktifkan" : "Barang berhasil diaktifkan")
-                    return
-                  }
-
-                  toast.error(data.error ?? "Status barang gagal diperbarui")
+              toggleMutation.mutate(
+                {
+                  id: product.id,
+                  isActive: product.isActive,
                 },
-                onError: () => toast.error("Status barang gagal diperbarui"),
-              })
+                {
+                  onSuccess: (data) => {
+                    if (data.success) {
+                      toast.success(
+                        product.isActive
+                          ? "Barang berhasil dinonaktifkan"
+                          : "Barang berhasil diaktifkan"
+                      )
+                      return
+                    }
+
+                    toast.error(data.error ?? "Status barang gagal diperbarui")
+                  },
+                  onError: () => toast.error("Status barang gagal diperbarui"),
+                }
+              )
             }
             disabled={toggleMutation.isPending}
             className={`cursor-pointer gap-2 rounded-lg px-2 py-2 text-sm transition-colors outline-none hover:bg-accent ${product.isActive ? "text-amber-600 hover:text-amber-600" : "text-primary hover:text-primary"}`}
@@ -548,8 +570,14 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
 
 export function BarangTable({ products, categories }: BarangTableProps) {
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
-  const [activeCategory, setActiveCategory] = useSearchParam("category", "Semua")
-  const [activeStatus, setActiveStatus] = useSearchParam("status", "Semua Status")
+  const [activeCategory, setActiveCategory] = useSearchParam(
+    "category",
+    "Semua"
+  )
+  const [activeStatus, setActiveStatus] = useSearchParam(
+    "status",
+    "Semua Status"
+  )
   const [activeSort, setActiveSort] = useSearchParam("sort", "Nama A-Z")
   const [currentPageRaw, setCurrentPage] = useSearchParam("page", "1")
   const [isFilterOpen, setIsFilterOpen] = React.useState(false)
@@ -861,7 +889,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
                     </div>
                   )}
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold leading-tight">
+                    <p className="truncate text-sm leading-tight font-semibold">
                       {product.name}
                     </p>
                     <p className="mt-0.5 text-xs text-muted-foreground">
@@ -878,18 +906,30 @@ export function BarangTable({ products, categories }: BarangTableProps) {
                 {/* Detail grid */}
                 <div className="mt-3 grid grid-cols-3 gap-2 rounded-lg bg-muted/40 px-3 py-2.5">
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground">Harga Jual</p>
-                    <p className="text-xs font-bold text-primary">{formatRupiah(product.sellPrice)}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">
+                      Harga Jual
+                    </p>
+                    <p className="text-xs font-bold text-primary">
+                      {formatRupiah(product.sellPrice)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground">Modal</p>
-                    <p className="text-xs font-semibold">{formatRupiah(product.buyPrice)}</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">
+                      Modal
+                    </p>
+                    <p className="text-xs font-semibold">
+                      {formatRupiah(product.buyPrice)}
+                    </p>
                   </div>
                   <div>
-                    <p className="text-[10px] font-medium text-muted-foreground">Stok</p>
+                    <p className="text-[10px] font-medium text-muted-foreground">
+                      Stok
+                    </p>
                     <p className="text-xs font-semibold">
                       {product.stock}{" "}
-                      <span className="font-normal text-muted-foreground">{product.unit}</span>
+                      <span className="font-normal text-muted-foreground">
+                        {product.unit}
+                      </span>
                     </p>
                   </div>
                 </div>

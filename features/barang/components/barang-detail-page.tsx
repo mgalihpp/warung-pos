@@ -3,15 +3,11 @@
 import * as React from "react"
 import Image from "next/image"
 import Link from "next/link"
-import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
   ArrowRight01Icon,
   ArrowUp01Icon,
   ArrowDown01Icon,
-  Alert02Icon,
-  Copy01Icon,
-  Delete02Icon,
   ChartUpIcon,
   Dollar01Icon,
   Edit02Icon,
@@ -32,22 +28,10 @@ import {
   XAxis,
   YAxis,
 } from "recharts"
-import { toast } from "sonner"
-
 import { Button } from "@/components/ui/button"
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
 import { formatRupiah } from "@/lib/format-currency"
 import { cn } from "@/lib/utils"
 import { PageShell } from "@/features/shared/components/page-shell"
-import { useDeleteProduct } from "../hooks/use-barang-actions"
 import type { BarangDetailData } from "../server-data-detail"
 
 type BarangDetailPageProps = {
@@ -105,56 +89,8 @@ const movementTypeStyle: Record<string, string> = {
 }
 
 export function BarangDetailPage({ data }: BarangDetailPageProps) {
-  const router = useRouter()
   const { product, stats, salesTrend, movements, activities } = data
   const status = getStatus(product)
-  const [deleteOpen, setDeleteOpen] = React.useState(false)
-  const [isDuplicating, setIsDuplicating] = React.useState(false)
-  const deleteMutation = useDeleteProduct()
-
-  React.useEffect(() => {
-    const openDeleteDialog = () => setDeleteOpen(true)
-
-    window.addEventListener("barang-delete-request", openDeleteDialog)
-    return () => window.removeEventListener("barang-delete-request", openDeleteDialog)
-  }, [])
-
-  async function handleDuplicate() {
-    setIsDuplicating(true)
-    try {
-      const res = await fetch("/api/barang", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name: `${product.name} (Salinan)`,
-          categoryId: product.categoryId,
-          image: product.image ?? "",
-          unit: product.unit,
-          stock: 0,
-          minStock: product.minStock,
-          buyPrice: product.buyPrice,
-          sellPrice: product.sellPrice,
-          description: product.description ?? "",
-          isActive: product.isActive ? "on" : "off",
-        }),
-      })
-
-      const result = await res.json()
-      if (!res.ok || !result.success) {
-        toast.error(result.error ?? "Barang gagal diduplikasi")
-        return
-      }
-
-      toast.success("Barang berhasil diduplikasi")
-      router.push("/admin/barang")
-      router.refresh()
-    } catch {
-      toast.error("Barang gagal diduplikasi")
-    } finally {
-      setIsDuplicating(false)
-    }
-  }
-
   const topStats = [
     {
       title: "Terjual Bulan Ini",
@@ -203,17 +139,23 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
             />
           ) : (
             <div className="flex h-full w-full items-center justify-center">
-              <HugeiconsIcon icon={PackageIcon} size={72} className="text-muted-foreground" />
+              <HugeiconsIcon
+                icon={PackageIcon}
+                size={72}
+                className="text-muted-foreground"
+              />
             </div>
           )}
         </div>
 
-        <div className="space-y-4 px-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))] pt-4">
+        <div className="space-y-4 px-4 pt-4 pb-[calc(5.5rem+env(safe-area-inset-bottom))]">
           <div className="flex items-start justify-between gap-3">
             <div className="min-w-0">
-              <h1 className="break-words text-[1.35rem] font-bold leading-7 tracking-tight sm:text-2xl sm:leading-8">{product.name}</h1>
+              <h1 className="text-[1.35rem] leading-7 font-bold tracking-tight break-words sm:text-2xl sm:leading-8">
+                {product.name}
+              </h1>
               <div className="mt-2 flex items-center gap-2">
-                <span className="max-w-full truncate rounded-full bg-muted px-3 py-1 text-xs font-medium leading-4 text-muted-foreground">
+                <span className="max-w-full truncate rounded-full bg-muted px-3 py-1 text-xs leading-4 font-medium text-muted-foreground">
                   {product.category}
                 </span>
               </div>
@@ -221,7 +163,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
 
             <span
               className={cn(
-                "shrink-0 rounded-xl px-3 py-2 text-xs font-bold leading-4",
+                "shrink-0 rounded-xl px-3 py-2 text-xs leading-4 font-bold",
                 statusBadgeClass(status)
               )}
             >
@@ -230,7 +172,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           </div>
 
           <section className="rounded-2xl border bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold leading-5">
+            <div className="mb-3 flex items-center gap-2 text-sm leading-5 font-semibold">
               <span className="flex size-8 items-center justify-center rounded-xl bg-emerald-500/10 text-emerald-700">
                 <HugeiconsIcon icon={MoneyBag02Icon} size={16} />
               </span>
@@ -240,24 +182,40 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
             <div className="divide-y">
               <div className="flex items-center justify-between gap-3 py-3">
                 <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
-                  <HugeiconsIcon icon={Tag01Icon} size={18} className="text-blue-600" />
+                  <HugeiconsIcon
+                    icon={Tag01Icon}
+                    size={18}
+                    className="text-blue-600"
+                  />
                   Harga Jual
                 </div>
-                <div className="min-w-0 text-right text-[15px] font-bold leading-5 text-primary">{formatRupiah(product.sellPrice)}</div>
+                <div className="min-w-0 text-right text-[15px] leading-5 font-bold text-primary">
+                  {formatRupiah(product.sellPrice)}
+                </div>
               </div>
               <div className="flex items-center justify-between gap-3 py-3">
                 <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
-                  <HugeiconsIcon icon={Dollar01Icon} size={18} className="text-emerald-700" />
+                  <HugeiconsIcon
+                    icon={Dollar01Icon}
+                    size={18}
+                    className="text-emerald-700"
+                  />
                   Harga Dasar
                 </div>
-                <div className="min-w-0 text-right text-[15px] font-semibold leading-5">{formatRupiah(product.buyPrice)}</div>
+                <div className="min-w-0 text-right text-[15px] leading-5 font-semibold">
+                  {formatRupiah(product.buyPrice)}
+                </div>
               </div>
               <div className="flex items-center justify-between gap-3 py-3">
                 <div className="flex shrink-0 items-center gap-2 text-sm leading-5 text-muted-foreground">
-                  <HugeiconsIcon icon={ChartUpIcon} size={18} className="text-emerald-700" />
+                  <HugeiconsIcon
+                    icon={ChartUpIcon}
+                    size={18}
+                    className="text-emerald-700"
+                  />
                   Profit
                 </div>
-                <div className="min-w-0 text-right text-[15px] font-bold leading-5 text-emerald-700">
+                <div className="min-w-0 text-right text-[15px] leading-5 font-bold text-emerald-700">
                   {formatRupiah(product.sellPrice - product.buyPrice)}
                 </div>
               </div>
@@ -265,7 +223,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           </section>
 
           <section className="rounded-2xl border bg-card p-4 shadow-sm">
-            <div className="mb-3 flex items-center gap-2 text-sm font-semibold leading-5">
+            <div className="mb-3 flex items-center gap-2 text-sm leading-5 font-semibold">
               <span className="flex size-8 items-center justify-center rounded-xl bg-primary/10 text-primary">
                 <HugeiconsIcon icon={ExchangeIcon} size={16} />
               </span>
@@ -289,7 +247,8 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                       <div
                         className={cn(
                           "flex size-9 shrink-0 items-center justify-center rounded-lg",
-                          movementTypeStyle[m.type] ?? "bg-slate-500/10 text-slate-600"
+                          movementTypeStyle[m.type] ??
+                            "bg-slate-500/10 text-slate-600"
                         )}
                       >
                         <HugeiconsIcon
@@ -306,25 +265,37 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                       <div className="min-w-0 flex-1">
                         <div className="mb-1 flex items-start justify-between gap-2">
                           <span className="text-xs font-semibold">{label}</span>
-                          <span className="shrink-0 text-[11px] text-muted-foreground whitespace-nowrap">
+                          <span className="shrink-0 text-[11px] whitespace-nowrap text-muted-foreground">
                             {formatDate(m.createdAt, true)}
                           </span>
                         </div>
-                        <p className={cn(
-                          "mb-2 text-xs font-semibold whitespace-nowrap",
-                          m.type === "OUT"
-                            ? "text-rose-600"
-                            : m.type === "IN"
-                              ? "text-primary"
-                              : "text-amber-600"
-                        )}>
+                        <p
+                          className={cn(
+                            "mb-2 text-xs font-semibold whitespace-nowrap",
+                            m.type === "OUT"
+                              ? "text-rose-600"
+                              : m.type === "IN"
+                                ? "text-primary"
+                                : "text-amber-600"
+                          )}
+                        >
                           {sign}
                           {m.quantity} {product.unit}
                         </p>
                         <div className="space-y-1 text-[11px] text-muted-foreground">
-                          <p>PIC: <span className="font-medium text-foreground">{m.userName}</span></p>
+                          <p>
+                            PIC:{" "}
+                            <span className="font-medium text-foreground">
+                              {m.userName}
+                            </span>
+                          </p>
                           {m.reason && (
-                            <p>Ket: <span className="font-medium text-foreground">{m.reason}</span></p>
+                            <p>
+                              Ket:{" "}
+                              <span className="font-medium text-foreground">
+                                {m.reason}
+                              </span>
+                            </p>
                           )}
                         </div>
                       </div>
@@ -341,8 +312,8 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           </section>
         </div>
 
-        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 backdrop-blur pb-[calc(1rem+env(safe-area-inset-bottom))]">
-          <Button asChild className="h-12 w-full rounded-2xl gap-2">
+        <div className="fixed inset-x-0 bottom-0 z-40 border-t bg-background/80 p-4 pb-[calc(1rem+env(safe-area-inset-bottom))] backdrop-blur">
+          <Button asChild className="h-12 w-full gap-2 rounded-2xl">
             <Link href={`/admin/barang/${product.id}/edit`}>
               <HugeiconsIcon icon={Edit02Icon} size={18} />
               Edit Barang
@@ -353,33 +324,13 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
 
       {/* Desktop */}
       <PageShell
-        className="hidden lg:flex pb-24"
+        className="hidden pb-24 lg:flex"
         width="wide"
         backHref="/admin/barang"
         title="Detail Barang"
         subtitle="Lihat informasi lengkap, performa, dan stok barang"
         actions={
           <>
-            <Button
-              type="button"
-              variant="outline"
-              className="gap-2"
-              onClick={handleDuplicate}
-              loading={isDuplicating}
-              loadingText="Menduplikasi..."
-            >
-              <HugeiconsIcon icon={Copy01Icon} size={16} />
-              Duplikat Barang
-            </Button>
-            <Button
-              type="button"
-              variant="outline"
-              className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/10 hover:text-destructive"
-              onClick={() => setDeleteOpen(true)}
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={16} />
-              Hapus
-            </Button>
             <Button asChild className="gap-2">
               <Link href={`/admin/barang/${product.id}/edit`}>
                 <HugeiconsIcon icon={Edit02Icon} size={16} />
@@ -481,7 +432,9 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           {/* Harga + Deskripsi */}
           <div className="grid gap-4 lg:grid-cols-2 lg:gap-6">
             <section className="rounded-xl border bg-card p-4 shadow-sm lg:p-5">
-              <h2 className="mb-4 text-sm font-semibold">Harga &amp; Persediaan</h2>
+              <h2 className="mb-4 text-sm font-semibold">
+                Harga &amp; Persediaan
+              </h2>
               <div className="grid grid-cols-2 gap-3">
                 <PriceMiniCard
                   icon={ShoppingBag01Icon}
@@ -557,12 +510,30 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                       margin={{ top: 10, right: 10, left: -20, bottom: 0 }}
                     >
                       <defs>
-                        <linearGradient id="trendGradient" x1="0" y1="0" x2="0" y2="1">
-                          <stop offset="5%" stopColor="#16a34a" stopOpacity={0.3} />
-                          <stop offset="95%" stopColor="#16a34a" stopOpacity={0} />
+                        <linearGradient
+                          id="trendGradient"
+                          x1="0"
+                          y1="0"
+                          x2="0"
+                          y2="1"
+                        >
+                          <stop
+                            offset="5%"
+                            stopColor="#16a34a"
+                            stopOpacity={0.3}
+                          />
+                          <stop
+                            offset="95%"
+                            stopColor="#16a34a"
+                            stopOpacity={0}
+                          />
                         </linearGradient>
                       </defs>
-                      <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" />
+                      <CartesianGrid
+                        strokeDasharray="3 3"
+                        vertical={false}
+                        stroke="var(--border)"
+                      />
                       <XAxis
                         dataKey="date"
                         tickFormatter={(value) => formatShortDate(value)}
@@ -586,7 +557,10 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                           background: "var(--card)",
                         }}
                         labelFormatter={(value) => formatDate(value as string)}
-                        formatter={(value) => [`${value} ${product.unit}`, "Terjual"]}
+                        formatter={(value) => [
+                          `${value} ${product.unit}`,
+                          "Terjual",
+                        ]}
                       />
                       <Area
                         type="monotone"
@@ -654,7 +628,7 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
                               {sign}
                               {m.quantity} {product.unit}
                             </td>
-                            <td className="py-2.5 pr-3 text-muted-foreground whitespace-nowrap">
+                            <td className="py-2.5 pr-3 whitespace-nowrap text-muted-foreground">
                               {m.userName}
                             </td>
                             <td className="py-2.5 pr-3 text-muted-foreground">
@@ -729,67 +703,11 @@ export function BarangDetailPage({ data }: BarangDetailPageProps) {
           </section>
         </div>
       </PageShell>
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent className="sm:max-w-[400px]">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <HugeiconsIcon icon={Alert02Icon} size={20} />
-              Hapus Barang?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="pt-2 leading-relaxed">
-              Anda yakin ingin menghapus{" "}
-              <strong className="font-semibold text-foreground">
-                {product.name}
-              </strong>
-              ? Tindakan ini permanen. <br />
-              <br />
-              *Jika barang memiliki riwayat transaksi, barang otomatis hanya
-              dinonaktifkan untuk menjaga validitas laporan.
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="gap-2 pt-4">
-            <AlertDialogCancel
-              onClick={() => setDeleteOpen(false)}
-              className="mt-0 w-full sm:w-auto"
-            >
-              Batal
-            </AlertDialogCancel>
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full sm:w-auto"
-              loading={deleteMutation.isPending}
-              loadingText="Menghapus..."
-              onClick={async () => {
-                const result = await deleteMutation.mutateAsync(product.id)
-                if (result.success) {
-                  toast.success("Barang berhasil dihapus")
-                  setDeleteOpen(false)
-                  router.push("/admin/barang")
-                  router.refresh()
-                  return
-                }
-
-                toast.error(result.error ?? "Barang gagal dihapus")
-              }}
-            >
-              Hapus
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }
 
-function InfoRow({
-  label,
-  value,
-}: {
-  label: string
-  value: React.ReactNode
-}) {
+function InfoRow({ label, value }: { label: string; value: React.ReactNode }) {
   return (
     <div className="flex items-center justify-between gap-4 py-2.5">
       <dt className="text-muted-foreground">{label}</dt>

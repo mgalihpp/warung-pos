@@ -13,7 +13,9 @@ export function useCreateProduct() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const mutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>): Promise<MutationResult> => {
+    mutationFn: async (
+      data: Record<string, unknown>
+    ): Promise<MutationResult> => {
       const res = await fetch("/api/barang", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -31,7 +33,8 @@ export function useCreateProduct() {
 
   return {
     ...mutation,
-    errors: mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
+    errors:
+      mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
   }
 }
 
@@ -39,7 +42,9 @@ export function useUpdateProduct() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const mutation = useMutation({
-    mutationFn: async (data: Record<string, unknown> & { id: string }): Promise<MutationResult> => {
+    mutationFn: async (
+      data: Record<string, unknown> & { id: string }
+    ): Promise<MutationResult> => {
       const res = await fetch(`/api/barang/${data.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -57,7 +62,8 @@ export function useUpdateProduct() {
 
   return {
     ...mutation,
-    errors: mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
+    errors:
+      mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
   }
 }
 
@@ -84,7 +90,13 @@ export function useToggleProductActive() {
   const queryClient = useQueryClient()
   const router = useRouter()
   return useMutation({
-    mutationFn: async ({ id, isActive }: { id: string; isActive: boolean }): Promise<MutationResult> => {
+    mutationFn: async ({
+      id,
+      isActive,
+    }: {
+      id: string
+      isActive: boolean
+    }): Promise<MutationResult> => {
       const res = await fetch(`/api/barang/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },

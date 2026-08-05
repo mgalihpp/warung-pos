@@ -7,10 +7,12 @@ export default async function PosPage() {
 
   return (
     <div className="h-full w-full">
-      <Suspense><PosPageClient
-        initialData={initialData}
-        stockReportHref="/admin/laporan/stok"
-      /></Suspense>
+      <Suspense>
+        <PosPageClient
+          initialData={initialData}
+          stockReportHref="/admin/laporan/stok"
+        />
+      </Suspense>
     </div>
   )
 }

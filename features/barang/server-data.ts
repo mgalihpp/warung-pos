@@ -2,7 +2,14 @@ import "server-only"
 
 import { prisma } from "@/lib/prisma"
 
-const chartColors = ["#16a34a", "#3b82f6", "#f59e0b", "#f43f5e", "#8b5cf6", "#94a3b8"]
+const chartColors = [
+  "#16a34a",
+  "#3b82f6",
+  "#f59e0b",
+  "#f43f5e",
+  "#8b5cf6",
+  "#94a3b8",
+]
 
 export async function getBarangPageData() {
   const [products, categories, popularRows] = await Promise.all([
@@ -23,9 +30,9 @@ export async function getBarangPageData() {
   ])
 
   const activeProducts = products.filter((product) => product.isActive)
-  const units = [...new Set(products.map((product) => product.unit).filter(Boolean))].sort((a, b) =>
-    a.localeCompare(b)
-  )
+  const units = [
+    ...new Set(products.map((product) => product.unit).filter(Boolean)),
+  ].sort((a, b) => a.localeCompare(b))
 
   const productItems = products.map((product) => ({
     id: product.id,
@@ -54,14 +61,18 @@ export async function getBarangPageData() {
   const stats = {
     totalProducts: activeProducts.length,
     totalCategories: categories.length,
-    lowStock: activeProducts.filter((product) => product.stock > 0 && product.stock <= product.minStock).length,
+    lowStock: activeProducts.filter(
+      (product) => product.stock > 0 && product.stock <= product.minStock
+    ).length,
     inactiveProducts: products.filter((product) => !product.isActive).length,
   }
 
   const categoryChartData = categories
     .map((category, index) => ({
       name: category.name,
-      value: products.filter((product) => product.categoryId === category.id && product.isActive).length,
+      value: products.filter(
+        (product) => product.categoryId === category.id && product.isActive
+      ).length,
       fill: chartColors[index % chartColors.length],
     }))
     .filter((category) => category.value > 0)

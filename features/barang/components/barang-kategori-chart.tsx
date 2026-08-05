@@ -27,7 +27,10 @@ export function BarangKategoriChart({ data, total }: BarangKategoriChartProps) {
             Belum ada barang aktif untuk ditampilkan.
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="aspect-square h-[200px]">
+          <ChartContainer
+            config={chartConfig}
+            className="aspect-square h-[200px]"
+          >
             <PieChart>
               <ChartTooltip content={<ChartTooltipContent />} />
               <Pie
@@ -48,14 +51,31 @@ export function BarangKategoriChart({ data, total }: BarangKategoriChartProps) {
                   content={({ viewBox }) => {
                     if (viewBox && "cx" in viewBox && "cy" in viewBox) {
                       return (
-                        <text x={viewBox.cx} y={viewBox.cy} textAnchor="middle" dominantBaseline="middle">
-                          <tspan x={viewBox.cx} y={(viewBox.cy || 0) - 10} className="fill-foreground text-2xl font-bold">
+                        <text
+                          x={viewBox.cx}
+                          y={viewBox.cy}
+                          textAnchor="middle"
+                          dominantBaseline="middle"
+                        >
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) - 10}
+                            className="fill-foreground text-2xl font-bold"
+                          >
                             {total}
                           </tspan>
-                          <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 8} className="fill-muted-foreground text-[10px]">
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 8}
+                            className="fill-muted-foreground text-[10px]"
+                          >
                             Total
                           </tspan>
-                          <tspan x={viewBox.cx} y={(viewBox.cy || 0) + 20} className="fill-muted-foreground text-[10px]">
+                          <tspan
+                            x={viewBox.cx}
+                            y={(viewBox.cy || 0) + 20}
+                            className="fill-muted-foreground text-[10px]"
+                          >
                             Barang
                           </tspan>
                         </text>

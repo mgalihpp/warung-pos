@@ -69,9 +69,16 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-48 rounded-xl p-2">
-          <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg py-2">
+          <DropdownMenuItem
+            asChild
+            className="cursor-pointer gap-2 rounded-lg py-2"
+          >
             <Link href={`/admin/kategori/${category.id}/edit`}>
-              <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+              <HugeiconsIcon
+                icon={Edit02Icon}
+                size={16}
+                className="text-muted-foreground"
+              />
               Edit Kategori
             </Link>
           </DropdownMenuItem>
@@ -95,19 +102,26 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
               Hapus Kategori?
             </AlertDialogTitle>
             <AlertDialogDescription className="pt-2 leading-relaxed">
-              Anda yakin ingin menghapus <strong className="font-semibold text-foreground">{category.name}</strong>?
+              Anda yakin ingin menghapus{" "}
+              <strong className="font-semibold text-foreground">
+                {category.name}
+              </strong>
+              ?
               {category.productCount > 0 && (
                 <>
                   <br />
                   <br />
-                  Kategori ini masih digunakan oleh {category.productCount} barang, sehingga tidak bisa dihapus.
+                  Kategori ini masih digunakan oleh {category.productCount}{" "}
+                  barang, sehingga tidak bisa dihapus.
                 </>
               )}
             </AlertDialogDescription>
           </AlertDialogHeader>
 
           <AlertDialogFooter className="gap-2 pt-4">
-            <AlertDialogCancel className="mt-0 w-full sm:w-auto">Batal</AlertDialogCancel>
+            <AlertDialogCancel className="mt-0 w-full sm:w-auto">
+              Batal
+            </AlertDialogCancel>
             <Button
               type="button"
               variant="destructive"
@@ -141,10 +155,17 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
     )
   }, [categories, searchQuery])
 
-  const totalPages = Math.max(1, Math.ceil(filteredCategories.length / pageSize))
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredCategories.length / pageSize)
+  )
   const safePage = Math.min(currentPage, totalPages)
-  const pageCategories = filteredCategories.slice((safePage - 1) * pageSize, safePage * pageSize)
-  const startItem = filteredCategories.length === 0 ? 0 : (safePage - 1) * pageSize + 1
+  const pageCategories = filteredCategories.slice(
+    (safePage - 1) * pageSize,
+    safePage * pageSize
+  )
+  const startItem =
+    filteredCategories.length === 0 ? 0 : (safePage - 1) * pageSize + 1
   const endItem = Math.min(safePage * pageSize, filteredCategories.length)
 
   return (
@@ -175,35 +196,59 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
         <table className="w-full min-w-[760px] text-left">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Kategori</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Slug</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Barang</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Deskripsi</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Aksi</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Kategori
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Slug
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Barang
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Deskripsi
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody>
             {pageCategories.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-8 text-center text-sm text-muted-foreground">
+                <td
+                  colSpan={5}
+                  className="px-4 py-8 text-center text-sm text-muted-foreground"
+                >
                   Tidak ada kategori yang cocok.
                 </td>
               </tr>
             )}
             {pageCategories.map((category) => (
-              <tr key={category.id} className="border-b transition-colors last:border-0 hover:bg-muted/20">
+              <tr
+                key={category.id}
+                className="border-b transition-colors last:border-0 hover:bg-muted/20"
+              >
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-3">
                     <div className="flex size-9 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
                       <HugeiconsIcon icon={TagsIcon} size={17} />
                     </div>
-                    <p className="truncate text-sm font-medium">{category.name}</p>
+                    <p className="truncate text-sm font-medium">
+                      {category.name}
+                    </p>
                   </div>
                 </td>
-                <td className="px-4 py-3 text-sm text-muted-foreground">{category.slug}</td>
-                <td className="px-4 py-3 text-sm font-medium">{category.productCount} barang</td>
+                <td className="px-4 py-3 text-sm text-muted-foreground">
+                  {category.slug}
+                </td>
+                <td className="px-4 py-3 text-sm font-medium">
+                  {category.productCount} barang
+                </td>
                 <td className="max-w-[320px] px-4 py-3 text-sm text-muted-foreground">
-                  <span className="line-clamp-1">{category.description || "-"}</span>
+                  <span className="line-clamp-1">
+                    {category.description || "-"}
+                  </span>
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex items-center gap-1">
@@ -223,31 +268,48 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
           </div>
         ) : (
           pageCategories.map((category) => (
-            <div key={category.id} className="rounded-xl border bg-card p-3.5 shadow-sm">
+            <div
+              key={category.id}
+              className="rounded-xl border bg-card p-3.5 shadow-sm"
+            >
               <div className="flex items-start gap-3">
                 <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/5 text-primary">
                   <HugeiconsIcon icon={TagsIcon} size={20} />
                 </div>
                 <div className="min-w-0 flex-1">
-                  <p className="truncate text-sm font-semibold leading-tight">{category.name}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{category.slug}</p>
+                  <p className="truncate text-sm leading-tight font-semibold">
+                    {category.name}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {category.slug}
+                  </p>
                 </div>
                 <CategoryActionMenu category={category} />
               </div>
 
               <div className="mt-3 grid grid-cols-2 gap-2 rounded-lg bg-muted/40 px-3 py-2.5">
                 <div>
-                  <p className="text-[10px] font-medium text-muted-foreground">Barang</p>
-                  <p className="text-xs font-bold text-primary">{category.productCount} barang</p>
+                  <p className="text-[10px] font-medium text-muted-foreground">
+                    Barang
+                  </p>
+                  <p className="text-xs font-bold text-primary">
+                    {category.productCount} barang
+                  </p>
                 </div>
                 <div>
-                  <p className="text-[10px] font-medium text-muted-foreground">Status</p>
-                  <p className="text-xs font-semibold">{category.productCount > 0 ? "Terpakai" : "Kosong"}</p>
+                  <p className="text-[10px] font-medium text-muted-foreground">
+                    Status
+                  </p>
+                  <p className="text-xs font-semibold">
+                    {category.productCount > 0 ? "Terpakai" : "Kosong"}
+                  </p>
                 </div>
               </div>
 
               {category.description && (
-                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">{category.description}</p>
+                <p className="mt-3 line-clamp-2 text-xs leading-relaxed text-muted-foreground">
+                  {category.description}
+                </p>
               )}
             </div>
           ))
@@ -256,7 +318,8 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
 
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
         <p className="text-xs text-muted-foreground">
-          Menampilkan {startItem}-{endItem} dari {filteredCategories.length} kategori
+          Menampilkan {startItem}-{endItem} dari {filteredCategories.length}{" "}
+          kategori
         </p>
         <div className="flex items-center gap-1">
           <button
@@ -279,7 +342,9 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
             ))}
           <button
             disabled={safePage === totalPages}
-            onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
+            onClick={() =>
+              setCurrentPage(String(Math.min(totalPages, safePage + 1)))
+            }
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} />

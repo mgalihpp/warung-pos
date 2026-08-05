@@ -9,7 +9,6 @@ import {
   CashierIcon,
   ChartHistogramIcon,
   DashboardSquare01Icon,
-  Delete02Icon,
   InvoiceIcon,
   Menu01Icon,
   PackageIcon,
@@ -42,13 +41,16 @@ const adminMobileHeaders = [
 function getPosMobileTabSnapshot(): PosMobileTab {
   const tab = document.body.dataset.posMobileTab
 
-  return posMobileTabs.includes(tab as PosMobileTab) ? (tab as PosMobileTab) : "barang"
+  return posMobileTabs.includes(tab as PosMobileTab)
+    ? (tab as PosMobileTab)
+    : "barang"
 }
 
 function subscribePosMobileTab(onStoreChange: () => void) {
   window.addEventListener("pos-mobile-tab-change", onStoreChange)
 
-  return () => window.removeEventListener("pos-mobile-tab-change", onStoreChange)
+  return () =>
+    window.removeEventListener("pos-mobile-tab-change", onStoreChange)
 }
 
 function getPengaturanDetailSnapshot(): string | null {
@@ -58,7 +60,8 @@ function getPengaturanDetailSnapshot(): string | null {
 function subscribePengaturanDetail(onStoreChange: () => void) {
   window.addEventListener("pengaturan-detail-change", onStoreChange)
 
-  return () => window.removeEventListener("pengaturan-detail-change", onStoreChange)
+  return () =>
+    window.removeEventListener("pengaturan-detail-change", onStoreChange)
 }
 
 function getTransaksiDetailSnapshot(): boolean {
@@ -68,7 +71,8 @@ function getTransaksiDetailSnapshot(): boolean {
 function subscribeTransaksiDetail(onStoreChange: () => void) {
   window.addEventListener("transaksi-detail-change", onStoreChange)
 
-  return () => window.removeEventListener("transaksi-detail-change", onStoreChange)
+  return () =>
+    window.removeEventListener("transaksi-detail-change", onStoreChange)
 }
 
 export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
@@ -105,29 +109,41 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   const isBarangList = pathname === "/admin/barang/daftar"
   const isBarangTambah = pathname === "/admin/barang/tambah"
   const isBarangEdit = /^\/admin\/barang\/[^/]+\/edit$/.test(pathname)
-  const isBarangDetail = /^\/admin\/barang\/[^/]+$/.test(pathname) && !isBarangList && !isBarangTambah
+  const isBarangDetail =
+    /^\/admin\/barang\/[^/]+$/.test(pathname) &&
+    !isBarangList &&
+    !isBarangTambah
   const isKategoriPage = pathname === "/admin/kategori"
   const isKategoriTambah = pathname === "/admin/kategori/tambah"
   const isKategoriEdit = /^\/admin\/kategori\/[^/]+\/edit$/.test(pathname)
   const isTransaksiPage = pathname === "/admin/transaksi"
-  const isTransaksiDetailPage = /^\/admin\/transaksi\/[^/]+$/.test(pathname) && !(/^\/admin\/transaksi\/[^/]+\/edit$/.test(pathname))
+  const isTransaksiDetailPage =
+    /^\/admin\/transaksi\/[^/]+$/.test(pathname) &&
+    !/^\/admin\/transaksi\/[^/]+\/edit$/.test(pathname)
   const isTransaksiEdit = /^\/admin\/transaksi\/[^/]+\/edit$/.test(pathname)
-  const transaksiEditId = isTransaksiEdit ? pathname.match(/^\/admin\/transaksi\/([^/]+)\/edit$/)?.[1] : null
+  const transaksiEditId = isTransaksiEdit
+    ? pathname.match(/^\/admin\/transaksi\/([^/]+)\/edit$/)?.[1]
+    : null
 
   const isPosPage = pathname === "/admin/pos"
   const isPengaturanPage = pathname.startsWith("/admin/pengaturan")
   const isPengaturanDetail = isPengaturanPage && !!pengaturanDetailTitle
-  const isPengaturanSubPage = isPengaturanPage && pathname !== "/admin/pengaturan"
+  const isPengaturanSubPage =
+    isPengaturanPage && pathname !== "/admin/pengaturan"
   const isPosSubStep = isPosPage && posMobileTab !== "barang"
-  const activeAdminHeader = adminMobileHeaders.find((item) => pathname.startsWith(item.href))
+  const activeAdminHeader = adminMobileHeaders.find((item) =>
+    pathname.startsWith(item.href)
+  )
 
-  const pengaturanHeader: MobileHeaderConfig = pathname.startsWith("/admin/pengaturan/tambah-akun")
+  const pengaturanHeader: MobileHeaderConfig = pathname.startsWith(
+    "/admin/pengaturan/tambah-akun"
+  )
     ? { title: "Tambah Akun" }
     : pathname.startsWith("/admin/pengaturan/akun")
       ? { title: "Manajemen Akun" }
       : pathname.startsWith("/admin/pengaturan/tema")
         ? { title: "Tema Tampilan" }
-      : { title: pengaturanDetailTitle ?? "Pengaturan" }
+        : { title: pengaturanDetailTitle ?? "Pengaturan" }
 
   const mobileHeader: MobileHeaderConfig = (() => {
     if (isPosPage) return posMobileHeaders[posMobileTab]
@@ -138,7 +154,8 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     if (isBarangDetail) return { title: "Detail Barang" }
     if (isKategoriTambah) return { title: "Tambah Kategori" }
     if (isKategoriEdit) return { title: "Edit Kategori" }
-    if (isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail)) return { title: "Detail Transaksi" }
+    if (isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail))
+      return { title: "Detail Transaksi" }
     if (isTransaksiEdit) return { title: "Edit Transaksi" }
     if (activeAdminHeader) return { title: activeAdminHeader.title }
 
@@ -157,7 +174,9 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     }
 
     if (pathname.startsWith("/admin/kategori")) {
-      router.push(pathname === "/admin/kategori" ? "/admin/barang" : "/admin/kategori")
+      router.push(
+        pathname === "/admin/kategori" ? "/admin/barang" : "/admin/kategori"
+      )
       return
     }
 
@@ -187,9 +206,13 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
     }
 
     if (isPosSubStep) {
-      window.dispatchEvent(new CustomEvent("pos-mobile-tab-request", {
-        detail: { tab: posMobileTab === "pembayaran" ? "keranjang" : "barang" },
-      }))
+      window.dispatchEvent(
+        new CustomEvent("pos-mobile-tab-request", {
+          detail: {
+            tab: posMobileTab === "pembayaran" ? "keranjang" : "barang",
+          },
+        })
+      )
       return
     }
 
@@ -197,7 +220,7 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <div className="flex h-[100dvh] flex-col bg-background overflow-hidden">
+    <div className="flex h-[100dvh] flex-col overflow-hidden bg-background">
       <header className="shrink-0 bg-primary px-4 py-3 lg:hidden">
         <div className="flex items-center justify-between">
           <button
@@ -206,37 +229,37 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
             className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
           >
             <HugeiconsIcon
-                icon={(pathname.startsWith("/admin/barang") && pathname !== "/admin/barang") || pathname.startsWith("/admin/kategori") || (isTransaksiPage && isTransaksiDetail) || isTransaksiDetailPage || isTransaksiEdit || isPengaturanDetail || isPengaturanSubPage || isPosSubStep ? ArrowLeft01Icon : Menu01Icon}
-                size={20}
-              />
+              icon={
+                (pathname.startsWith("/admin/barang") &&
+                  pathname !== "/admin/barang") ||
+                pathname.startsWith("/admin/kategori") ||
+                (isTransaksiPage && isTransaksiDetail) ||
+                isTransaksiDetailPage ||
+                isTransaksiEdit ||
+                isPengaturanDetail ||
+                isPengaturanSubPage ||
+                isPosSubStep
+                  ? ArrowLeft01Icon
+                  : Menu01Icon
+              }
+              size={20}
+            />
           </button>
 
           <div className="mx-3 flex min-w-0 flex-1 items-center justify-center gap-2">
             {mobileHeader.icon ? (
-              <HugeiconsIcon icon={mobileHeader.icon} size={20} className="shrink-0 text-primary-foreground" />
+              <HugeiconsIcon
+                icon={mobileHeader.icon}
+                size={20}
+                className="shrink-0 text-primary-foreground"
+              />
             ) : null}
-            <span className="truncate text-[15px] font-bold leading-none text-primary-foreground">{mobileHeader.title}</span>
+            <span className="truncate text-[15px] leading-none font-bold text-primary-foreground">
+              {mobileHeader.title}
+            </span>
           </div>
 
-          {isBarangDetail ? (
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("barang-delete-request"))}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
-              aria-label="Hapus barang"
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={20} />
-            </button>
-          ) : isTransaksiDetailPage || (isTransaksiPage && isTransaksiDetail) || isTransaksiEdit ? (
-            <button
-              type="button"
-              onClick={() => window.dispatchEvent(new Event("transaksi-delete-request"))}
-              className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
-              aria-label="Hapus transaksi"
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={20} />
-            </button>
-          ) : isBarangList ? (
+          {isBarangList ? (
             <Link
               href="/admin/barang/tambah"
               className="flex size-8 shrink-0 items-center justify-center rounded-lg bg-primary-foreground/10 text-primary-foreground transition-colors hover:bg-primary-foreground/15"
@@ -258,7 +281,9 @@ export function AdminLayoutClient({ children }: { children: React.ReactNode }) {
         </div>
       </header>
 
-      <main className="flex flex-1 min-h-0 flex-col overflow-hidden">{children}</main>
+      <main className="flex min-h-0 flex-1 flex-col overflow-hidden">
+        {children}
+      </main>
 
       <AdminMobileSidebar
         open={isMobileSidebarOpen}

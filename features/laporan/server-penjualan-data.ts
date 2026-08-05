@@ -22,15 +22,15 @@ const CATEGORY_PALETTE = [
   "#94a3b8",
 ]
 
-export function parseLaporanRange(value: string | null, fallback: LaporanRange = "30d") {
+export function parseLaporanRange(
+  value: string | null,
+  fallback: LaporanRange = "30d"
+) {
   const rangeParam = (value ?? fallback) as LaporanRange
-  return ["7d", "30d", "ytd"].includes(rangeParam)
-    ? rangeParam
-    : fallback
+  return ["7d", "30d", "ytd"].includes(rangeParam) ? rangeParam : fallback
 }
 
 export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
-
   const now = new Date()
   const { start, end, prevStart, prevEnd } = resolveRange(now, range)
 
@@ -52,13 +52,19 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
       _count: true,
     }),
     prisma.transaction.aggregate({
-      where: { status: "COMPLETED", createdAt: { gte: prevStart, lt: prevEnd } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: prevStart, lt: prevEnd },
+      },
       _sum: { total: true },
       _count: true,
     }),
     prisma.transactionItem.aggregate({
       where: {
-        transaction: { status: "COMPLETED", createdAt: { gte: start, lt: end } },
+        transaction: {
+          status: "COMPLETED",
+          createdAt: { gte: start, lt: end },
+        },
       },
       _sum: { grossProfit: true },
     }),
@@ -83,7 +89,10 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     prisma.transactionItem.groupBy({
       by: ["productId"],
       where: {
-        transaction: { status: "COMPLETED", createdAt: { gte: start, lt: end } },
+        transaction: {
+          status: "COMPLETED",
+          createdAt: { gte: start, lt: end },
+        },
       },
       _sum: { quantity: true, subtotal: true },
       orderBy: { _sum: { quantity: "desc" } },
@@ -120,10 +129,10 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     where: { id: { in: cashierIds } },
     select: { id: true, image: true },
   })
-  const cashierMap = new Map(cashierMeta.map((cashier) => [cashier.id, cashier]))
-  const labaItemRows = await prisma.$queryRaw<
-    { date: string; laba: number }[]
-  >`
+  const cashierMap = new Map(
+    cashierMeta.map((cashier) => [cashier.id, cashier])
+  )
+  const labaItemRows = await prisma.$queryRaw<{ date: string; laba: number }[]>`
     SELECT to_char(t."createdAt" AT TIME ZONE ${TZ}, 'YYYY-MM-DD') AS "date",
            COALESCE(SUM(ti."grossProfit"), 0)::float AS "laba"
     FROM "transaction_item" ti
@@ -145,8 +154,14 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     totalTransaksiPrev > 0 ? penjualanPrev / totalTransaksiPrev : 0
 
   const stats = {
-    penjualan: { value: penjualan, change: pctChange(penjualan, penjualanPrev) },
-    labaKotor: { value: labaKotor, change: pctChange(labaKotor, labaKotorPrev) },
+    penjualan: {
+      value: penjualan,
+      change: pctChange(penjualan, penjualanPrev),
+    },
+    labaKotor: {
+      value: labaKotor,
+      change: pctChange(labaKotor, labaKotorPrev),
+    },
     totalTransaksi: {
       value: totalTransaksi,
       change: pctChange(totalTransaksi, totalTransaksiPrev),
@@ -171,7 +186,7 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
       new Intl.DateTimeFormat("en-CA", { timeZone: TZ, month: "2-digit" })
         .formatToParts(now)
         .find((p) => p.type === "month")!.value,
-      10,
+      10
     )
     for (let i = 0; i < monthsCount; i++) {
       const d = addMonths(startYear, i)
@@ -197,7 +212,8 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
   for (const k of dayKeys) labaByDay.set(k, 0)
   for (const r of labaItemRows) {
     const k = range === "ytd" ? `${r.date.slice(0, 7)}-01` : r.date
-    if (labaByDay.has(k)) labaByDay.set(k, (labaByDay.get(k) ?? 0) + Number(r.laba))
+    if (labaByDay.has(k))
+      labaByDay.set(k, (labaByDay.get(k) ?? 0) + Number(r.laba))
   }
 
   const labelDayFmt = new Intl.DateTimeFormat("id-ID", {
@@ -252,7 +268,8 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
         totalCategory > 0
           ? Math.round((Number(r.total) / totalCategory) * 100)
           : 0,
-      fill: CATEGORY_PALETTE[i] ?? CATEGORY_PALETTE[CATEGORY_PALETTE.length - 1],
+      fill:
+        CATEGORY_PALETTE[i] ?? CATEGORY_PALETTE[CATEGORY_PALETTE.length - 1],
     })),
     ...(othersTotal > 0
       ? [

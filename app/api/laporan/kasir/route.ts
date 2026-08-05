@@ -33,7 +33,10 @@ export async function GET(req: NextRequest) {
       }),
       prisma.transaction.groupBy({
         by: ["cashierId"],
-        where: { status: "COMPLETED", createdAt: { gte: prevStart, lt: prevEnd } },
+        where: {
+          status: "COMPLETED",
+          createdAt: { gte: prevStart, lt: prevEnd },
+        },
         _sum: { total: true },
         _count: true,
       }),
@@ -44,7 +47,10 @@ export async function GET(req: NextRequest) {
       }),
       prisma.transactionItem.aggregate({
         where: {
-          transaction: { status: "COMPLETED", createdAt: { gte: start, lt: end } },
+          transaction: {
+            status: "COMPLETED",
+            createdAt: { gte: start, lt: end },
+          },
         },
         _sum: { grossProfit: true },
       }),
@@ -70,14 +76,17 @@ export async function GET(req: NextRequest) {
     _max: { createdAt: true },
   })
   const lastByCashier = new Map(
-    lastTxByCashier.map((r) => [r.cashierId, r._max.createdAt]),
+    lastTxByCashier.map((r) => [r.cashierId, r._max.createdAt])
   )
 
   const profitMap = new Map(
-    lastTxRows.map((r) => [r.cashierId, Number(r.profit)]),
+    lastTxRows.map((r) => [r.cashierId, Number(r.profit)])
   )
   const prevMap = new Map(
-    groupPrev.map((r) => [r.cashierId, { revenue: r._sum.total ?? 0, count: r._count }]),
+    groupPrev.map((r) => [
+      r.cashierId,
+      { revenue: r._sum.total ?? 0, count: r._count },
+    ])
   )
   const userMap = new Map(userRows.map((u) => [u.id, u]))
 

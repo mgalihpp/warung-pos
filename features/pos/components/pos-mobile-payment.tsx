@@ -95,12 +95,16 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
         {paymentMethod === "CASH" && (
           <div className="mx-4 mt-5">
             <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-              <span className="flex size-6 items-center justify-center rounded-full bg-muted text-muted-foreground">$</span>
+              <span className="flex size-6 items-center justify-center rounded-full bg-muted text-muted-foreground">
+                $
+              </span>
               Nominal Pembayaran
             </div>
             <div className="rounded-xl border bg-card px-4 py-3">
               <div className="relative">
-                <span className="absolute top-1/2 left-0 -translate-y-1/2 text-sm font-medium text-muted-foreground">Rp</span>
+                <span className="absolute top-1/2 left-0 -translate-y-1/2 text-sm font-medium text-muted-foreground">
+                  Rp
+                </span>
                 <input
                   type="text"
                   inputMode="numeric"
@@ -120,13 +124,18 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
                   onClick={() => handleQuickAmount(item)}
                   className={`flex flex-col items-center gap-1 rounded-xl border py-3 text-xs font-semibold transition-all active:scale-95 ${
                     (item.value === "exact" && amountPaid === subtotal) ||
-                    (typeof item.value === "number" && amountPaid === item.value)
+                    (typeof item.value === "number" &&
+                      amountPaid === item.value)
                       ? "border-primary bg-primary/10 text-primary"
                       : "border-border bg-card text-muted-foreground"
                   }`}
                 >
                   {item.value === "exact" ? (
-                    <HugeiconsIcon icon={CheckmarkCircle02Icon} size={20} className="text-emerald-500" />
+                    <HugeiconsIcon
+                      icon={CheckmarkCircle02Icon}
+                      size={20}
+                      className="text-emerald-500"
+                    />
                   ) : (
                     <HugeiconsIcon icon={Money01Icon} size={20} />
                   )}
@@ -140,7 +149,11 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
         {/* Metode Pembayaran */}
         <div className="mx-4 mt-5">
           <div className="mb-2 flex items-center gap-2 text-sm font-semibold text-foreground">
-            <HugeiconsIcon icon={Money01Icon} size={16} className="text-muted-foreground" />
+            <HugeiconsIcon
+              icon={Money01Icon}
+              size={16}
+              className="text-muted-foreground"
+            />
             Metode Pembayaran
           </div>
           <div className="grid grid-cols-3 gap-2">
@@ -190,12 +203,18 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
             className="flex w-full items-center justify-between text-sm font-bold text-foreground"
           >
             <div className="flex items-center gap-2">
-              <HugeiconsIcon icon={Invoice01Icon} size={16} className="text-primary" />
+              <HugeiconsIcon
+                icon={Invoice01Icon}
+                size={16}
+                className="text-primary"
+              />
               Rincian Pembayaran
             </div>
             <div className="flex items-center gap-2">
               {!showDetails && (
-                <span className="font-extrabold text-primary">{formatRupiah(subtotal)}</span>
+                <span className="font-extrabold text-primary">
+                  {formatRupiah(subtotal)}
+                </span>
               )}
               <HugeiconsIcon
                 icon={ArrowDown01Icon}
@@ -219,8 +238,14 @@ export function PosMobilePayment({ onPayment, isProcessing }: Props) {
               {paymentMethod === "CASH" && (
                 <div className="flex items-center justify-between py-1 text-sm font-semibold">
                   <span className="text-emerald-600">Kembalian</span>
-                  <span className={change >= 0 ? "text-emerald-600" : "text-destructive"}>
-                    {change >= 0 ? formatRupiah(change) : `Kurang ${formatRupiah(Math.abs(change))}`}
+                  <span
+                    className={
+                      change >= 0 ? "text-emerald-600" : "text-destructive"
+                    }
+                  >
+                    {change >= 0
+                      ? formatRupiah(change)
+                      : `Kurang ${formatRupiah(Math.abs(change))}`}
                   </span>
                 </div>
               )}

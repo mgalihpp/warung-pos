@@ -30,5 +30,9 @@ export default async function PengaturanPage() {
       })
     : null
 
-  return <Suspense><PengaturanContent currentUser={currentUser} /></Suspense>
+  return (
+    <Suspense>
+      <PengaturanContent currentUser={currentUser} />
+    </Suspense>
+  )
 }

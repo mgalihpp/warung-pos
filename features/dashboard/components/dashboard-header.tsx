@@ -60,12 +60,15 @@ const getServerSnapshot = () => false
 
 export function DashboardHeader() {
   const [openCommand, setOpenCommand] = React.useState(false)
-  const [notifications, setNotifications] = React.useState<NotificationItem[]>([])
-  const [isLoadingNotifications, setIsLoadingNotifications] = React.useState(true)
+  const [notifications, setNotifications] = React.useState<NotificationItem[]>(
+    []
+  )
+  const [isLoadingNotifications, setIsLoadingNotifications] =
+    React.useState(true)
   const isHydrated = React.useSyncExternalStore(
     subscribeToHydration,
     getHydratedSnapshot,
-    getServerSnapshot,
+    getServerSnapshot
   )
   const router = useRouter()
   const pathname = usePathname()
@@ -74,7 +77,8 @@ export function DashboardHeader() {
   const user = isHydrated ? session?.user : undefined
   const isUserLoading = !isHydrated || !user
   const userName = user?.name ?? ""
-  const userRole = user?.role === "admin" ? "Admin" : user?.role === "cashier" ? "Kasir" : ""
+  const userRole =
+    user?.role === "admin" ? "Admin" : user?.role === "cashier" ? "Kasir" : ""
   const userInitials = (userName || "?")
     .split(" ")
     .filter(Boolean)
@@ -143,10 +147,12 @@ export function DashboardHeader() {
         <div className="relative flex flex-1 items-center">
           <button
             onClick={() => setOpenCommand(true)}
-            className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 sm:px-3 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:outline-none focus:ring-1 focus:ring-ring"
+            className="flex w-full max-w-md items-center gap-2 rounded-lg border bg-muted/40 p-1.5 px-2 text-sm text-muted-foreground transition-colors hover:bg-muted/60 focus:ring-1 focus:ring-ring focus:outline-none sm:px-3"
           >
             <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
-            <span className="hidden flex-1 truncate text-left sm:block">Cari barang, transaksi, pelanggan...</span>
+            <span className="hidden flex-1 truncate text-left sm:block">
+              Cari barang, transaksi, pelanggan...
+            </span>
             <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
             <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
           </button>
@@ -168,8 +174,12 @@ export function DashboardHeader() {
               />
             </div>
             <div className="min-w-0 leading-tight">
-              <p className="truncate text-sm font-semibold text-foreground">Warung Mama Nia</p>
-              <p className="hidden text-[11px] text-muted-foreground sm:block">Mode Admin</p>
+              <p className="truncate text-sm font-semibold text-foreground">
+                Warung Mama Nia
+              </p>
+              <p className="hidden text-[11px] text-muted-foreground sm:block">
+                Mode Admin
+              </p>
             </div>
           </div>
           <div className="hidden flex-1 lg:block" />
@@ -182,19 +192,42 @@ export function DashboardHeader() {
           <CommandList>
             <CommandEmpty>Tidak ada hasil yang ditemukan.</CommandEmpty>
             <CommandGroup heading="Saran Pencarian">
-              <CommandItem onSelect={() => { setOpenCommand(false); router.push("/admin/pos") }}>
-                <HugeiconsIcon icon={ShoppingCart01Icon} size={16} className="mr-2" />
+              <CommandItem
+                onSelect={() => {
+                  setOpenCommand(false)
+                  router.push("/admin/pos")
+                }}
+              >
+                <HugeiconsIcon
+                  icon={ShoppingCart01Icon}
+                  size={16}
+                  className="mr-2"
+                />
                 <span>Buka Kasir</span>
               </CommandItem>
-              <CommandItem onSelect={() => { setOpenCommand(false); router.push("/admin/transaksi") }}>
+              <CommandItem
+                onSelect={() => {
+                  setOpenCommand(false)
+                  router.push("/admin/transaksi")
+                }}
+              >
                 <HugeiconsIcon icon={InvoiceIcon} size={16} className="mr-2" />
                 <span>Lihat Transaksi Terbaru</span>
               </CommandItem>
             </CommandGroup>
             <CommandSeparator />
             <CommandGroup heading="Pengaturan">
-              <CommandItem onSelect={() => { setOpenCommand(false); router.push("/admin/pengaturan") }}>
-                <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+              <CommandItem
+                onSelect={() => {
+                  setOpenCommand(false)
+                  router.push("/admin/pengaturan")
+                }}
+              >
+                <HugeiconsIcon
+                  icon={Settings01Icon}
+                  size={16}
+                  className="mr-2"
+                />
                 <span>Pengaturan Toko</span>
               </CommandItem>
             </CommandGroup>
@@ -211,7 +244,7 @@ export function DashboardHeader() {
       {/* Notifications via Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
+          <button className="relative rounded-lg p-2 text-muted-foreground transition-colors hover:bg-muted focus:ring-1 focus:ring-ring focus:outline-none">
             <HugeiconsIcon icon={Notification03Icon} size={18} />
             {notificationCount > 0 && (
               <span className="absolute top-0.5 right-0.5 z-10 flex size-4 items-center justify-center rounded-full bg-destructive text-[10px] font-bold text-white">
@@ -221,45 +254,63 @@ export function DashboardHeader() {
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-64">
-          <DropdownMenuLabel>Notifikasi ({notificationCount})</DropdownMenuLabel>
+          <DropdownMenuLabel>
+            Notifikasi ({notificationCount})
+          </DropdownMenuLabel>
           <DropdownMenuSeparator />
           <DropdownMenuGroup>
             {isLoadingNotifications && (
-              <DropdownMenuItem disabled className="p-3 text-xs text-muted-foreground">
+              <DropdownMenuItem
+                disabled
+                className="p-3 text-xs text-muted-foreground"
+              >
                 Memuat notifikasi...
               </DropdownMenuItem>
             )}
             {!isLoadingNotifications && notificationCount === 0 && (
-              <DropdownMenuItem disabled className="p-3 text-xs text-muted-foreground">
+              <DropdownMenuItem
+                disabled
+                className="p-3 text-xs text-muted-foreground"
+              >
                 Belum ada notifikasi.
               </DropdownMenuItem>
             )}
-            {!isLoadingNotifications && notifications.map((notification) => (
-              <DropdownMenuItem key={notification.id} asChild>
-                <Link href={notification.href} className="flex items-start gap-2.5 p-3">
-                  <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted text-xs font-semibold text-muted-foreground">
-                    {notification.image ? (
-                      <Image
-                        src={notification.image}
-                        alt={notification.title}
-                        fill
-                        sizes="40px"
-                        className="object-cover"
-                      />
-                    ) : (
-                      notification.title.slice(0, 2).toUpperCase()
-                    )}
-                  </div>
-                  <div className="min-w-0 flex-1 space-y-1">
-                    <div className="flex w-full items-center justify-between gap-2">
-                      <span className="truncate text-xs font-semibold leading-none">{notification.title}</span>
-                      <span className="shrink-0 text-[10px] text-muted-foreground">{notification.time}</span>
+            {!isLoadingNotifications &&
+              notifications.map((notification) => (
+                <DropdownMenuItem key={notification.id} asChild>
+                  <Link
+                    href={notification.href}
+                    className="flex items-start gap-2.5 p-3"
+                  >
+                    <div className="relative flex size-10 shrink-0 items-center justify-center overflow-hidden rounded-lg border bg-muted text-xs font-semibold text-muted-foreground">
+                      {notification.image ? (
+                        <Image
+                          src={notification.image}
+                          alt={notification.title}
+                          fill
+                          sizes="40px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        notification.title.slice(0, 2).toUpperCase()
+                      )}
                     </div>
-                    <span className="line-clamp-2 text-[11px] leading-snug text-muted-foreground">{notification.description}</span>
-                  </div>
-                </Link>
-              </DropdownMenuItem>
-            ))}
+                    <div className="min-w-0 flex-1 space-y-1">
+                      <div className="flex w-full items-center justify-between gap-2">
+                        <span className="truncate text-xs leading-none font-semibold">
+                          {notification.title}
+                        </span>
+                        <span className="shrink-0 text-[10px] text-muted-foreground">
+                          {notification.time}
+                        </span>
+                      </div>
+                      <span className="line-clamp-2 text-[11px] leading-snug text-muted-foreground">
+                        {notification.description}
+                      </span>
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+              ))}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>
@@ -269,14 +320,12 @@ export function DashboardHeader() {
       {/* User Profile via Dropdown */}
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
-          <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:outline-none focus:ring-1 focus:ring-ring">
+          <button className="flex items-center gap-2 rounded-lg px-2 py-1 transition-colors hover:bg-muted focus:ring-1 focus:ring-ring focus:outline-none">
             {isUserLoading ? (
               <Skeleton className="size-8 shrink-0 rounded-full" />
             ) : (
               <Avatar className="size-8">
-                {user?.image && (
-                  <AvatarImage src={user.image} alt={userName} />
-                )}
+                {user?.image && <AvatarImage src={user.image} alt={userName} />}
                 <AvatarFallback className="bg-primary/10 text-xs font-semibold text-primary">
                   {userInitials}
                 </AvatarFallback>
@@ -290,12 +339,20 @@ export function DashboardHeader() {
                 </>
               ) : (
                 <>
-                  <span className="text-sm font-medium leading-tight text-foreground">{userName}</span>
-                  <span className="text-[11px] text-muted-foreground">{userRole}</span>
+                  <span className="text-sm leading-tight font-medium text-foreground">
+                    {userName}
+                  </span>
+                  <span className="text-[11px] text-muted-foreground">
+                    {userRole}
+                  </span>
                 </>
               )}
             </div>
-            <HugeiconsIcon icon={ArrowDown01Icon} size={14} className="hidden text-muted-foreground xl:block" />
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              size={14}
+              className="hidden text-muted-foreground xl:block"
+            />
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-56">
@@ -304,7 +361,11 @@ export function DashboardHeader() {
           <DropdownMenuGroup>
             <DropdownMenuItem asChild>
               <Link href="/admin/pengaturan">
-                <HugeiconsIcon icon={Settings01Icon} size={16} className="mr-2" />
+                <HugeiconsIcon
+                  icon={Settings01Icon}
+                  size={16}
+                  className="mr-2"
+                />
                 <span>Pengaturan</span>
               </Link>
             </DropdownMenuItem>
@@ -349,5 +410,9 @@ const ClockLabel = React.memo(function ClockLabel() {
   const today = format(now, "EEEE, dd MMMM yyyy", { locale: id })
   const time = format(now, "HH:mm:ss")
 
-  return <span className="hidden capitalize tabular-nums xl:block">{today} - {time}</span>
+  return (
+    <span className="hidden capitalize tabular-nums xl:block">
+      {today} - {time}
+    </span>
+  )
 })

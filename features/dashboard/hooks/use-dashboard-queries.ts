@@ -84,7 +84,10 @@ async function fetchDashboard(range: SalesRange): Promise<DashboardData> {
 
 // ── Hook ──
 
-export function useDashboard(range: SalesRange = "7d", initialData?: DashboardData) {
+export function useDashboard(
+  range: SalesRange = "7d",
+  initialData?: DashboardData
+) {
   return useQuery({
     queryKey: ["dashboard", range],
     queryFn: () => fetchDashboard(range),

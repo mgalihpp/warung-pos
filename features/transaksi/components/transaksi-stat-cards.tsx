@@ -123,12 +123,12 @@ export function TransaksiStatCards({ stats }: { stats: TransactionStats }) {
                 className={stat.iconColor}
               />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
                 {stat.title}
               </p>
               <p className="text-2xl font-bold tracking-tight">{stat.value}</p>
-              <p className="text-[10px] text-muted-foreground sm:text-[11px] flex items-center gap-1">
+              <p className="flex items-center gap-1 text-[10px] text-muted-foreground sm:text-[11px]">
                 {stat.trend === "up" && (
                   <span className="inline-flex items-center gap-0.5 text-emerald-600">
                     <HugeiconsIcon icon={ArrowUp01Icon} size={10} />

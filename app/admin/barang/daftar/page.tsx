@@ -26,20 +26,33 @@ export default async function DaftarBarangPage() {
   return (
     <>
       {/* Mobile / Tablet */}
-      <Suspense><BarangMobileList products={data.products} categories={data.categories} /></Suspense>
+      <Suspense>
+        <BarangMobileList
+          products={data.products}
+          categories={data.categories}
+        />
+      </Suspense>
 
       {/* Desktop */}
-      <div className="hidden lg:flex min-w-0 flex-col gap-3 p-4 pb-28 lg:gap-6 lg:p-6">
+      <div className="hidden min-w-0 flex-col gap-3 p-4 pb-28 lg:flex lg:gap-6 lg:p-6">
         <BarangHeader />
         <BarangStatCards stats={data.stats} />
 
         <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
           <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden">
-            <Suspense><BarangTable products={data.products} categories={data.categories} /></Suspense>
+            <Suspense>
+              <BarangTable
+                products={data.products}
+                categories={data.categories}
+              />
+            </Suspense>
           </div>
 
           <div className="flex w-full flex-col gap-6 lg:grid lg:grid-cols-2 xl:flex xl:w-[320px] xl:shrink-0 2xl:w-[350px]">
-            <BarangKategoriChart data={data.categoryChartData} total={data.stats.totalProducts} />
+            <BarangKategoriChart
+              data={data.categoryChartData}
+              total={data.stats.totalProducts}
+            />
             <BarangPopuler products={data.popularProducts} />
           </div>
         </div>

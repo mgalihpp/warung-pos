@@ -99,7 +99,9 @@ export function PosPaymentDialog({
 
         {/* Total Banner */}
         <div className="rounded-2xl border border-primary/20 bg-primary/10 px-5 py-4 text-center">
-          <p className="text-xs font-medium text-primary/70">Total Pembayaran</p>
+          <p className="text-xs font-medium text-primary/70">
+            Total Pembayaran
+          </p>
           <p className="mt-1 text-3xl font-extrabold tracking-tight text-primary">
             {formatRupiah(subtotal)}
           </p>

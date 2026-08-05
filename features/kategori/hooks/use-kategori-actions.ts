@@ -13,7 +13,9 @@ export function useCreateKategori() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const mutation = useMutation({
-    mutationFn: async (data: Record<string, unknown>): Promise<MutationResult> => {
+    mutationFn: async (
+      data: Record<string, unknown>
+    ): Promise<MutationResult> => {
       const res = await fetch("/api/kategori", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -32,7 +34,8 @@ export function useCreateKategori() {
 
   return {
     ...mutation,
-    errors: mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
+    errors:
+      mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
   }
 }
 
@@ -40,7 +43,9 @@ export function useUpdateKategori() {
   const queryClient = useQueryClient()
   const router = useRouter()
   const mutation = useMutation({
-    mutationFn: async (data: Record<string, unknown> & { id: string }): Promise<MutationResult> => {
+    mutationFn: async (
+      data: Record<string, unknown> & { id: string }
+    ): Promise<MutationResult> => {
       const res = await fetch(`/api/kategori/${data.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -59,7 +64,8 @@ export function useUpdateKategori() {
 
   return {
     ...mutation,
-    errors: mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
+    errors:
+      mutation.data?.success === false ? (mutation.data.errors ?? null) : null,
   }
 }
 

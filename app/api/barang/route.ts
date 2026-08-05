@@ -5,7 +5,6 @@ import { prisma } from "@/lib/prisma"
 import { createProductSchema } from "@/lib/schemas/barang"
 import { getBarangPageData } from "@/features/barang/server-data"
 
-
 function slugify(value: string) {
   return value
     .toLowerCase()

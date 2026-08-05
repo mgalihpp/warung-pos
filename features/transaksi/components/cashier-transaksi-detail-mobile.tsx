@@ -5,26 +5,18 @@ import Image from "next/image"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
 import {
-  Alert02Icon,
   Edit02Icon,
   InformationCircleIcon,
   PackageIcon,
   Wallet02Icon,
   ShoppingBag02Icon,
 } from "@hugeicons/core-free-icons"
-import { toast } from "sonner"
 import { useTransactionDetail } from "../hooks/use-transaksi-queries"
-import { useDeleteTransaction } from "../hooks/use-transaksi-actions"
-import type { TransactionStatus, PaymentMethod, TransactionDetail } from "../hooks/use-transaksi-queries"
-import {
-  AlertDialog,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-} from "@/components/ui/alert-dialog"
+import type {
+  TransactionStatus,
+  PaymentMethod,
+  TransactionDetail,
+} from "../hooks/use-transaksi-queries"
 import { Button } from "@/components/ui/button"
 import { formatRupiah } from "@/lib/format-currency"
 
@@ -40,8 +32,6 @@ function getStatusBadgeClass(status: TransactionStatus) {
       return "bg-muted text-muted-foreground"
   }
 }
-
-
 
 function getMetodeBadgeClass(metode: PaymentMethod) {
   switch (metode) {
@@ -86,12 +76,18 @@ type Props = {
   initialData?: TransactionDetail
 }
 
-export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBasePath, initialData }: Props) {
+export function CashierTransaksiDetailMobile({
+  transactionId,
+  onBack,
+  actionBasePath,
+  initialData,
+}: Props) {
   const router = useRouter()
   const containerRef = React.useRef<HTMLDivElement>(null)
-  const { data, isLoading, error } = useTransactionDetail(transactionId, initialData)
-  const deleteMutation = useDeleteTransaction()
-  const [deleteOpen, setDeleteOpen] = React.useState(false)
+  const { data, isLoading, error } = useTransactionDetail(
+    transactionId,
+    initialData
+  )
   const canManage = !!actionBasePath
 
   React.useLayoutEffect(() => {
@@ -111,17 +107,12 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
     window.dispatchEvent(new Event("transaksi-detail-change"))
 
     const handleBackRequest = () => onBack()
-    const handleDeleteRequest = () => {
-      if (canManage) setDeleteOpen(true)
-    }
     window.addEventListener("transaksi-detail-back", handleBackRequest)
-    window.addEventListener("transaksi-delete-request", handleDeleteRequest)
 
     return () => {
       delete document.body.dataset.transaksiDetail
       window.dispatchEvent(new Event("transaksi-detail-change"))
       window.removeEventListener("transaksi-detail-back", handleBackRequest)
-      window.removeEventListener("transaksi-delete-request", handleDeleteRequest)
     }
   }, [canManage, onBack])
 
@@ -132,20 +123,27 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
   if (error) {
     return (
       <div className="flex flex-1 items-center justify-center p-4">
-        <p className="text-sm text-destructive">Gagal memuat detail transaksi.</p>
+        <p className="text-sm text-destructive">
+          Gagal memuat detail transaksi.
+        </p>
       </div>
     )
   }
 
   return (
-    <div ref={containerRef} className={canManage ? "space-y-4 pb-28" : "space-y-4 pb-6"}>
+    <div
+      ref={containerRef}
+      className={canManage ? "space-y-4 pb-28" : "space-y-4 pb-6"}
+    >
       {/* ── Informasi Transaksi ── */}
       <div className="rounded-xl border bg-white p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <HugeiconsIcon icon={InformationCircleIcon} size={18} />
           </div>
-          <h2 className="text-sm font-bold text-slate-700">Informasi Transaksi</h2>
+          <h2 className="text-sm font-bold text-slate-700">
+            Informasi Transaksi
+          </h2>
         </div>
 
         <div className="space-y-3.5 text-sm">
@@ -159,13 +157,17 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Status</span>
-            <span className={`inline-flex rounded-md px-2 py-0.5 text-xs font-bold tracking-wide ${getStatusBadgeClass(data.status)}`}>
+            <span
+              className={`inline-flex rounded-md px-2 py-0.5 text-xs font-bold tracking-wide ${getStatusBadgeClass(data.status)}`}
+            >
               {data.status}
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span className="text-muted-foreground">Metode Pembayaran</span>
-            <span className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ${getMetodeBadgeClass(data.metode)}`}>
+            <span
+              className={`inline-flex items-center gap-1.5 rounded-md px-2.5 py-1 text-xs font-bold ${getMetodeBadgeClass(data.metode)}`}
+            >
               <HugeiconsIcon icon={Wallet02Icon} size={14} />
               {data.metode}
             </span>
@@ -179,7 +181,9 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <HugeiconsIcon icon={Wallet02Icon} size={18} />
           </div>
-          <h2 className="text-sm font-bold text-slate-700">Rincian Pembayaran</h2>
+          <h2 className="text-sm font-bold text-slate-700">
+            Rincian Pembayaran
+          </h2>
         </div>
 
         <div className="space-y-3 text-sm">
@@ -190,7 +194,17 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
           <div className="border-t border-dashed" />
           <div className="flex items-center justify-between">
             <span className="font-bold">Total</span>
-            <span className="text-base font-bold text-primary">{formatRupiah(data.total)}</span>
+            <span className="text-base font-bold text-primary">
+              {formatRupiah(data.total)}
+            </span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Uang Diterima</span>
+            <span className="font-medium">{formatRupiah(data.amountPaid)}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span className="text-muted-foreground">Kembalian</span>
+            <span className="font-medium">{formatRupiah(data.change)}</span>
           </div>
         </div>
       </div>
@@ -206,7 +220,10 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
 
         <div className="space-y-2.5">
           {data.items.map((item) => (
-            <div key={item.id} className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-2.5">
+            <div
+              key={item.id}
+              className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-2.5"
+            >
               <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
                 {item.productImage ? (
                   <Image
@@ -228,8 +245,12 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
 
               {/* Name & unit price */}
               <div className="min-w-0 flex-1">
-                <p className="truncate text-sm font-semibold">{item.productName}</p>
-                <p className="text-xs text-muted-foreground">{formatRupiah(item.unitPrice)}</p>
+                <p className="truncate text-sm font-semibold">
+                  {item.productName}
+                </p>
+                <p className="text-xs text-muted-foreground">
+                  {formatRupiah(item.unitPrice)}
+                </p>
               </div>
 
               {/* Subtotal */}
@@ -247,7 +268,9 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
             <Button
               type="button"
               className="h-12 w-full rounded-xl"
-              onClick={() => router.push(`${actionBasePath}/${transactionId}/edit`)}
+              onClick={() =>
+                router.push(`${actionBasePath}/${transactionId}/edit`)
+              }
             >
               <HugeiconsIcon icon={Edit02Icon} size={18} />
               Edit
@@ -255,63 +278,6 @@ export function CashierTransaksiDetailMobile({ transactionId, onBack, actionBase
           </div>
         </div>
       ) : null}
-
-      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-        <AlertDialogContent className="sm:max-w-[400px]">
-          <AlertDialogHeader>
-            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-              <HugeiconsIcon icon={Alert02Icon} size={20} />
-              Hapus Transaksi?
-            </AlertDialogTitle>
-            <AlertDialogDescription className="pt-2 leading-relaxed">
-              Anda yakin ingin menghapus transaksi{" "}
-              <strong className="font-semibold text-foreground">
-                {data.transactionNumber}
-              </strong>
-              ? Tindakan ini permanen.
-              {data.status === "Selesai" && (
-                <>
-                  <br /><br />
-                  *Stok barang yang terkait akan otomatis dikembalikan.
-                </>
-              )}
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-
-          <AlertDialogFooter className="gap-2 pt-4">
-            <AlertDialogCancel
-              onClick={() => setDeleteOpen(false)}
-              className="mt-0 w-full sm:w-auto"
-            >
-              Batal
-            </AlertDialogCancel>
-            <Button
-              type="button"
-              variant="destructive"
-              className="w-full sm:w-auto"
-              loading={deleteMutation.isPending}
-              loadingText="Menghapus..."
-              onClick={() => {
-                deleteMutation.mutate(data.id, {
-                  onSuccess: (result) => {
-                    if (result.success) {
-                      toast.success("Transaksi berhasil dihapus")
-                      setDeleteOpen(false)
-                      onBack()
-                      return
-                    }
-
-                    toast.error(result.error ?? "Transaksi gagal dihapus")
-                  },
-                  onError: () => toast.error("Transaksi gagal dihapus"),
-                })
-              }}
-            >
-              Hapus
-            </Button>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
     </div>
   )
 }

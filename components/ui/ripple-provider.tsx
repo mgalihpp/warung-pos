@@ -100,7 +100,11 @@ function RippleProvider() {
 
       const rect = trigger.getBoundingClientRect()
       activeTrigger = trigger
-      spawnRipple(trigger, rect.left + rect.width / 2, rect.top + rect.height / 2)
+      spawnRipple(
+        trigger,
+        rect.left + rect.width / 2,
+        rect.top + rect.height / 2
+      )
     }
 
     document.addEventListener("pointerdown", handlePointerDown)

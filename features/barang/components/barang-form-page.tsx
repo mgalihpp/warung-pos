@@ -6,7 +6,6 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   PackageIcon,
   Cancel01Icon,
-  Delete02Icon,
   FloppyDiskIcon,
 } from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
@@ -74,7 +73,8 @@ export function BarangFormPage(props: BarangFormPageProps) {
   const deleteMutation = useDeleteProduct()
   const adjustStockMutation = useAdjustStock()
   const mutation = mode === "create" ? createMutation : updateMutation
-  const errors = mutation.data?.success === false ? (mutation.data.errors ?? null) : null
+  const errors =
+    mutation.data?.success === false ? (mutation.data.errors ?? null) : null
   const isPending = mutation.isPending || adjustStockMutation.isPending
 
   const [imageUrl, setImageUrl] = React.useState<string | null>(
@@ -200,17 +200,6 @@ export function BarangFormPage(props: BarangFormPageProps) {
       }
       actions={
         <>
-          {mode === "edit" && (
-            <Button
-              type="button"
-              variant="outline"
-              className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
-              onClick={() => setDeleteOpen(true)}
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={16} />
-              <span className="hidden sm:inline">Hapus Barang</span>
-            </Button>
-          )}
           <Button
             type="button"
             variant="outline"
@@ -235,7 +224,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
       bottomBar={
         <Button
           type="button"
-          className="h-12 w-full rounded-xl gap-2"
+          className="h-12 w-full gap-2 rounded-xl"
           onClick={() => formRef.current?.requestSubmit()}
           loading={isPending}
           loadingText="Menyimpan..."
@@ -247,198 +236,201 @@ export function BarangFormPage(props: BarangFormPageProps) {
     >
       {/* Left: Form */}
       <form
-          id="barang-form"
-          ref={formRef}
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          className="flex min-w-0 flex-1 flex-col gap-6"
-        >
-          {/* Informasi Barang */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
-                <HugeiconsIcon icon={PackageIcon} size={14} />
-              </span>
-              Informasi Barang
-            </h2>
+        id="barang-form"
+        ref={formRef}
+        onSubmit={handleSubmit}
+        autoComplete="off"
+        className="flex min-w-0 flex-1 flex-col gap-6"
+      >
+        {/* Informasi Barang */}
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <HugeiconsIcon icon={PackageIcon} size={14} />
+            </span>
+            Informasi Barang
+          </h2>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Foto Barang" asLabel={false}>
-                <input type="hidden" name="image" value={imageUrl ?? ""} />
-                <ImageUpload value={imageUrl} onChange={setImageUrl} />
-              </Field>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Field label="Foto Barang" asLabel={false}>
+              <input type="hidden" name="image" value={imageUrl ?? ""} />
+              <ImageUpload value={imageUrl} onChange={setImageUrl} />
+            </Field>
 
-              <Field label="Nama Barang" required error={errors?.name}>
-                <Input
-                  name="name"
-                  required
-                  defaultValue={product?.name}
-                  placeholder="Contoh: Beras Premium 5kg"
-                  className="bg-input/30"
-                />
-              </Field>
+            <Field label="Nama Barang" required error={errors?.name}>
+              <Input
+                name="name"
+                required
+                defaultValue={product?.name}
+                placeholder="Contoh: Beras Premium 5kg"
+                className="bg-input/30"
+              />
+            </Field>
 
-              <Field label="Kategori" required error={errors?.categoryId}>
-                <CategoryCombobox
-                  categories={categories}
-                  defaultValue={product?.category}
-                />
-              </Field>
+            <Field label="Kategori" required error={errors?.categoryId}>
+              <CategoryCombobox
+                categories={categories}
+                defaultValue={product?.category}
+              />
+            </Field>
 
-              <Field label="Satuan" required error={errors?.unit}>
-                <UnitCombobox units={units} defaultValue={product?.unit} />
-              </Field>
+            <Field label="Satuan" required error={errors?.unit}>
+              <UnitCombobox units={units} defaultValue={product?.unit} />
+            </Field>
 
-              <Field label="Status">
-                <Select
-                  name="isActive"
-                  defaultValue={product?.isActive === false ? "off" : "on"}
-                >
-                  <SelectTrigger className="w-full bg-input/30">
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="on">Aktif</SelectItem>
-                    <SelectItem value="off">Nonaktif</SelectItem>
-                  </SelectContent>
-                </Select>
-              </Field>
-            </div>
+            <Field label="Status">
+              <Select
+                name="isActive"
+                defaultValue={product?.isActive === false ? "off" : "on"}
+              >
+                <SelectTrigger className="w-full bg-input/30">
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="on">Aktif</SelectItem>
+                  <SelectItem value="off">Nonaktif</SelectItem>
+                </SelectContent>
+              </Select>
+            </Field>
           </div>
+        </div>
 
-          {/* Harga & Stok */}
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
-              <span className="flex size-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
-                <HugeiconsIcon icon={PackageIcon} size={14} />
-              </span>
-              {mode === "create" ? "Harga & Persediaan Awal" : "Harga & Stok"}
-            </h2>
+        {/* Harga & Stok */}
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 flex items-center gap-2 text-sm font-semibold">
+            <span className="flex size-7 items-center justify-center rounded-lg bg-blue-500/10 text-blue-600">
+              <HugeiconsIcon icon={PackageIcon} size={14} />
+            </span>
+            {mode === "create" ? "Harga & Persediaan Awal" : "Harga & Stok"}
+          </h2>
 
-            <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              <Field label="Harga Beli" required error={errors?.buyPrice}>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    Rp
-                  </span>
-                  <Input
-                    name="buyPrice"
-                    type="number"
-                    min="0"
-                    required
-                    defaultValue={product?.buyPrice}
-                    placeholder="0"
-                    className="bg-input/30 pl-8"
-                  />
-                </div>
-              </Field>
-
-              <Field label="Harga Jual" required error={errors?.sellPrice}>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-sm text-muted-foreground">
-                    Rp
-                  </span>
-                  <Input
-                    name="sellPrice"
-                    type="number"
-                    min="0"
-                    required
-                    defaultValue={product?.sellPrice}
-                    placeholder="0"
-                    className="bg-input/30 pl-8 font-medium text-primary"
-                  />
-                </div>
-              </Field>
-
-              {mode === "create" ? (
-                <Field label="Stok Awal" required error={errors?.stock}>
-                  <Input
-                    name="stock"
-                    type="number"
-                    min="0"
-                    required
-                    defaultValue={0}
-                    className="bg-input/30"
-                  />
-                </Field>
-              ) : null}
-
-              <Field label="Stok Minimum" required error={errors?.minStock}>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            <Field label="Harga Beli" required error={errors?.buyPrice}>
+              <div className="relative">
+                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
+                  Rp
+                </span>
                 <Input
-                  name="minStock"
+                  name="buyPrice"
                   type="number"
                   min="0"
                   required
-                  defaultValue={product?.minStock ?? 5}
+                  defaultValue={product?.buyPrice}
+                  placeholder="0"
+                  className="bg-input/30 pl-8"
+                />
+              </div>
+            </Field>
+
+            <Field label="Harga Jual" required error={errors?.sellPrice}>
+              <div className="relative">
+                <span className="absolute top-1/2 left-3 -translate-y-1/2 text-sm text-muted-foreground">
+                  Rp
+                </span>
+                <Input
+                  name="sellPrice"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={product?.sellPrice}
+                  placeholder="0"
+                  className="bg-input/30 pl-8 font-medium text-primary"
+                />
+              </div>
+            </Field>
+
+            {mode === "create" ? (
+              <Field label="Stok Awal" required error={errors?.stock}>
+                <Input
+                  name="stock"
+                  type="number"
+                  min="0"
+                  required
+                  defaultValue={0}
                   className="bg-input/30"
                 />
               </Field>
+            ) : null}
 
-              {mode === "edit" && (
-                <div className="sm:col-span-2 lg:col-span-3">
-                  <div className="rounded-xl bg-muted/25 p-4">
-                    <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
-                      <div>
-                        <p className="text-sm font-semibold text-foreground">Penyesuaian Stok</p>
-                        <p className="text-xs font-normal text-muted-foreground">
-                          Opsional. Kosongkan jumlah kalau stok tidak berubah.
-                        </p>
-                      </div>
-                      <p className="text-xs font-medium text-muted-foreground">
-                        Stok saat ini:{" "}
-                        <span className="font-bold text-primary">
-                          {product?.stock ?? 0} {product?.unit}
-                        </span>
+            <Field label="Stok Minimum" required error={errors?.minStock}>
+              <Input
+                name="minStock"
+                type="number"
+                min="0"
+                required
+                defaultValue={product?.minStock ?? 5}
+                className="bg-input/30"
+              />
+            </Field>
+
+            {mode === "edit" && (
+              <div className="sm:col-span-2 lg:col-span-3">
+                <div className="rounded-xl bg-muted/25 p-4">
+                  <div className="mb-4 flex flex-col gap-1 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-foreground">
+                        Penyesuaian Stok
+                      </p>
+                      <p className="text-xs font-normal text-muted-foreground">
+                        Opsional. Kosongkan jumlah kalau stok tidak berubah.
                       </p>
                     </div>
+                    <p className="text-xs font-medium text-muted-foreground">
+                      Stok saat ini:{" "}
+                      <span className="font-bold text-primary">
+                        {product?.stock ?? 0} {product?.unit}
+                      </span>
+                    </p>
+                  </div>
 
-                    <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.5fr]">
-                      <Field label="Jenis Penyesuaian">
-                        <Select name="stockAdjustmentMode" defaultValue="add">
-                          <SelectTrigger className="w-full bg-background">
-                            <SelectValue placeholder="Pilih aksi" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="add">Stok Masuk (+)</SelectItem>
-                            <SelectItem value="set">Ubah Total Stok (=)</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </Field>
+                  <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-[1fr_1fr_1.5fr]">
+                    <Field label="Jenis Penyesuaian">
+                      <Select name="stockAdjustmentMode" defaultValue="add">
+                        <SelectTrigger className="w-full bg-background">
+                          <SelectValue placeholder="Pilih aksi" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="add">Stok Masuk (+)</SelectItem>
+                          <SelectItem value="set">
+                            Ubah Total Stok (=)
+                          </SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </Field>
 
-                      <Field label="Jumlah">
-                        <Input
-                          name="stockAdjustmentQuantity"
-                          type="number"
-                          min="0"
-                          placeholder="Contoh: 12"
-                          className="bg-background"
-                        />
-                      </Field>
+                    <Field label="Jumlah">
+                      <Input
+                        name="stockAdjustmentQuantity"
+                        type="number"
+                        min="0"
+                        placeholder="Contoh: 12"
+                        className="bg-background"
+                      />
+                    </Field>
 
-                      <Field label="Keterangan">
-                        <Input
-                          name="stockAdjustmentReason"
-                          placeholder="Contoh: Restok dari supplier"
-                          className="bg-background"
-                        />
-                      </Field>
-                    </div>
+                    <Field label="Keterangan">
+                      <Input
+                        name="stockAdjustmentReason"
+                        placeholder="Contoh: Restok dari supplier"
+                        className="bg-background"
+                      />
+                    </Field>
                   </div>
                 </div>
-              )}
-            </div>
+              </div>
+            )}
           </div>
+        </div>
 
-          <div className="rounded-xl border bg-card p-5 shadow-sm">
-            <h2 className="mb-4 text-sm font-semibold">Deskripsi (opsional)</h2>
-            <Textarea
-              name="description"
-              defaultValue={product?.description ?? ""}
-              className="min-h-[100px] bg-input/30"
-              placeholder="Tambahkan deskripsi barang untuk membantu pelanggan memahami barang ini..."
-            />
-          </div>
-
+        <div className="rounded-xl border bg-card p-5 shadow-sm">
+          <h2 className="mb-4 text-sm font-semibold">Deskripsi (opsional)</h2>
+          <Textarea
+            name="description"
+            defaultValue={product?.description ?? ""}
+            className="min-h-[100px] bg-input/30"
+            placeholder="Tambahkan deskripsi barang untuk membantu pelanggan memahami barang ini..."
+          />
+        </div>
       </form>
 
       {/* Delete confirmation dialog */}

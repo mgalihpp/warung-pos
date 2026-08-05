@@ -20,9 +20,16 @@ export async function getKategoriPageData() {
     categories: categoryItems,
     stats: {
       totalCategories: categories.length,
-      usedCategories: categories.filter((category) => category._count.products > 0).length,
-      emptyCategories: categories.filter((category) => category._count.products === 0).length,
-      totalProducts: categories.reduce((total, category) => total + category._count.products, 0),
+      usedCategories: categories.filter(
+        (category) => category._count.products > 0
+      ).length,
+      emptyCategories: categories.filter(
+        (category) => category._count.products === 0
+      ).length,
+      totalProducts: categories.reduce(
+        (total, category) => total + category._count.products,
+        0
+      ),
     },
   }
 }

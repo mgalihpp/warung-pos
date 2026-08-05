@@ -13,7 +13,11 @@ export async function getBarangDetailData(productId: string) {
   if (!product) return null
 
   const now = new Date()
-  const startOfToday = new Date(now.getFullYear(), now.getMonth(), now.getDate())
+  const startOfToday = new Date(
+    now.getFullYear(),
+    now.getMonth(),
+    now.getDate()
+  )
   const thirtyDaysAgo = new Date(startOfToday)
   thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 29)
   const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)

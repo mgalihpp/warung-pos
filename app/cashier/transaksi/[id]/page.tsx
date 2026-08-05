@@ -27,5 +27,7 @@ export default async function CashierTransaksiDetailPage({
     notFound()
   }
 
-  return <CashierTransaksiDetailPageClient transactionId={id} initialData={data} />
+  return (
+    <CashierTransaksiDetailPageClient transactionId={id} initialData={data} />
+  )
 }

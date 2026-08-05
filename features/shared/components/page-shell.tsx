@@ -26,10 +26,19 @@ const WIDTH_CLASS = {
   wide: "max-w-5xl",
 } as const
 
-function BackButton({ backHref, onBack }: Pick<PageShellProps, "backHref" | "onBack">) {
+function BackButton({
+  backHref,
+  onBack,
+}: Pick<PageShellProps, "backHref" | "onBack">) {
   if (backHref) {
     return (
-      <Button asChild size="icon" variant="outline" className="shrink-0 rounded-full" aria-label="Kembali">
+      <Button
+        asChild
+        size="icon"
+        variant="outline"
+        className="shrink-0 rounded-full"
+        aria-label="Kembali"
+      >
         <Link href={backHref}>
           <HugeiconsIcon icon={ArrowLeft02Icon} size={16} />
         </Link>
@@ -69,7 +78,12 @@ export function PageShell({
   const widthClass = WIDTH_CLASS[width]
 
   return (
-    <div className={cn("flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6", className)}>
+    <div
+      className={cn(
+        "flex min-w-0 flex-col gap-4 p-4 lg:gap-6 lg:p-6",
+        className
+      )}
+    >
       <div
         className={cn(
           "mx-auto hidden w-full gap-4 lg:flex lg:flex-row lg:items-center lg:justify-between",
@@ -79,11 +93,17 @@ export function PageShell({
         <div className="flex items-center gap-3">
           <BackButton backHref={backHref} onBack={onBack} />
           <div>
-            <h1 className="text-xl font-bold tracking-tight lg:text-2xl">{title}</h1>
-            {subtitle && <p className="text-sm text-muted-foreground">{subtitle}</p>}
+            <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
+              {title}
+            </h1>
+            {subtitle && (
+              <p className="text-sm text-muted-foreground">{subtitle}</p>
+            )}
           </div>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && (
+          <div className="flex flex-wrap items-center gap-2">{actions}</div>
+        )}
       </div>
 
       <div

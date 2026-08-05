@@ -15,7 +15,10 @@ export function CashierTransaksiDetailPageClient({
   initialData: TransactionDetail
 }) {
   const router = useRouter()
-  const handleBack = useCallback(() => router.push("/cashier/transaksi"), [router])
+  const handleBack = useCallback(
+    () => router.push("/cashier/transaksi"),
+    [router]
+  )
 
   return (
     <PageShell

@@ -5,5 +5,9 @@ import { getPosPageData } from "@/features/pos/server-data"
 export default async function CashierPosPage() {
   const initialData = await getPosPageData()
 
-  return <Suspense><PosPageClient initialData={initialData} /></Suspense>
+  return (
+    <Suspense>
+      <PosPageClient initialData={initialData} />
+    </Suspense>
+  )
 }

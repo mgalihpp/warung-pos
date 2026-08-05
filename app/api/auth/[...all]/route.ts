@@ -12,7 +12,7 @@ export async function POST(request: Request) {
   if (pathname.endsWith("/sign-up/email")) {
     return Response.json(
       { error: "Pendaftaran publik dinonaktifkan. Akun dibuat oleh admin." },
-      { status: 403 },
+      { status: 403 }
     )
   }
 

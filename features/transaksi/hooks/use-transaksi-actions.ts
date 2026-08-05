@@ -10,7 +10,6 @@ type MutationResult = {
 
 // ── Delete Transaction ──
 
-
 export function useDeleteTransaction() {
   const queryClient = useQueryClient()
   const router = useRouter()
@@ -44,7 +43,9 @@ export function useUpdateTransaction() {
   const queryClient = useQueryClient()
   const router = useRouter()
   return useMutation({
-    mutationFn: async (data: UpdateTransactionPayload): Promise<MutationResult> => {
+    mutationFn: async (
+      data: UpdateTransactionPayload
+    ): Promise<MutationResult> => {
       const res = await fetch(`/api/transaksi/${data.id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },

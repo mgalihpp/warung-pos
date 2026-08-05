@@ -79,15 +79,13 @@ function Button({
       data-slot="button"
       data-variant={variant}
       data-size={size}
-      className={cn(
-        buttonVariants({ variant, size, className }),
-      )}
+      className={cn(buttonVariants({ variant, size, className }))}
       disabled={isDisabled}
       {...props}
     >
       {loading ? (
         <>
-          <Spinner className="size-4 shrink-0 animate-in fade-in zoom-in-75 duration-200" />
+          <Spinner className="size-4 shrink-0 animate-in duration-200 zoom-in-75 fade-in" />
           {loadingText ?? (typeof children === "string" ? children : "")}
         </>
       ) : (

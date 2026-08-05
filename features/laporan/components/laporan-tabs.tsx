@@ -3,10 +3,7 @@
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  ChartHistogramIcon,
-  PackageIcon,
-} from "@hugeicons/core-free-icons"
+import { ChartHistogramIcon, PackageIcon } from "@hugeicons/core-free-icons"
 
 import { cn } from "@/lib/utils"
 
@@ -32,7 +29,7 @@ export function LaporanTabs() {
               "inline-flex flex-1 shrink-0 items-center justify-center gap-2 border-b-2 px-3 py-3 text-sm font-medium transition-colors sm:flex-none sm:justify-start",
               isActive
                 ? "border-primary text-primary"
-                : "border-transparent text-muted-foreground hover:text-foreground",
+                : "border-transparent text-muted-foreground hover:text-foreground"
             )}
           >
             <HugeiconsIcon icon={tab.icon} size={16} />

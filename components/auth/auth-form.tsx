@@ -6,12 +6,7 @@ import * as React from "react"
 import { toast } from "sonner"
 
 import { Button } from "@/components/ui/button"
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { signIn, getSession } from "@/lib/auth-client"
@@ -148,11 +143,15 @@ export function AuthForm() {
               </p>
             ) : null}
 
-            <Button className="h-11 w-full text-sm font-medium sm:text-base" loading={isPending} loadingText="Memproses..." type="submit">
+            <Button
+              className="h-11 w-full text-sm font-medium sm:text-base"
+              loading={isPending}
+              loadingText="Memproses..."
+              type="submit"
+            >
               Masuk
             </Button>
           </form>
-
         </CardContent>
       </Card>
     </main>

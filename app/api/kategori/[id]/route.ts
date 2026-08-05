@@ -40,7 +40,10 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const { id } = await context.params
   if (!id) {
-    return NextResponse.json({ error: "ID kategori tidak valid" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID kategori tidak valid" },
+      { status: 400 }
+    )
   }
 
   const body = await request.json()
@@ -58,7 +61,10 @@ export async function PUT(request: Request, context: RouteContext) {
 
   const category = await prisma.category.findUnique({ where: { id } })
   if (!category) {
-    return NextResponse.json({ error: "Kategori tidak ditemukan" }, { status: 404 })
+    return NextResponse.json(
+      { error: "Kategori tidak ditemukan" },
+      { status: 404 }
+    )
   }
 
   await prisma.category.update({
@@ -81,7 +87,10 @@ export async function DELETE(_request: Request, context: RouteContext) {
 
   const { id } = await context.params
   if (!id) {
-    return NextResponse.json({ error: "ID kategori tidak valid" }, { status: 400 })
+    return NextResponse.json(
+      { error: "ID kategori tidak valid" },
+      { status: 400 }
+    )
   }
 
   const productCount = await prisma.product.count({ where: { categoryId: id } })

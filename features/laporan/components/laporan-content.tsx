@@ -20,11 +20,11 @@ import {
 import {
   Area,
   AreaChart,
+  Bar,
+  BarChart,
   CartesianGrid,
   Cell,
-  Label,
-  Pie,
-  PieChart,
+  LabelList,
   XAxis,
   YAxis,
 } from "recharts"
@@ -72,7 +72,10 @@ export function LaporanContent({
 }: {
   initialData?: PenjualanData
 }) {
-  const [rangeParam, setRange] = useSearchParam("range", initialData?.range ?? "30d")
+  const [rangeParam, setRange] = useSearchParam(
+    "range",
+    initialData?.range ?? "30d"
+  )
   const range = rangeParam as LaporanRange
   const { data, isLoading, error } = useLaporanPenjualan(range, initialData)
 
@@ -136,7 +139,11 @@ export function LaporanContent({
         r.productUnit,
       ])
 
-      downloadCSV(`transaksi-${range}-${new Date().toISOString().slice(0, 10)}.csv`, header, csvRows)
+      downloadCSV(
+        `transaksi-${range}-${new Date().toISOString().slice(0, 10)}.csv`,
+        header,
+        csvRows
+      )
     } catch (e) {
       alert("Gagal mengexport data. Silakan coba lagi.")
     }
@@ -249,7 +256,7 @@ function PenjualanDashboard({
   ]
 
   return (
-    <div className="flex min-w-0 max-w-full flex-col gap-4">
+    <div className="flex max-w-full min-w-0 flex-col gap-4">
       <MobileReportHero
         data={data}
         range={range}
@@ -424,43 +431,45 @@ function StatCard({
   return (
     <div className="group relative min-h-24 overflow-hidden rounded-2xl border border-border bg-card p-5 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] transition-all duration-200 active:scale-[0.98] lg:flex lg:min-h-0 lg:items-center lg:gap-4 lg:rounded-xl lg:p-4 lg:shadow-sm">
       <div className="flex items-start gap-3.5 lg:contents">
-      <div
-        className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-transform duration-300 group-hover:scale-105 lg:size-12 lg:rounded-xl ${iconBg}`}
-      >
-        <HugeiconsIcon icon={icon} size={22} className={iconColor} />
-      </div>
-      <div className="min-w-0 flex-1">
-        <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:normal-case lg:tracking-normal">
-          {title}
-        </p>
-        <p className="break-words text-xl font-extrabold tracking-tight text-foreground lg:truncate lg:text-lg lg:font-bold">
-          {value}
-        </p>
-        <p className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
-          {change !== null ? (
-            <>
-              <span
-                className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-bold ${
-                  positive
-                    ? "bg-emerald-500/10 text-emerald-600"
-                    : "bg-rose-500/10 text-rose-600"
-                }`}
-              >
-                <HugeiconsIcon
-                  icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
-                  size={11}
-                />
-                {Math.abs(change)}%
+        <div
+          className={`flex size-11 shrink-0 items-center justify-center rounded-[14px] transition-transform duration-300 group-hover:scale-105 lg:size-12 lg:rounded-xl ${iconBg}`}
+        >
+          <HugeiconsIcon icon={icon} size={22} className={iconColor} />
+        </div>
+        <div className="min-w-0 flex-1">
+          <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:tracking-normal lg:normal-case">
+            {title}
+          </p>
+          <p className="text-xl font-extrabold tracking-tight break-words text-foreground lg:truncate lg:text-lg lg:font-bold">
+            {value}
+          </p>
+          <p className="mt-3 flex flex-wrap items-center gap-1.5 text-[10px] text-muted-foreground lg:mt-0 lg:flex-nowrap">
+            {change !== null ? (
+              <>
+                <span
+                  className={`inline-flex items-center gap-0.5 rounded-full px-2 py-0.5 text-[11px] font-bold ${
+                    positive
+                      ? "bg-emerald-500/10 text-emerald-600"
+                      : "bg-rose-500/10 text-rose-600"
+                  }`}
+                >
+                  <HugeiconsIcon
+                    icon={positive ? ArrowUp01Icon : ArrowDown01Icon}
+                    size={11}
+                  />
+                  {Math.abs(change)}%
+                </span>
+                <span className="min-w-0 truncate font-medium">
+                  vs periode lalu
+                </span>
+              </>
+            ) : (
+              <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
+                Belum ada pembanding
               </span>
-              <span className="min-w-0 truncate font-medium">vs periode lalu</span>
-            </>
-          ) : (
-            <span className="rounded-full bg-muted px-2 py-0.5 text-[11px] font-semibold text-muted-foreground">
-              Belum ada pembanding
-            </span>
-          )}
-        </p>
-      </div>
+            )}
+          </p>
+        </div>
       </div>
       <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.03] to-transparent opacity-0 transition-opacity group-hover:opacity-100 lg:hidden" />
     </div>
@@ -575,83 +584,65 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
 }
 
 function CategoryCard({ data }: { data: PenjualanData["categoryBreakdown"] }) {
-  const config: ChartConfig = Object.fromEntries(
-    data.map((d) => [d.name, { label: d.name, color: d.fill }])
-  )
+  const sorted = [...data].sort((a, b) => a.value - b.value)
+  const config: ChartConfig = {
+    value: { label: "Penjualan", color: "var(--color-chart-4)" },
+  }
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold">Komposisi Penjualan</h2>
       {data.length === 0 ? (
         <EmptyState message="Belum ada data kategori" />
       ) : (
-        <div className="grid items-center gap-3 sm:grid-cols-[180px_1fr] xl:grid-cols-1 2xl:grid-cols-[170px_1fr]">
-          <ChartContainer
-            config={config}
-            className="mx-auto aspect-square h-[180px]"
+        <ChartContainer
+          config={config}
+          className="w-full"
+          style={{ height: `${Math.max(sorted.length * 34, 120)}px` }}
+        >
+          <BarChart
+            data={sorted}
+            layout="vertical"
+            margin={{ left: 4, right: 36, top: 4, bottom: 0 }}
+            barCategoryGap={6}
           >
-            <PieChart>
-              <ChartTooltip content={<ChartTooltipContent />} />
-              <Pie
-                data={data}
-                dataKey="value"
-                nameKey="name"
-                cx="50%"
-                cy="50%"
-                innerRadius={52}
-                outerRadius={78}
-                strokeWidth={4}
-                stroke="var(--color-card)"
-              >
-                {data.map((entry) => (
-                  <Cell key={entry.name} fill={entry.fill} />
-                ))}
-                <Label
-                  content={({ viewBox }) => {
-                    if (viewBox && "cx" in viewBox && "cy" in viewBox) {
-                      return (
-                        <text
-                          x={viewBox.cx}
-                          y={viewBox.cy}
-                          textAnchor="middle"
-                          dominantBaseline="middle"
-                        >
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) - 6}
-                            className="fill-muted-foreground text-[10px]"
-                          >
-                            Total
-                          </tspan>
-                          <tspan
-                            x={viewBox.cx}
-                            y={(viewBox.cy || 0) + 10}
-                            className="fill-foreground text-[10px] font-medium"
-                          >
-                            Penjualan
-                          </tspan>
-                        </text>
-                      )
-                    }
-                  }}
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+            <XAxis type="number" hide />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              width={96}
+              tickMargin={6}
+              fontSize={11}
+              interval={0}
+            />
+            <ChartTooltip
+              cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+              content={
+                <ChartTooltipContent
+                  formatter={(value) => (
+                    <span className="font-mono font-medium text-foreground tabular-nums">
+                      {formatRupiah(Number(value))}
+                    </span>
+                  )}
                 />
-              </Pie>
-            </PieChart>
-          </ChartContainer>
-          <div className="space-y-2">
-            {data.map((item) => (
-              <div key={item.name} className="flex items-center gap-2 text-xs">
-                <span
-                  className="size-2.5 rounded-full"
-                  style={{ backgroundColor: item.fill }}
-                />
-                <span className="truncate text-muted-foreground">
-                  {item.name}
-                </span>
-                <span className="ml-auto font-bold">{item.pct}%</span>
-              </div>
-            ))}
-          </div>
-        </div>
+              }
+            />
+            <Bar dataKey="value" radius={[0, 4, 4, 0]} maxBarSize={22}>
+              {sorted.map((entry) => (
+                <Cell key={entry.name} fill={entry.fill} />
+              ))}
+              <LabelList
+                dataKey="pct"
+                position="right"
+                className="fill-muted-foreground"
+                fontSize={11}
+                formatter={(v: unknown) => `${v}%`}
+              />
+            </Bar>
+          </BarChart>
+        </ChartContainer>
       )}
     </div>
   )
@@ -993,7 +984,9 @@ function WeekCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
   }
 
   const firstDate = new Date(`${sorted[0].dateKey}T00:00:00+07:00`)
-  const lastDate = new Date(`${sorted[sorted.length - 1].dateKey}T00:00:00+07:00`)
+  const lastDate = new Date(
+    `${sorted[sorted.length - 1].dateKey}T00:00:00+07:00`
+  )
   const rangeLabel = `${firstDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })} - ${lastDate.toLocaleDateString("id-ID", { day: "numeric", month: "short" })}`
 
   const dayNames = ["Min", "Sen", "Sel", "Rab", "Kam", "Jum", "Sab"]
@@ -1033,7 +1026,9 @@ function WeekCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
 
         <div className="mb-2 grid grid-cols-7 gap-1 border-b pb-2 text-center text-[10px] font-semibold text-muted-foreground">
           {dayNames.map((day) => (
-            <div key={day} className="py-1">{day}</div>
+            <div key={day} className="py-1">
+              {day}
+            </div>
           ))}
         </div>
 
@@ -1141,7 +1136,9 @@ function YearCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
 
         <div className="mt-1 grid grid-cols-4 gap-2 sm:gap-3">
           {months.map((month) => {
-            const monthRows = rows.filter((r) => r.dateKey.startsWith(month.key))
+            const monthRows = rows.filter((r) =>
+              r.dateKey.startsWith(month.key)
+            )
             const laba = monthRows.reduce((s, r) => s + r.laba, 0)
             const hasTransactions = monthRows.some((r) => r.transaksi > 0)
 
@@ -1198,16 +1195,14 @@ function buildCalendarMonthsYear(rows: PenjualanData["dailySummary"]) {
   const uniqueKeys = [...new Set(keys)].sort()
   return uniqueKeys.map((key) => {
     const [year, month] = key.split("-").map(Number)
-    const label = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(new Date(year, month - 1))
+    const label = new Intl.DateTimeFormat("id-ID", { month: "short" }).format(
+      new Date(year, month - 1)
+    )
     return { key, label }
   })
 }
 
-function MonthCalendarGrid({
-  rows,
-}: {
-  rows: PenjualanData["dailySummary"]
-}) {
+function MonthCalendarGrid({ rows }: { rows: PenjualanData["dailySummary"] }) {
   const rowMap = new Map(rows.map((row) => [row.dateKey, row]))
   const months = buildCalendarMonths(rows)
   const [monthIndex, setMonthIndex] = React.useState(() =>
@@ -1485,10 +1480,10 @@ function TopCashiersCard({ items }: { items: PenjualanData["topCashiers"] }) {
               <div className="min-w-0 flex-1 space-y-0.5">
                 <p className="text-xs font-medium break-words">{item.name}</p>
                 <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-                  <p className="text-[11px] text-muted-foreground break-words">
+                  <p className="text-[11px] break-words text-muted-foreground">
                     {item.count} transaksi
                   </p>
-                  <p className="text-xs font-semibold text-primary break-words">
+                  <p className="text-xs font-semibold break-words text-primary">
                     {formatRupiah(item.revenue)}
                   </p>
                 </div>

@@ -21,7 +21,9 @@ export async function proxy(request: NextRequest) {
 
   if (pathname === "/login" || pathname === "/register") {
     if (session?.user) {
-      return NextResponse.redirect(new URL(getDashboardPath(session.user.role), request.url))
+      return NextResponse.redirect(
+        new URL(getDashboardPath(session.user.role), request.url)
+      )
     }
 
     return NextResponse.next()

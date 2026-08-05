@@ -3,7 +3,11 @@
 import * as React from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ArrowDown01Icon, PlusSignIcon, Tick02Icon } from "@hugeicons/core-free-icons"
+import {
+  ArrowDown01Icon,
+  PlusSignIcon,
+  Tick02Icon,
+} from "@hugeicons/core-free-icons"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -35,7 +39,9 @@ export function CategoryCombobox({
   const [value, setValue] = React.useState(defaultValue)
   const [search, setSearch] = React.useState("")
   const normalizedValue = value.trim().toLowerCase()
-  const hasExactMatch = categories.some((category) => category.name.toLowerCase() === normalizedValue)
+  const hasExactMatch = categories.some(
+    (category) => category.name.toLowerCase() === normalizedValue
+  )
   const suggestedNewCategory = search.trim()
 
   return (
@@ -53,20 +59,37 @@ export function CategoryCombobox({
               !value && "text-muted-foreground"
             )}
           >
-            <span className="truncate">{value || "Pilih atau buat kategori"}</span>
-            <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="opacity-60" />
+            <span className="truncate">
+              {value || "Pilih atau buat kategori"}
+            </span>
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              size={16}
+              className="opacity-60"
+            />
           </Button>
         </PopoverTrigger>
-        <PopoverContent align="start" className="w-(--radix-popover-trigger-width) p-0">
+        <PopoverContent
+          align="start"
+          className="w-(--radix-popover-trigger-width) p-0"
+        >
           <Command shouldFilter={false}>
-            <CommandInput value={search} onValueChange={setSearch} placeholder="Cari atau ketik kategori baru..." />
+            <CommandInput
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Cari atau ketik kategori baru..."
+            />
             <CommandList>
               <CommandEmpty>
-                {suggestedNewCategory ? "Tekan opsi buat kategori baru." : "Kategori belum ada."}
+                {suggestedNewCategory
+                  ? "Tekan opsi buat kategori baru."
+                  : "Kategori belum ada."}
               </CommandEmpty>
               <CommandGroup heading="Kategori">
                 {categories
-                  .filter((category) => category.name.toLowerCase().includes(search.toLowerCase()))
+                  .filter((category) =>
+                    category.name.toLowerCase().includes(search.toLowerCase())
+                  )
                   .map((category) => (
                     <CommandItem
                       key={category.id}
@@ -82,7 +105,10 @@ export function CategoryCombobox({
                       <HugeiconsIcon
                         icon={Tick02Icon}
                         size={16}
-                        className={cn("ml-auto", value === category.name ? "opacity-100" : "opacity-0")}
+                        className={cn(
+                          "ml-auto",
+                          value === category.name ? "opacity-100" : "opacity-0"
+                        )}
                       />
                     </CommandItem>
                   ))}
@@ -124,8 +150,12 @@ export function UnitCombobox({
   const [value, setValue] = React.useState(defaultValue)
   const [search, setSearch] = React.useState("")
   const normalizedSearch = search.trim().toLowerCase()
-  const filteredUnits = units.filter((unit) => unit.toLowerCase().includes(normalizedSearch))
-  const hasExactMatch = units.some((unit) => unit.toLowerCase() === normalizedSearch)
+  const filteredUnits = units.filter((unit) =>
+    unit.toLowerCase().includes(normalizedSearch)
+  )
+  const hasExactMatch = units.some(
+    (unit) => unit.toLowerCase() === normalizedSearch
+  )
   const suggestedUnit = search.trim()
 
   return (
@@ -144,15 +174,25 @@ export function UnitCombobox({
             )}
           >
             <span className="truncate">{value || "Pilih satuan"}</span>
-            <HugeiconsIcon icon={ArrowDown01Icon} size={16} className="opacity-60" />
+            <HugeiconsIcon
+              icon={ArrowDown01Icon}
+              size={16}
+              className="opacity-60"
+            />
           </Button>
         </PopoverTrigger>
         <PopoverContent align="start" className="w-64 p-0">
           <Command shouldFilter={false}>
-            <CommandInput value={search} onValueChange={setSearch} placeholder="Cari atau ketik satuan baru..." />
+            <CommandInput
+              value={search}
+              onValueChange={setSearch}
+              placeholder="Cari atau ketik satuan baru..."
+            />
             <CommandList>
               <CommandEmpty>
-                {suggestedUnit ? "Tekan untuk buat satuan baru." : "Satuan belum ada."}
+                {suggestedUnit
+                  ? "Tekan untuk buat satuan baru."
+                  : "Satuan belum ada."}
               </CommandEmpty>
               <CommandGroup heading="Satuan Tersimpan">
                 {filteredUnits.map((unit) => (
@@ -170,7 +210,10 @@ export function UnitCombobox({
                     <HugeiconsIcon
                       icon={Tick02Icon}
                       size={16}
-                      className={cn("ml-auto", value === unit ? "opacity-100" : "opacity-0")}
+                      className={cn(
+                        "ml-auto",
+                        value === unit ? "opacity-100" : "opacity-0"
+                      )}
                     />
                   </CommandItem>
                 ))}
@@ -226,8 +269,12 @@ export function BarangHeader() {
     <>
       <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
         <div>
-          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">Manajemen Barang</h1>
-          <p className="text-sm text-muted-foreground">Kelola barang, kategori, dan stok warung Anda</p>
+          <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
+            Manajemen Barang
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Kelola barang, kategori, dan stok warung Anda
+          </p>
         </div>
 
         <div className="hidden items-center gap-2 lg:flex">
@@ -250,7 +297,11 @@ export function BarangHeader() {
             onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
             className={`pointer-events-auto flex size-14 items-center justify-center rounded-full shadow-lg transition-all duration-200 active:scale-95 ${isMobileMenuOpen ? "border bg-card text-foreground" : "bg-primary text-primary-foreground"}`}
           >
-            <HugeiconsIcon icon={PlusSignIcon} size={28} className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`} />
+            <HugeiconsIcon
+              icon={PlusSignIcon}
+              size={28}
+              className={`transition-transform duration-200 ${isMobileMenuOpen ? "rotate-45" : ""}`}
+            />
           </button>
         </div>
       </div>

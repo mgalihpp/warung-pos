@@ -23,7 +23,7 @@ export function useSearchParam(key: string, defaultValue = "") {
       const qs = params.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
     },
-    [router, pathname, key, defaultValue],
+    [router, pathname, key, defaultValue]
   )
 
   return [value, setValue] as const
@@ -60,7 +60,7 @@ export function useSearchParamsState<T extends DefaultsMap>(defaults: T) {
       const qs = params.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
     },
-    [router, pathname, defaults],
+    [router, pathname, defaults]
   )
 
   const resetParams = useCallback(() => {

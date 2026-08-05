@@ -1,6 +1,9 @@
 import { NextResponse, type NextRequest } from "next/server"
 
-import { getLaporanPenjualanData, parseLaporanRange } from "@/features/laporan/server-penjualan-data"
+import {
+  getLaporanPenjualanData,
+  parseLaporanRange,
+} from "@/features/laporan/server-penjualan-data"
 import { requireAdmin } from "@/lib/server/auth-guards"
 
 export async function GET(req: NextRequest) {

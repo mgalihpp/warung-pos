@@ -24,7 +24,8 @@ export default async function CashierLayout({
 
   const cookieStore = await cookies()
   const sidebarState = cookieStore.get("sidebar_state")?.value
-  const defaultOpen = sidebarState === undefined ? true : sidebarState === "true"
+  const defaultOpen =
+    sidebarState === undefined ? true : sidebarState === "true"
 
   return (
     <TooltipProvider>

@@ -15,10 +15,15 @@ async function fetchKategoriData(): Promise<KategoriPageData> {
     categories,
     stats: {
       totalCategories: categories.length,
-      usedCategories: categories.filter((category: { productCount: number }) => category.productCount > 0).length,
-      emptyCategories: categories.filter((category: { productCount: number }) => category.productCount === 0).length,
+      usedCategories: categories.filter(
+        (category: { productCount: number }) => category.productCount > 0
+      ).length,
+      emptyCategories: categories.filter(
+        (category: { productCount: number }) => category.productCount === 0
+      ).length,
       totalProducts: categories.reduce(
-        (total: number, category: { productCount: number }) => total + category.productCount,
+        (total: number, category: { productCount: number }) =>
+          total + category.productCount,
         0
       ),
     },

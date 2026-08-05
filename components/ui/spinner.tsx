@@ -7,7 +7,7 @@ function Spinner({
   ...props
 }: Omit<React.ComponentProps<typeof HugeiconsIcon>, "icon">) {
   return (
-  <LoaderCircleIcon
+    <LoaderCircleIcon
       strokeWidth={2}
       role="status"
       aria-label="Loading"

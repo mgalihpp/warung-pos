@@ -6,11 +6,11 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { RippleProvider } from "@/components/ui/ripple-provider"
 import { Toaster } from "@/components/ui/sonner"
-import { cn } from "@/lib/utils";
+import { cn } from "@/lib/utils"
 import type { Metadata, Viewport } from "next"
 import { uploadRouter } from "@/app/api/uploadthing/core"
 
-const geist = Geist({subsets:['latin'],variable:'--font-sans'})
+const geist = Geist({ subsets: ["latin"], variable: "--font-sans" })
 
 const fontMono = Geist_Mono({
   subsets: ["latin"],
@@ -19,7 +19,8 @@ const fontMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Warung Mama Nia",
-  description: "Sistem kasir Warung Mama Nia untuk mengelola transaksi dan operasional toko.",
+  description:
+    "Sistem kasir Warung Mama Nia untuk mengelola transaksi dan operasional toko.",
   manifest: "/manifest.webmanifest",
   icons: {
     icon: "/icons/pwa-icon.svg",
@@ -46,11 +47,16 @@ export default function RootLayout({
   children: React.ReactNode
 }>) {
   return (
-      <html
-        lang="id"
-        suppressHydrationWarning
-        className={cn("antialiased", fontMono.variable, "font-sans", geist.variable)}
-      >
+    <html
+      lang="id"
+      suppressHydrationWarning
+      className={cn(
+        "antialiased",
+        fontMono.variable,
+        "font-sans",
+        geist.variable
+      )}
+    >
       <body>
         <NextSSRPlugin routerConfig={extractRouterConfig(uploadRouter)} />
         <ThemeProvider>

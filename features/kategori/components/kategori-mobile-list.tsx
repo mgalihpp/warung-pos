@@ -3,17 +3,28 @@
 import * as React from "react"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, Edit02Icon, Search01Icon, TagsIcon } from "@hugeicons/core-free-icons"
+import {
+  Cancel01Icon,
+  Edit02Icon,
+  Search01Icon,
+  TagsIcon,
+} from "@hugeicons/core-free-icons"
 
 import { useSearchParam } from "@/hooks/use-search-param"
 import type { KategoriItem } from "../types"
 
-export function KategoriMobileList({ categories }: { categories: KategoriItem[] }) {
+export function KategoriMobileList({
+  categories,
+}: {
+  categories: KategoriItem[]
+}) {
   const [q, setQ] = useSearchParam("search", "")
   const query = q.trim().toLowerCase()
   const filtered = React.useMemo(() => {
     if (!query) return categories
-    return categories.filter((category) => category.name.toLowerCase().includes(query))
+    return categories.filter((category) =>
+      category.name.toLowerCase().includes(query)
+    )
   }, [categories, query])
 
   return (
@@ -46,14 +57,19 @@ export function KategoriMobileList({ categories }: { categories: KategoriItem[] 
         </div>
       </div>
 
-      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))] pt-4">
+      <div className="min-h-0 flex-1 space-y-3 overflow-y-auto px-4 pt-4 pb-[calc(1.5rem+env(safe-area-inset-bottom))]">
         {filtered.map((category) => (
-          <div key={category.id} className="rounded-2xl border bg-card p-4 shadow-sm">
+          <div
+            key={category.id}
+            className="rounded-2xl border bg-card p-4 shadow-sm"
+          >
             <div className="flex items-center gap-4">
               <div className="flex size-16 shrink-0 items-center justify-center rounded-2xl bg-amber-500/10 text-amber-600">
                 <HugeiconsIcon icon={TagsIcon} size={28} />
               </div>
-              <p className="min-w-0 flex-1 truncate text-base font-semibold">{category.name}</p>
+              <p className="min-w-0 flex-1 truncate text-base font-semibold">
+                {category.name}
+              </p>
               <Link
                 href={`/admin/kategori/${category.id}/edit`}
                 className="flex size-11 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary"
@@ -66,7 +82,9 @@ export function KategoriMobileList({ categories }: { categories: KategoriItem[] 
         ))}
 
         {filtered.length === 0 ? (
-          <div className="p-4 text-center text-sm text-muted-foreground">Kategori tidak ditemukan.</div>
+          <div className="p-4 text-center text-sm text-muted-foreground">
+            Kategori tidak ditemukan.
+          </div>
         ) : null}
       </div>
     </div>

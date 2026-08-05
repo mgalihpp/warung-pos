@@ -18,5 +18,9 @@ export default async function AdminDashboardPage() {
 
   const data = await getDashboardData("7d")
 
-  return <Suspense><AdminDashboardContent initialData={data} /></Suspense>
+  return (
+    <Suspense>
+      <AdminDashboardContent initialData={data} />
+    </Suspense>
+  )
 }

@@ -2,14 +2,14 @@
 
 import * as React from "react"
 import { HugeiconsIcon } from "@hugeicons/react"
-import {
-  InvoiceIcon,
-  ViewIcon,
-} from "@hugeicons/core-free-icons"
+import { InvoiceIcon, ViewIcon } from "@hugeicons/core-free-icons"
 
 import { useIsMobile } from "@/hooks/use-mobile"
 import { useTransactionDetail } from "../hooks/use-transaksi-queries"
-import type { TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
+import type {
+  TransactionStatus,
+  PaymentMethod,
+} from "../hooks/use-transaksi-queries"
 import {
   Dialog,
   DialogContent,
@@ -74,7 +74,10 @@ function DetailSkeleton() {
       <div className="space-y-2">
         <Skeleton className="h-4 w-24 rounded-full" />
         {Array.from({ length: 3 }).map((_, i) => (
-          <div key={i} className="flex items-center justify-between rounded-lg border p-3">
+          <div
+            key={i}
+            className="flex items-center justify-between rounded-lg border p-3"
+          >
             <div className="space-y-1.5">
               <Skeleton className="h-3.5 w-32 rounded-full" />
               <Skeleton className="h-3 w-20 rounded-full" />
@@ -98,7 +101,11 @@ function DetailSkeleton() {
 
 // ── Detail content ──
 
-function TransactionDetailContent({ transactionId }: { transactionId: string }) {
+function TransactionDetailContent({
+  transactionId,
+}: {
+  transactionId: string
+}) {
   const { data, isLoading, error } = useTransactionDetail(transactionId)
 
   if (isLoading || !data) return <DetailSkeleton />
@@ -119,7 +126,7 @@ function TransactionDetailContent({ transactionId }: { transactionId: string }) 
           <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
             Waktu
           </p>
-          <p className="text-xs font-medium leading-snug">{data.waktu}</p>
+          <p className="text-xs leading-snug font-medium">{data.waktu}</p>
         </div>
         <div className="space-y-1">
           <p className="text-[11px] font-medium tracking-wider text-muted-foreground uppercase">
@@ -163,7 +170,9 @@ function TransactionDetailContent({ transactionId }: { transactionId: string }) 
               }`}
             >
               <div className="min-w-0 flex-1">
-                <p className="truncate text-xs font-semibold">{item.productName}</p>
+                <p className="truncate text-xs font-semibold">
+                  {item.productName}
+                </p>
                 <p className="text-[11px] text-muted-foreground">
                   {formatRupiah(item.unitPrice)} × {item.quantity}
                 </p>
@@ -181,19 +190,25 @@ function TransactionDetailContent({ transactionId }: { transactionId: string }) 
         <div className="space-y-2 text-xs">
           <div className="flex justify-between text-muted-foreground">
             <span>Subtotal</span>
-            <span className="font-medium text-foreground">{formatRupiah(data.subtotal)}</span>
+            <span className="font-medium text-foreground">
+              {formatRupiah(data.subtotal)}
+            </span>
           </div>
           <div className="flex justify-between border-t border-border/50 pt-2 text-sm font-bold">
             <span>Total</span>
             <span className="text-primary">{formatRupiah(data.total)}</span>
           </div>
           <div className="flex justify-between text-muted-foreground">
-            <span>Dibayar</span>
-            <span className="font-medium text-foreground">{formatRupiah(data.amountPaid)}</span>
+            <span>Uang Diterima</span>
+            <span className="font-medium text-foreground">
+              {formatRupiah(data.amountPaid)}
+            </span>
           </div>
           <div className="flex justify-between text-muted-foreground">
             <span>Kembalian</span>
-            <span className="font-medium text-foreground">{formatRupiah(data.change)}</span>
+            <span className="font-medium text-foreground">
+              {formatRupiah(data.change)}
+            </span>
           </div>
         </div>
       </div>
@@ -252,9 +267,11 @@ export function TransaksiDetailDialog({
     <span className="flex items-center gap-3">
       {headerIcon}
       <span className="flex flex-col gap-0.5">
-        <span className="truncate text-base font-semibold">{transactionNumber}</span>
+        <span className="truncate text-base font-semibold">
+          {transactionNumber}
+        </span>
         <span
-          className={`w-fit inline-flex items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusBadgeClass(status)}`}
+          className={`inline-flex w-fit items-center rounded-full px-2 py-0.5 text-[10px] font-semibold ${getStatusBadgeClass(status)}`}
         >
           {status}
         </span>
@@ -273,9 +290,7 @@ export function TransaksiDetailDialog({
         <Drawer open={open} onOpenChange={setOpen}>
           <DrawerContent className="max-h-[92vh] overflow-hidden border-0">
             <DrawerHeader>
-              <DrawerTitle className="text-left">
-                {titleContent}
-              </DrawerTitle>
+              <DrawerTitle className="text-left">{titleContent}</DrawerTitle>
               <DrawerDescription>
                 Detail lengkap informasi transaksi.
               </DrawerDescription>
@@ -299,9 +314,7 @@ export function TransaksiDetailDialog({
       <Dialog open={open} onOpenChange={setOpen}>
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
-            <DialogTitle>
-              {titleContent}
-            </DialogTitle>
+            <DialogTitle>{titleContent}</DialogTitle>
             <DialogDescription>
               Detail lengkap informasi transaksi.
             </DialogDescription>

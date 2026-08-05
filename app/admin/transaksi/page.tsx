@@ -23,7 +23,7 @@ export default async function TransaksiPage() {
   const data = await getTransaksiPageData()
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col gap-3 overflow-hidden bg-slate-50 p-4 lg:min-h-screen lg:overflow-visible lg:bg-transparent lg:p-6 lg:gap-6">
+    <div className="flex h-full min-h-0 min-w-0 flex-col gap-3 overflow-hidden bg-slate-50 p-4 lg:min-h-screen lg:gap-6 lg:overflow-visible lg:bg-transparent lg:p-6">
       <div className="hidden lg:block">
         <TransaksiHeader />
       </div>
@@ -33,24 +33,28 @@ export default async function TransaksiPage() {
         <TransaksiStatCards stats={data.stats} />
 
         {/* Transaction Table */}
-        <Suspense><TransaksiTable
-          transactions={data.transactions}
-          cashierList={data.cashierList}
-          detailBasePath="/admin/transaksi"
-          actionBasePath="/admin/transaksi"
-        /></Suspense>
+        <Suspense>
+          <TransaksiTable
+            transactions={data.transactions}
+            cashierList={data.cashierList}
+            detailBasePath="/admin/transaksi"
+            actionBasePath="/admin/transaksi"
+          />
+        </Suspense>
 
         {/* Recent Activity */}
         <TransaksiAktivitas activities={data.activities} />
       </div>
 
       <div className="block min-h-0 flex-1 lg:hidden">
-        <Suspense><TransaksiMobile
-          transactions={data.transactions}
-          stats={data.stats}
-          actionBasePath="/admin/transaksi"
-          detailBasePath="/admin/transaksi"
-        /></Suspense>
+        <Suspense>
+          <TransaksiMobile
+            transactions={data.transactions}
+            stats={data.stats}
+            actionBasePath="/admin/transaksi"
+            detailBasePath="/admin/transaksi"
+          />
+        </Suspense>
       </div>
     </div>
   )

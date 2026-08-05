@@ -45,7 +45,10 @@ export function PreviewSidebar({
 }: PreviewSidebarProps) {
   const margin =
     values.buyPrice > 0
-      ? (((values.sellPrice - values.buyPrice) / values.buyPrice) * 100).toFixed(1)
+      ? (
+          ((values.sellPrice - values.buyPrice) / values.buyPrice) *
+          100
+        ).toFixed(1)
       : "0"
 
   return (

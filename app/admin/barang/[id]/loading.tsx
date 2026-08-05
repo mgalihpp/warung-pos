@@ -6,7 +6,7 @@ export default function DetailBarangLoading() {
     <>
       <BarangMobileDetailSkeleton />
 
-      <div className="hidden lg:flex min-w-0 flex-col gap-4 p-4 pb-24 lg:gap-6 lg:p-6">
+      <div className="hidden min-w-0 flex-col gap-4 p-4 pb-24 lg:flex lg:gap-6 lg:p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <Skeleton className="size-10 rounded-full" />

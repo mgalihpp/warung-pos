@@ -9,7 +9,9 @@ const password = process.env.ADMIN_PASSWORD
 const name = process.env.ADMIN_NAME?.trim() || "Admin"
 
 if (!process.env.DATABASE_URL) {
-  throw new Error("DATABASE_URL atau DIRECT_URL harus diisi sebelum membuat admin.")
+  throw new Error(
+    "DATABASE_URL atau DIRECT_URL harus diisi sebelum membuat admin."
+  )
 }
 
 if (!email || !password) {

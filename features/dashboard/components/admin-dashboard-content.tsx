@@ -5,17 +5,22 @@ import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-p
 import { CategoryChart } from "@/features/dashboard/components/category-chart"
 import { LowStockPanel } from "@/features/dashboard/components/low-stock-panel"
 import { PaymentMethods } from "@/features/dashboard/components/payment-methods"
-import { QuickActions, QuickActionsFab } from "@/features/dashboard/components/quick-actions"
 import { RecentTransactions } from "@/features/dashboard/components/recent-transactions"
 import { SalesChart } from "@/features/dashboard/components/sales-chart"
 import { StatCards } from "@/features/dashboard/components/stat-cards"
-import { useDashboard, type DashboardData, type SalesRange } from "@/features/dashboard/hooks/use-dashboard-queries"
+import {
+  useDashboard,
+  type DashboardData,
+  type SalesRange,
+} from "@/features/dashboard/hooks/use-dashboard-queries"
 
 type AdminDashboardContentProps = {
   initialData: DashboardData
 }
 
-export function AdminDashboardContent({ initialData }: AdminDashboardContentProps) {
+export function AdminDashboardContent({
+  initialData,
+}: AdminDashboardContentProps) {
   const [rangeParam, setRange] = useSearchParam("range", initialData.range)
   const range = rangeParam as SalesRange
   const { data = initialData } = useDashboard(range, initialData)
@@ -24,18 +29,19 @@ export function AdminDashboardContent({ initialData }: AdminDashboardContentProp
     <div className="flex min-w-0 flex-col gap-6 p-4 lg:p-6">
       <StatCards stats={data.stats} />
 
-      <QuickActionsFab />
-
       <div className="flex min-w-0 flex-col gap-6 xl:flex-row">
         <div className="flex min-w-0 flex-1 flex-col gap-6 overflow-hidden">
           <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
-            <SalesChart data={data.salesChart} range={range} onRangeChange={setRange} />
+            <SalesChart
+              data={data.salesChart}
+              range={range}
+              onRangeChange={setRange}
+            />
             <CategoryChart data={data.categoryChart} />
           </div>
 
           <div className="flex min-w-0 flex-col gap-6 2xl:flex-row">
             <div className="flex flex-col gap-6 2xl:w-[300px] 2xl:shrink-0">
-              <QuickActions />
               <PaymentMethods methods={data.paymentMethods} />
             </div>
 

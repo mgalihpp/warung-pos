@@ -152,12 +152,18 @@ export async function getDashboardData(range: Range = "7d") {
     salesChartTx,
   ] = await Promise.all([
     prisma.transaction.aggregate({
-      where: { status: "COMPLETED", createdAt: { gte: startToday, lt: startTomorrow } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: startToday, lt: startTomorrow },
+      },
       _sum: { total: true },
       _count: true,
     }),
     prisma.transaction.aggregate({
-      where: { status: "COMPLETED", createdAt: { gte: startYesterday, lt: startToday } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: startYesterday, lt: startToday },
+      },
       _sum: { total: true },
       _count: true,
     }),
@@ -168,17 +174,30 @@ export async function getDashboardData(range: Range = "7d") {
       where: { createdAt: { gte: startYesterday, lt: startToday } },
     }),
     prisma.transaction.aggregate({
-      where: { status: "COMPLETED", createdAt: { gte: startMonth, lt: startNextMonth } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: startMonth, lt: startNextMonth },
+      },
       _sum: { total: true },
     }),
     prisma.transaction.aggregate({
-      where: { status: "COMPLETED", createdAt: { gte: startLastMonth, lt: startMonth } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: startLastMonth, lt: startMonth },
+      },
       _sum: { total: true },
     }),
     // Sales last 7 days (per day, COMPLETED)
     prisma.transaction.findMany({
-      where: { status: "COMPLETED", createdAt: { gte: start7d, lt: startTomorrow } },
-      select: { total: true, createdAt: true, items: { select: { grossProfit: true } } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: start7d, lt: startTomorrow },
+      },
+      select: {
+        total: true,
+        createdAt: true,
+        items: { select: { grossProfit: true } },
+      },
     }),
     // Tx count last 7 days (all status) for sparkline of jumlah transaksi
     prisma.transaction.findMany({
@@ -189,7 +208,14 @@ export async function getDashboardData(range: Range = "7d") {
     prisma.product.findMany({
       where: { isActive: true, stock: { lte: prisma.product.fields.minStock } },
       orderBy: { stock: "asc" },
-      select: { id: true, name: true, stock: true, minStock: true, unit: true, image: true },
+      select: {
+        id: true,
+        name: true,
+        stock: true,
+        minStock: true,
+        unit: true,
+        image: true,
+      },
       take: 5,
     }),
     prisma.product.count({
@@ -198,7 +224,10 @@ export async function getDashboardData(range: Range = "7d") {
     // Payment methods today
     prisma.transaction.groupBy({
       by: ["paymentMethod"],
-      where: { status: "COMPLETED", createdAt: { gte: startToday, lt: startTomorrow } },
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: startToday, lt: startTomorrow },
+      },
       _sum: { total: true },
     }),
     // Recent transactions (5 latest, any status)
@@ -214,7 +243,10 @@ export async function getDashboardData(range: Range = "7d") {
     prisma.transactionItem.groupBy({
       by: ["productId"],
       where: {
-        transaction: { status: "COMPLETED", createdAt: { gte: startMonth, lt: startNextMonth } },
+        transaction: {
+          status: "COMPLETED",
+          createdAt: { gte: startMonth, lt: startNextMonth },
+        },
       },
       _sum: { quantity: true, subtotal: true },
       orderBy: { _sum: { quantity: "desc" } },
@@ -247,7 +279,11 @@ export async function getDashboardData(range: Range = "7d") {
           lt: startTomorrow,
         },
       },
-      select: { total: true, createdAt: true, items: { select: { grossProfit: true } } },
+      select: {
+        total: true,
+        createdAt: true,
+        items: { select: { grossProfit: true } },
+      },
     }),
   ])
 
@@ -265,7 +301,8 @@ export async function getDashboardData(range: Range = "7d") {
       dayTotals.set(k, (dayTotals.get(k) ?? 0) + r.total)
       dayProfits.set(
         k,
-        (dayProfits.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+        (dayProfits.get(k) ?? 0) +
+          r.items.reduce((sum, item) => sum + item.grossProfit, 0)
       )
     }
   }
@@ -335,7 +372,8 @@ export async function getDashboardData(range: Range = "7d") {
         buckets.set(k, (buckets.get(k) ?? 0) + r.total)
         profitBuckets.set(
           k,
-          (profitBuckets.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+          (profitBuckets.get(k) ?? 0) +
+            r.items.reduce((sum, item) => sum + item.grossProfit, 0)
         )
       }
     }
@@ -372,7 +410,8 @@ export async function getDashboardData(range: Range = "7d") {
         buckets.set(k, (buckets.get(k) ?? 0) + r.total)
         profitBuckets.set(
           k,
-          (profitBuckets.get(k) ?? 0) + r.items.reduce((sum, item) => sum + item.grossProfit, 0),
+          (profitBuckets.get(k) ?? 0) +
+            r.items.reduce((sum, item) => sum + item.grossProfit, 0)
         )
       }
     }
@@ -388,21 +427,31 @@ export async function getDashboardData(range: Range = "7d") {
   }
 
   // --- Category chart ---
-  const totalCategory = monthCategoryRows.reduce((s, r) => s + Number(r.total), 0)
+  const totalCategory = monthCategoryRows.reduce(
+    (s, r) => s + Number(r.total),
+    0
+  )
   const top = monthCategoryRows.slice(0, 5)
   const others = monthCategoryRows.slice(5)
   const othersTotal = others.reduce((s, r) => s + Number(r.total), 0)
   const categoryChart = [
     ...top.map((r, i) => ({
       name: r.name,
-      value: totalCategory > 0 ? Math.round((Number(r.total) / totalCategory) * 100) : 0,
-      fill: CATEGORY_PALETTE[i] ?? CATEGORY_PALETTE[CATEGORY_PALETTE.length - 1],
+      value:
+        totalCategory > 0
+          ? Math.round((Number(r.total) / totalCategory) * 100)
+          : 0,
+      fill:
+        CATEGORY_PALETTE[i] ?? CATEGORY_PALETTE[CATEGORY_PALETTE.length - 1],
     })),
     ...(othersTotal > 0
       ? [
           {
             name: "Lainnya",
-            value: totalCategory > 0 ? Math.round((othersTotal / totalCategory) * 100) : 0,
+            value:
+              totalCategory > 0
+                ? Math.round((othersTotal / totalCategory) * 100)
+                : 0,
             fill: CATEGORY_PALETTE[5],
           },
         ]
@@ -410,7 +459,10 @@ export async function getDashboardData(range: Range = "7d") {
   ]
 
   // --- Payment methods (today) ---
-  const totalPayToday = paymentTodayAgg.reduce((s, p) => s + (p._sum.total ?? 0), 0)
+  const totalPayToday = paymentTodayAgg.reduce(
+    (s, p) => s + (p._sum.total ?? 0),
+    0
+  )
   const wantedMethods: ("CASH" | "QRIS_MANUAL" | "MANUAL_TRANSFER")[] = [
     "CASH",
     "QRIS_MANUAL",
@@ -422,7 +474,8 @@ export async function getDashboardData(range: Range = "7d") {
     return {
       name: mapPaymentMethodLabel(m),
       amount,
-      percentage: totalPayToday > 0 ? Math.round((amount / totalPayToday) * 100) : 0,
+      percentage:
+        totalPayToday > 0 ? Math.round((amount / totalPayToday) * 100) : 0,
     }
   })
 

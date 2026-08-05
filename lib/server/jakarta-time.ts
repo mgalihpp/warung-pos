@@ -106,7 +106,9 @@ export function resolveRange(now: Date, range: LaporanRange) {
     prevEnd: startYear,
     days: Math.max(
       1,
-      Math.round((startTomorrow.getTime() - startYear.getTime()) / (24 * 60 * 60 * 1000)),
+      Math.round(
+        (startTomorrow.getTime() - startYear.getTime()) / (24 * 60 * 60 * 1000)
+      )
     ),
   }
 }

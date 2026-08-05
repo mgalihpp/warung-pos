@@ -14,7 +14,11 @@ import { useSearchParam } from "@/hooks/use-search-param"
 import { TransaksiDetailDialog } from "./transaksi-detail-dialog"
 import { TransaksiActionMenu } from "./transaksi-action-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import type { TransactionItem, TransactionStatus, PaymentMethod } from "../hooks/use-transaksi-queries"
+import type {
+  TransactionItem,
+  TransactionStatus,
+  PaymentMethod,
+} from "../hooks/use-transaksi-queries"
 
 // ── Status badge styles ──
 function getStatusBadgeClass(status: TransactionStatus) {
@@ -53,7 +57,11 @@ type Props = {
   actionBasePath?: string
 }
 
-export function TransaksiTable({ transactions, detailBasePath, actionBasePath }: Props) {
+export function TransaksiTable({
+  transactions,
+  detailBasePath,
+  actionBasePath,
+}: Props) {
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
   const [pageParam, setPageParam] = useSearchParam("page", "1")
   const currentPage = Number(pageParam)
@@ -65,19 +73,26 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
       (t) =>
         t.transactionNumber.toLowerCase().includes(query) ||
         t.kasir.toLowerCase().includes(query) ||
-        t.item.toLowerCase().includes(query),
+        t.item.toLowerCase().includes(query)
     )
   }, [transactions, searchQuery])
 
-  const totalPages = Math.max(1, Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE))
+  const totalPages = Math.max(
+    1,
+    Math.ceil(filteredTransactions.length / ITEMS_PER_PAGE)
+  )
   const safePage = Math.min(currentPage, totalPages)
   const paginatedTransactions = filteredTransactions.slice(
     (safePage - 1) * ITEMS_PER_PAGE,
-    safePage * ITEMS_PER_PAGE,
+    safePage * ITEMS_PER_PAGE
   )
 
-  const startItem = filteredTransactions.length === 0 ? 0 : (safePage - 1) * ITEMS_PER_PAGE + 1
-  const endItem = Math.min(safePage * ITEMS_PER_PAGE, filteredTransactions.length)
+  const startItem =
+    filteredTransactions.length === 0 ? 0 : (safePage - 1) * ITEMS_PER_PAGE + 1
+  const endItem = Math.min(
+    safePage * ITEMS_PER_PAGE,
+    filteredTransactions.length
+  )
 
   // Build pagination buttons
   const paginationButtons = React.useMemo(() => {
@@ -104,14 +119,17 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
           <HugeiconsIcon
             icon={SearchIcon}
             size={16}
-            className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground"
+            className="absolute top-1/2 left-3 -translate-y-1/2 text-muted-foreground"
           />
           <input
             type="text"
             placeholder="Cari no. transaksi, kasir, atau item..."
             value={searchQuery}
-            onChange={(e) => { setSearchQuery(e.target.value); setPageParam("1") }}
-            className="h-9 w-full rounded-lg border bg-background pl-9 pr-3 text-sm outline-none ring-ring transition-colors placeholder:text-muted-foreground focus:ring-1"
+            onChange={(e) => {
+              setSearchQuery(e.target.value)
+              setPageParam("1")
+            }}
+            className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm ring-ring transition-colors outline-none placeholder:text-muted-foreground focus:ring-1"
           />
         </div>
       </div>
@@ -121,20 +139,39 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
         <table className="w-full min-w-[900px] text-left">
           <thead>
             <tr className="border-b bg-muted/30">
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">No. Transaksi</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Waktu</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Kasir</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Item</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Metode</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Total</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Status</th>
-              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">Aksi</th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                No. Transaksi
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Waktu
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Kasir
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Item
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Metode
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Total
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Status
+              </th>
+              <th className="px-4 py-3 text-xs font-medium text-muted-foreground">
+                Aksi
+              </th>
             </tr>
           </thead>
           <tbody>
             {paginatedTransactions.length === 0 ? (
               <tr>
-                <td colSpan={8} className="px-4 py-12 text-center text-sm text-muted-foreground">
+                <td
+                  colSpan={8}
+                  className="px-4 py-12 text-center text-sm text-muted-foreground"
+                >
                   {searchQuery
                     ? "Tidak ada transaksi yang cocok."
                     : "Belum ada data transaksi."}
@@ -144,12 +181,14 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
               paginatedTransactions.map((trx) => (
                 <tr
                   key={trx.id}
-                  className="border-b last:border-0 transition-colors hover:bg-muted/20"
+                  className="border-b transition-colors last:border-0 hover:bg-muted/20"
                 >
                   <td className="px-4 py-3">
-                    <span className="text-sm font-medium">{trx.transactionNumber}</span>
+                    <span className="text-sm font-medium">
+                      {trx.transactionNumber}
+                    </span>
                   </td>
-                  <td className="px-4 py-3 text-sm text-muted-foreground whitespace-nowrap">
+                  <td className="px-4 py-3 text-sm whitespace-nowrap text-muted-foreground">
                     {trx.waktu}
                   </td>
                   <td className="px-4 py-3">
@@ -166,23 +205,25 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
                     </div>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm text-muted-foreground max-w-[200px] truncate block">
+                    <span className="block max-w-[200px] truncate text-sm text-muted-foreground">
                       {trx.item}
                     </span>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getMetodeBadgeClass(trx.metode)}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap ${getMetodeBadgeClass(trx.metode)}`}
                     >
                       {trx.metode}
                     </span>
                   </td>
                   <td className="px-4 py-3">
-                    <span className="text-sm font-semibold">{formatRupiah(trx.total)}</span>
+                    <span className="text-sm font-semibold">
+                      {formatRupiah(trx.total)}
+                    </span>
                   </td>
                   <td className="px-4 py-3">
                     <span
-                      className={`inline-flex items-center whitespace-nowrap rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${getStatusBadgeClass(trx.status)}`}
+                      className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-[11px] font-semibold whitespace-nowrap ${getStatusBadgeClass(trx.status)}`}
                     >
                       {trx.status}
                     </span>
@@ -237,8 +278,12 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
             >
               <div className="flex items-start justify-between gap-2">
                 <div className="min-w-0 flex-1">
-                  <p className="text-sm font-semibold leading-tight">{trx.transactionNumber}</p>
-                  <p className="mt-0.5 text-xs text-muted-foreground">{trx.waktu}</p>
+                  <p className="text-sm leading-tight font-semibold">
+                    {trx.transactionNumber}
+                  </p>
+                  <p className="mt-0.5 text-xs text-muted-foreground">
+                    {trx.waktu}
+                  </p>
                 </div>
                 <span
                   className={`inline-flex shrink-0 items-center rounded-full px-2 py-0.5 text-[10px] font-semibold whitespace-nowrap ${getStatusBadgeClass(trx.status)}`}
@@ -258,7 +303,9 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
                 </Avatar>
                 <span className="text-xs font-medium">{trx.kasir}</span>
               </div>
-              <p className="mt-1.5 truncate text-xs text-muted-foreground">{trx.item}</p>
+              <p className="mt-1.5 truncate text-xs text-muted-foreground">
+                {trx.item}
+              </p>
 
               <div className="mt-3 flex items-center justify-between gap-2 border-t border-border/50 pt-3">
                 <div className="flex items-center gap-2">
@@ -267,7 +314,9 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
                   >
                     {trx.metode}
                   </span>
-                  <span className="text-sm font-bold">{formatRupiah(trx.total)}</span>
+                  <span className="text-sm font-bold">
+                    {formatRupiah(trx.total)}
+                  </span>
                 </div>
                 <div className="relative z-10 flex items-center gap-1">
                   {detailBasePath ? (
@@ -303,20 +352,26 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
       {/* Pagination */}
       <div className="flex flex-col items-center justify-between gap-3 lg:flex-row">
         <p className="text-xs text-muted-foreground">
-          Menampilkan {startItem}–{endItem} dari {filteredTransactions.length} transaksi
+          Menampilkan {startItem}–{endItem} dari {filteredTransactions.length}{" "}
+          transaksi
         </p>
         {totalPages > 1 && (
           <div className="flex items-center gap-1">
             <button
               disabled={safePage <= 1}
               onClick={() => setPageParam(String(Math.max(1, safePage - 1)))}
-              className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+              className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
               <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
             </button>
             {paginationButtons.map((page, idx) =>
               page === "..." ? (
-                <span key={`ellipsis-${idx}`} className="px-1 text-xs text-muted-foreground">...</span>
+                <span
+                  key={`ellipsis-${idx}`}
+                  className="px-1 text-xs text-muted-foreground"
+                >
+                  ...
+                </span>
               ) : (
                 <button
                   key={page}
@@ -329,12 +384,14 @@ export function TransaksiTable({ transactions, detailBasePath, actionBasePath }:
                 >
                   {page}
                 </button>
-              ),
+              )
             )}
             <button
               disabled={safePage >= totalPages}
-              onClick={() => setPageParam(String(Math.min(totalPages, safePage + 1)))}
-              className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-40 disabled:pointer-events-none"
+              onClick={() =>
+                setPageParam(String(Math.min(totalPages, safePage + 1)))
+              }
+              className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
               <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
             </button>

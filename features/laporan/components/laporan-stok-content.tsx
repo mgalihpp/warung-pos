@@ -51,7 +51,7 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 import { Skeleton } from "@/components/ui/skeleton"
-import { useSearchParam, useSearchParamsState } from "@/hooks/use-search-param"
+import { useSearchParamsState } from "@/hooks/use-search-param"
 import { formatNumber, formatRupiah } from "@/lib/format-currency"
 import { useDeleteProduct } from "@/features/barang/hooks/use-barang-actions"
 import { useQueryClient } from "@tanstack/react-query"
@@ -73,14 +73,22 @@ const statusLabel: Record<StatusFilter, string> = {
 
 const pageSize = 10
 
-export function LaporanStokContent({ initialData }: { initialData?: StokData }) {
+export function LaporanStokContent({
+  initialData,
+}: {
+  initialData?: StokData
+}) {
   const { data, isLoading, error } = useLaporanStok(initialData)
-  const [search, setSearch] = useSearchParam("search", "")
-  const [categoryId, setCategoryId] = useSearchParam("category", "all")
-  const [statusParam, setStatus] = useSearchParam("status", "all")
-  const status = statusParam as StatusFilter
-  const [pageParam, setCurrentPage] = useSearchParam("page", "1")
-  const currentPage = Number(pageParam)
+  const { values, setParams } = useSearchParamsState({
+    search: "",
+    category: "all",
+    status: "all",
+    page: "1",
+  })
+  const search = values.search
+  const categoryId = values.category
+  const status = values.status as StatusFilter
+  const currentPage = Number(values.page)
   const [filterOpen, setFilterOpen] = React.useState(false)
 
   if (error) {
@@ -103,16 +111,14 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
   const selectedCategory = data.categories.find((cat) => cat.id === categoryId)
   const hasFilter = categoryId !== "all" || status !== "all"
   const resetFilters = () => {
-    setCategoryId("all")
-    setStatus("all")
-    setCurrentPage("1")
+    setParams({ category: "all", status: "all", page: "1" })
   }
 
   const totalPages = Math.max(1, Math.ceil(filtered.length / pageSize))
   const safePage = Math.min(currentPage, totalPages)
   const pageProducts = filtered.slice(
     (safePage - 1) * pageSize,
-    safePage * pageSize,
+    safePage * pageSize
   )
   const startItem = filtered.length === 0 ? 0 : (safePage - 1) * pageSize + 1
   const endItem = Math.min(safePage * pageSize, filtered.length)
@@ -133,9 +139,11 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
               <input
                 type="text"
                 value={search}
-                onChange={(e) => { setSearch(e.target.value); setCurrentPage("1") }}
+                onChange={(e) => {
+                  setParams({ search: e.target.value, page: "1" })
+                }}
                 placeholder="Cari barang..."
-                className="h-12 w-full rounded-xl border bg-background py-2 pr-3 pl-9 text-sm outline-none transition-colors focus:border-primary lg:h-10 lg:rounded-lg"
+                className="h-12 w-full rounded-xl border bg-background py-2 pr-3 pl-9 text-sm transition-colors outline-none focus:border-primary lg:h-10 lg:rounded-lg"
               />
             </div>
 
@@ -151,17 +159,19 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                 </span>
                 {hasFilter ? (
                   <span className="rounded-full bg-primary px-2 py-0.5 text-[10px] font-bold text-primary-foreground">
-                    {[categoryId !== "all", status !== "all"].filter(Boolean).length}
+                    {
+                      [categoryId !== "all", status !== "all"].filter(Boolean)
+                        .length
+                    }
                   </span>
                 ) : null}
               </button>
-              <Drawer
-                open={filterOpen}
-                onOpenChange={setFilterOpen}
-              >
-                <DrawerContent className="h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 !mt-0 !max-h-[100dvh] lg:hidden">
+              <Drawer open={filterOpen} onOpenChange={setFilterOpen}>
+                <DrawerContent className="!mt-0 h-[100dvh] !max-h-[100dvh] max-h-[100dvh] overflow-hidden p-3 pb-4 lg:hidden">
                   <DrawerHeader className="px-4 pt-4 pb-3 text-left">
-                    <DrawerTitle className="text-base font-bold">Filter Laporan Stok</DrawerTitle>
+                    <DrawerTitle className="text-base font-bold">
+                      Filter Laporan Stok
+                    </DrawerTitle>
                     <DrawerDescription className="text-xs">
                       Saring barang berdasarkan kategori dan kondisi stok.
                     </DrawerDescription>
@@ -172,30 +182,38 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                         <MobileFilterOption
                           active={categoryId === "all"}
                           label="Semua Kategori"
-                          onClick={() => { setCategoryId("all"); setCurrentPage("1") }}
+                          onClick={() => {
+                            setParams({ category: "all", page: "1" })
+                          }}
                         />
                         {data.categories.map((cat) => (
                           <MobileFilterOption
                             key={cat.id}
                             active={categoryId === cat.id}
                             label={cat.name}
-                            onClick={() => { setCategoryId(cat.id); setCurrentPage("1") }}
+                            onClick={() => {
+                              setParams({ category: cat.id, page: "1" })
+                            }}
                           />
                         ))}
                       </MobileFilterGroup>
                       <MobileFilterGroup label="Status stok">
-                        {(["all", "OK", "LOW", "OUT"] as StatusFilter[]).map((item) => (
-                          <MobileFilterOption
-                            key={item}
-                            active={status === item}
-                            label={statusLabel[item]}
-                            onClick={() => { setStatus(item); setCurrentPage("1") }}
-                          />
-                        ))}
+                        {(["all", "OK", "LOW", "OUT"] as StatusFilter[]).map(
+                          (item) => (
+                            <MobileFilterOption
+                              key={item}
+                              active={status === item}
+                              label={statusLabel[item]}
+                              onClick={() => {
+                                setParams({ status: item, page: "1" })
+                              }}
+                            />
+                          )
+                        )}
                       </MobileFilterGroup>
                     </div>
                   </div>
-                  <div className="shrink-0 border-t bg-background px-4 py-3 grid grid-cols-2 gap-2">
+                  <div className="grid shrink-0 grid-cols-2 gap-2 border-t bg-background px-4 py-3">
                     <button
                       type="button"
                       onClick={resetFilters}
@@ -216,7 +234,12 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
             </div>
 
             <div className="hidden lg:block">
-              <Select value={categoryId} onValueChange={(v) => { setCategoryId(v); setCurrentPage("1") }}>
+              <Select
+                value={categoryId}
+                onValueChange={(v) => {
+                  setParams({ category: v, page: "1" })
+                }}
+              >
                 <SelectTrigger className="w-[180px]">
                   <SelectValue placeholder="Kategori" />
                 </SelectTrigger>
@@ -231,7 +254,12 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
               </Select>
             </div>
             <div className="hidden lg:block">
-              <Select value={status} onValueChange={(v) => { setStatus(v as StatusFilter); setCurrentPage("1") }}>
+              <Select
+                value={status}
+                onValueChange={(v) => {
+                  setParams({ status: v as StatusFilter, page: "1" })
+                }}
+              >
                 <SelectTrigger className="w-[160px]">
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
@@ -250,8 +278,12 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
 
           {hasFilter ? (
             <div className="flex flex-wrap gap-2 lg:hidden">
-              {selectedCategory ? <FilterChip label={selectedCategory.name} /> : null}
-              {status !== "all" ? <FilterChip label={statusLabel[status]} /> : null}
+              {selectedCategory ? (
+                <FilterChip label={selectedCategory.name} />
+              ) : null}
+              {status !== "all" ? (
+                <FilterChip label={statusLabel[status]} />
+              ) : null}
               <button
                 type="button"
                 onClick={resetFilters}
@@ -296,7 +328,9 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                   </td>
                 </tr>
               ) : (
-                pageProducts.map((item) => <StokRow key={item.id} item={item} />)
+                pageProducts.map((item) => (
+                  <StokRow key={item.id} item={item} />
+                ))
               )}
             </tbody>
           </table>
@@ -311,27 +345,35 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
               <div className="flex items-center gap-1">
                 <button
                   disabled={safePage === 1}
-                  onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
+                  onClick={() =>
+                    setParams({ page: String(Math.max(1, safePage - 1)) })
+                  }
                   className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
                 >
                   <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
                 </button>
-                {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-                  <button
-                    key={page}
-                    onClick={() => setCurrentPage(String(page))}
-                    className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
-                      safePage === page
-                        ? "bg-primary text-primary-foreground"
-                        : "border text-muted-foreground hover:bg-muted"
-                    }`}
-                  >
-                    {page}
-                  </button>
-                ))}
+                {Array.from({ length: totalPages }, (_, i) => i + 1).map(
+                  (page) => (
+                    <button
+                      key={page}
+                      onClick={() => setParams({ page: String(page) })}
+                      className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
+                        safePage === page
+                          ? "bg-primary text-primary-foreground"
+                          : "border text-muted-foreground hover:bg-muted"
+                      }`}
+                    >
+                      {page}
+                    </button>
+                  )
+                )}
                 <button
                   disabled={safePage === totalPages}
-                  onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
+                  onClick={() =>
+                    setParams({
+                      page: String(Math.min(totalPages, safePage + 1)),
+                    })
+                  }
                   className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
                 >
                   <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
@@ -349,10 +391,26 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
             </div>
           ) : (
             pageProducts.map((item) => {
-              const badgeMap: Record<string, string> = { OK: "bg-emerald-500/10 text-emerald-600", LOW: "bg-amber-500/10 text-amber-600", OUT: "bg-rose-500/10 text-rose-600" }
-              const labelMap: Record<string, string> = { OK: "Aman", LOW: "Menipis", OUT: "Habis" }
-              const stockRatio = item.minStock > 0 ? Math.min((item.stock / item.minStock) * 100, 100) : 100
-              const barColor = item.status === "OUT" ? "bg-rose-500" : item.status === "LOW" ? "bg-amber-500" : "bg-emerald-500"
+              const badgeMap: Record<string, string> = {
+                OK: "bg-emerald-500/10 text-emerald-600",
+                LOW: "bg-amber-500/10 text-amber-600",
+                OUT: "bg-rose-500/10 text-rose-600",
+              }
+              const labelMap: Record<string, string> = {
+                OK: "Aman",
+                LOW: "Menipis",
+                OUT: "Habis",
+              }
+              const stockRatio =
+                item.minStock > 0
+                  ? Math.min((item.stock / item.minStock) * 100, 100)
+                  : 100
+              const barColor =
+                item.status === "OUT"
+                  ? "bg-rose-500"
+                  : item.status === "LOW"
+                    ? "bg-amber-500"
+                    : "bg-emerald-500"
               return (
                 <Link
                   key={item.id}
@@ -393,9 +451,14 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                   <div className="mt-3 rounded-2xl bg-muted/45 p-3">
                     <div className="flex items-end justify-between gap-3">
                       <div>
-                        <p className="text-[10px] font-medium text-muted-foreground">Stok tersedia</p>
+                        <p className="text-[10px] font-medium text-muted-foreground">
+                          Stok tersedia
+                        </p>
                         <p className="text-lg font-black tracking-tight">
-                          {formatNumber(item.stock)} <span className="text-xs font-semibold text-muted-foreground">{item.unit}</span>
+                          {formatNumber(item.stock)}{" "}
+                          <span className="text-xs font-semibold text-muted-foreground">
+                            {item.unit}
+                          </span>
                         </p>
                       </div>
                       <p className="text-right text-[10px] font-medium text-muted-foreground">
@@ -403,18 +466,29 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
                       </p>
                     </div>
                     <div className="mt-2 h-2 overflow-hidden rounded-full bg-background">
-                      <div className={`h-full rounded-full ${barColor}`} style={{ width: `${stockRatio}%` }} />
+                      <div
+                        className={`h-full rounded-full ${barColor}`}
+                        style={{ width: `${stockRatio}%` }}
+                      />
                     </div>
                   </div>
 
                   <div className="mt-2.5 grid grid-cols-2 gap-2">
                     <div>
-                      <p className="text-[10px] font-medium text-muted-foreground">Harga jual</p>
-                      <p className="break-words text-xs font-semibold">{formatRupiah(item.sellPrice)}</p>
+                      <p className="text-[10px] font-medium text-muted-foreground">
+                        Harga jual
+                      </p>
+                      <p className="text-xs font-semibold break-words">
+                        {formatRupiah(item.sellPrice)}
+                      </p>
                     </div>
                     <div>
-                      <p className="text-[10px] font-medium text-muted-foreground">Nilai stok</p>
-                      <p className="break-words text-xs font-bold text-primary">{formatRupiah(item.nilaiStok)}</p>
+                      <p className="text-[10px] font-medium text-muted-foreground">
+                        Nilai stok
+                      </p>
+                      <p className="text-xs font-bold break-words text-primary">
+                        {formatRupiah(item.nilaiStok)}
+                      </p>
                     </div>
                   </div>
                 </Link>
@@ -426,27 +500,35 @@ export function LaporanStokContent({ initialData }: { initialData?: StokData }) 
             <div className="flex items-center justify-center gap-1 pt-2">
               <button
                 disabled={safePage === 1}
-                onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
+                onClick={() =>
+                  setParams({ page: String(Math.max(1, safePage - 1)) })
+                }
                 className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
               >
                 <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
               </button>
-              {Array.from({ length: totalPages }, (_, i) => i + 1).slice(0, 5).map((page) => (
-                <button
-                  key={page}
-                  onClick={() => setCurrentPage(String(page))}
-                  className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
-                    safePage === page
-                      ? "bg-primary text-primary-foreground"
-                      : "border text-muted-foreground hover:bg-muted"
-                  }`}
-                >
-                  {page}
-                </button>
-              ))}
+              {Array.from({ length: totalPages }, (_, i) => i + 1)
+                .slice(0, 5)
+                .map((page) => (
+                  <button
+                    key={page}
+                    onClick={() => setParams({ page: String(page) })}
+                    className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
+                      safePage === page
+                        ? "bg-primary text-primary-foreground"
+                        : "border text-muted-foreground hover:bg-muted"
+                    }`}
+                  >
+                    {page}
+                  </button>
+                ))}
               <button
                 disabled={safePage === totalPages}
-                onClick={() => setCurrentPage(String(Math.min(totalPages, safePage + 1)))}
+                onClick={() =>
+                  setParams({
+                    page: String(Math.min(totalPages, safePage + 1)),
+                  })
+                }
                 className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
               >
                 <HugeiconsIcon icon={ArrowRight01Icon} size={14} />
@@ -468,7 +550,9 @@ function MobileFilterGroup({
 }) {
   return (
     <div>
-      <p className="mb-2 px-1 text-xs font-bold text-muted-foreground">{label}</p>
+      <p className="mb-2 px-1 text-xs font-bold text-muted-foreground">
+        {label}
+      </p>
       <div className="flex flex-col gap-2.5">{children}</div>
     </div>
   )
@@ -488,7 +572,9 @@ function MobileFilterOption({
       type="button"
       onClick={onClick}
       className={`flex min-h-11 items-center justify-between gap-3 rounded-2xl border px-4 py-2.5 text-left text-sm transition active:scale-[0.99] ${
-        active ? "border-primary bg-primary/5 font-bold text-primary" : "border-border bg-card"
+        active
+          ? "border-primary bg-primary/5 font-bold text-primary"
+          : "border-border bg-card"
       }`}
     >
       <span className="truncate">{label}</span>
@@ -550,10 +636,10 @@ function StatGrid({ stats }: { stats: StokData["stats"] }) {
             <HugeiconsIcon icon={c.icon} size={22} className={c.iconColor} />
           </div>
           <div className="min-w-0">
-            <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:normal-case lg:tracking-normal">
+            <p className="text-[11px] font-semibold tracking-wider text-muted-foreground uppercase lg:font-medium lg:tracking-normal lg:normal-case">
               {c.title}
             </p>
-            <p className="break-words text-xl font-extrabold tracking-tight text-foreground lg:truncate lg:text-lg lg:font-bold">
+            <p className="text-xl font-extrabold tracking-tight break-words text-foreground lg:truncate lg:text-lg lg:font-bold">
               {c.value}
             </p>
           </div>
@@ -596,123 +682,139 @@ function StokRow({ item }: { item: StokItem }) {
 
   return (
     <>
-    <tr className="border-t transition-colors hover:bg-muted/30">
-      <td className="px-4 py-2.5">
-        <div className="flex items-center gap-3">
-          <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
-            {item.image ? (
-              <Image
-                src={item.image}
-                alt={item.name}
-                width={36}
-                height={36}
-                className="h-full w-full object-cover"
-              />
-            ) : (
-              <HugeiconsIcon
-                icon={PackageIcon}
-                size={16}
-                className="text-muted-foreground"
-              />
-            )}
+      <tr className="border-t transition-colors hover:bg-muted/30">
+        <td className="px-4 py-2.5">
+          <div className="flex items-center gap-3">
+            <div className="flex size-9 shrink-0 items-center justify-center overflow-hidden rounded-lg bg-muted">
+              {item.image ? (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  width={36}
+                  height={36}
+                  className="h-full w-full object-cover"
+                />
+              ) : (
+                <HugeiconsIcon
+                  icon={PackageIcon}
+                  size={16}
+                  className="text-muted-foreground"
+                />
+              )}
+            </div>
+            <div className="min-w-0">
+              <p className="truncate font-semibold">{item.name}</p>
+              <p className="text-[11px] text-muted-foreground">{item.unit}</p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="truncate font-semibold">{item.name}</p>
-            <p className="text-[11px] text-muted-foreground">{item.unit}</p>
+        </td>
+        <td className="px-4 py-2.5 text-muted-foreground">
+          {item.categoryName}
+        </td>
+        <td className="px-4 py-2.5 text-right font-semibold">
+          {formatNumber(item.stock)}
+        </td>
+        <td className="px-4 py-2.5 text-right text-muted-foreground">
+          {formatNumber(item.minStock)}
+        </td>
+        <td className="px-4 py-2.5 text-right">
+          {formatRupiah(item.buyPrice)}
+        </td>
+        <td className="px-4 py-2.5 text-right">
+          {formatRupiah(item.sellPrice)}
+        </td>
+        <td className="px-4 py-2.5 text-right font-medium">
+          {formatRupiah(item.nilaiStok)}
+        </td>
+        <td className="px-4 py-2.5 text-center">
+          <span
+            className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${statusBadge[item.status]}`}
+          >
+            {statusLabel[item.status]}
+          </span>
+        </td>
+        <td className="px-4 py-2.5 text-center">
+          <div className="flex items-center justify-center gap-1">
+            <Link
+              href={`/admin/barang/${item.id}/edit`}
+              className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
+              aria-label="Edit barang"
+            >
+              <HugeiconsIcon icon={Edit02Icon} size={15} />
+            </Link>
+            <Link
+              href={`/admin/barang/${item.id}`}
+              className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+              aria-label="Lihat detail"
+            >
+              <HugeiconsIcon icon={ViewIcon} size={15} />
+            </Link>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                  aria-label="Aksi lainnya"
+                >
+                  <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-44 rounded-xl p-2">
+                <DropdownMenuItem
+                  asChild
+                  className="cursor-pointer gap-2 rounded-lg py-2"
+                >
+                  <Link href={`/admin/barang/${item.id}/edit`}>
+                    <HugeiconsIcon
+                      icon={Edit02Icon}
+                      size={16}
+                      className="text-muted-foreground"
+                    />
+                    Edit Barang
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator className="my-1" />
+                <DropdownMenuItem
+                  variant="destructive"
+                  className="cursor-pointer gap-2 rounded-lg py-2"
+                  onSelect={() => setDeleteOpen(true)}
+                >
+                  <HugeiconsIcon icon={Delete02Icon} size={16} />
+                  Hapus Barang
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
-        </div>
-      </td>
-      <td className="px-4 py-2.5 text-muted-foreground">{item.categoryName}</td>
-      <td className="px-4 py-2.5 text-right font-semibold">
-        {formatNumber(item.stock)}
-      </td>
-      <td className="px-4 py-2.5 text-right text-muted-foreground">
-        {formatNumber(item.minStock)}
-      </td>
-      <td className="px-4 py-2.5 text-right">{formatRupiah(item.buyPrice)}</td>
-      <td className="px-4 py-2.5 text-right">{formatRupiah(item.sellPrice)}</td>
-      <td className="px-4 py-2.5 text-right font-medium">
-        {formatRupiah(item.nilaiStok)}
-      </td>
-      <td className="px-4 py-2.5 text-center">
-        <span
-          className={`inline-flex items-center rounded-full px-2.5 py-1 text-[11px] font-bold ${statusBadge[item.status]}`}
-        >
-          {statusLabel[item.status]}
-        </span>
-      </td>
-      <td className="px-4 py-2.5 text-center">
-        <div className="flex items-center justify-center gap-1">
-          <Link
-            href={`/admin/barang/${item.id}/edit`}
-            className="hidden rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground lg:inline-flex"
-            aria-label="Edit barang"
-          >
-            <HugeiconsIcon icon={Edit02Icon} size={15} />
-          </Link>
-          <Link
-            href={`/admin/barang/${item.id}`}
-            className="inline-flex rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-            aria-label="Lihat detail"
-          >
-            <HugeiconsIcon icon={ViewIcon} size={15} />
-          </Link>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <button
-                className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
-                aria-label="Aksi lainnya"
-              >
-                <HugeiconsIcon icon={MoreVerticalCircle01Icon} size={15} />
-              </button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-44 rounded-xl p-2">
-              <DropdownMenuItem asChild className="cursor-pointer gap-2 rounded-lg py-2">
-                <Link href={`/admin/barang/${item.id}/edit`}>
-                  <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
-                  Edit Barang
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator className="my-1" />
-              <DropdownMenuItem
-                variant="destructive"
-                className="cursor-pointer gap-2 rounded-lg py-2"
-                onSelect={() => setDeleteOpen(true)}
-              >
-                <HugeiconsIcon icon={Delete02Icon} size={16} />
-                Hapus Barang
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
-      </td>
-    </tr>
+        </td>
+      </tr>
 
-    <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
-      <AlertDialogContent className="sm:max-w-[400px]">
-        <AlertDialogHeader>
-          <AlertDialogTitle className="flex items-center gap-2 text-destructive">
-            <HugeiconsIcon icon={Alert02Icon} size={20} />
-            Hapus Barang?
-          </AlertDialogTitle>
-          <AlertDialogDescription className="pt-2 leading-relaxed">
-            Barang <strong className="font-semibold text-foreground">{item.name}</strong> akan
-            dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.
-          </AlertDialogDescription>
-        </AlertDialogHeader>
-        <AlertDialogFooter className="gap-2">
-          <AlertDialogCancel className="mt-0">Batal</AlertDialogCancel>
-          <button
-            type="button"
-            onClick={handleDelete}
-            disabled={deleteMutation.isPending}
-            className="inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-destructive px-5 text-sm font-semibold text-destructive-foreground transition-all hover:bg-destructive/90 active:scale-[0.98] disabled:opacity-50"
-          >
-            {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
-          </button>
-        </AlertDialogFooter>
-      </AlertDialogContent>
-    </AlertDialog>
+      <AlertDialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+        <AlertDialogContent className="sm:max-w-[400px]">
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2 text-destructive">
+              <HugeiconsIcon icon={Alert02Icon} size={20} />
+              Hapus Barang?
+            </AlertDialogTitle>
+            <AlertDialogDescription className="pt-2 leading-relaxed">
+              Barang{" "}
+              <strong className="font-semibold text-foreground">
+                {item.name}
+              </strong>{" "}
+              akan dihapus secara permanen. Tindakan ini tidak dapat dibatalkan.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="gap-2">
+            <AlertDialogCancel className="mt-0">Batal</AlertDialogCancel>
+            <button
+              type="button"
+              onClick={handleDelete}
+              disabled={deleteMutation.isPending}
+              className="text-destructive-foreground inline-flex h-10 items-center justify-center gap-2 rounded-2xl bg-destructive px-5 text-sm font-semibold transition-all hover:bg-destructive/90 active:scale-[0.98] disabled:opacity-50"
+            >
+              {deleteMutation.isPending ? "Menghapus..." : "Hapus"}
+            </button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   )
 }

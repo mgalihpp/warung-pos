@@ -99,7 +99,7 @@ export function BarangStatCards({ stats }: BarangStatCardsProps) {
                 className={stat.iconColor}
               />
             </div>
-            <div className="flex-1 min-w-0">
+            <div className="min-w-0 flex-1">
               <p className="text-[11px] font-medium text-muted-foreground sm:text-xs">
                 {stat.title}
               </p>
@@ -108,11 +108,6 @@ export function BarangStatCards({ stats }: BarangStatCardsProps) {
                 {stat.description}
               </p>
             </div>
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              size={16}
-              className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-            />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
         ))}

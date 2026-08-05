@@ -63,7 +63,10 @@ export async function GET(req: NextRequest) {
     }),
   ])
 
-  const totalPenjualan = paymentRows.reduce((s, r) => s + (r._sum.total ?? 0), 0)
+  const totalPenjualan = paymentRows.reduce(
+    (s, r) => s + (r._sum.total ?? 0),
+    0
+  )
   const totalCount = paymentRows.reduce((s, r) => s + r._count, 0)
 
   const breakdown = (["CASH", "QRIS_MANUAL", "MANUAL_TRANSFER"] as const).map(
@@ -75,9 +78,10 @@ export async function GET(req: NextRequest) {
         method,
         amount,
         count: row?._count ?? 0,
-        percentage: totalPenjualan > 0 ? Math.round((amount / totalPenjualan) * 100) : 0,
+        percentage:
+          totalPenjualan > 0 ? Math.round((amount / totalPenjualan) * 100) : 0,
       }
-    },
+    }
   )
 
   const tunaiMasuk = breakdown.find((b) => b.method === "CASH")?.amount ?? 0
@@ -85,12 +89,24 @@ export async function GET(req: NextRequest) {
   // Riwayat 30 hari ke belakang termasuk hari ini
   const riwayatMap = new Map<
     string,
-    { tanggal: string; transaksi: number; tunai: number; nontunai: number; total: number }
+    {
+      tanggal: string
+      transaksi: number
+      tunai: number
+      nontunai: number
+      total: number
+    }
   >()
   for (let i = 29; i >= 0; i--) {
     const d = addDays(dayStart, -i)
     const key = jakartaDateKey(d)
-    riwayatMap.set(key, { tanggal: key, transaksi: 0, tunai: 0, nontunai: 0, total: 0 })
+    riwayatMap.set(key, {
+      tanggal: key,
+      transaksi: 0,
+      tunai: 0,
+      nontunai: 0,
+      total: 0,
+    })
   }
   for (const tx of riwayatTx) {
     const key = jakartaDateKey(tx.createdAt)

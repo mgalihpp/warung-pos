@@ -104,7 +104,9 @@ export const useCartStore = create<CartStore>((set) => ({
   updateQuantity: (productId, qty) =>
     set((state) => {
       if (qty <= 0) {
-        return { items: state.items.filter((item) => item.productId !== productId) }
+        return {
+          items: state.items.filter((item) => item.productId !== productId),
+        }
       }
       return {
         items: state.items.map((item) =>
@@ -141,7 +143,8 @@ export const useCartStore = create<CartStore>((set) => ({
   setPaymentMethod: (method) => set({ paymentMethod: method }),
   setAmountPaid: (amount) => set({ amountPaid: amount }),
   setNotes: (notes) => set({ notes }),
-  clearCart: () => set({ items: [], paymentMethod: "CASH", amountPaid: 0, notes: "" }),
+  clearCart: () =>
+    set({ items: [], paymentMethod: "CASH", amountPaid: 0, notes: "" }),
 }))
 
 // Derived selectors
@@ -169,6 +172,7 @@ export function useCartItemCount() {
 
 export function useCartItemQuantity(productId: string) {
   return useCartStore(
-    (state) => state.items.find((item) => item.productId === productId)?.quantity ?? 0
+    (state) =>
+      state.items.find((item) => item.productId === productId)?.quantity ?? 0
   )
 }

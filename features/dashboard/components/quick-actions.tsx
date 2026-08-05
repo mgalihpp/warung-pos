@@ -16,11 +16,9 @@ const actions = [
     href: "/admin/pos",
     label: "Tambah Transaksi",
     icon: AddInvoiceIcon,
-    cardClass:
-      "bg-primary text-primary-foreground hover:bg-primary/90",
+    cardClass: "bg-primary text-primary-foreground hover:bg-primary/90",
     iconClass: "",
-    fabClass:
-      "bg-primary text-primary-foreground hover:bg-primary/90",
+    fabClass: "bg-primary text-primary-foreground hover:bg-primary/90",
   },
   {
     href: "/admin/transaksi",

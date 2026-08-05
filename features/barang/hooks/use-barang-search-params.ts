@@ -26,7 +26,7 @@ export function useBarangSearchParams() {
       sort: searchParams.get("sort") ?? defaults.sort,
       page: searchParams.get("page") ?? defaults.page,
     }),
-    [searchParams],
+    [searchParams]
   )
 
   const setParam = useCallback(
@@ -44,7 +44,7 @@ export function useBarangSearchParams() {
       const qs = params.toString()
       router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false })
     },
-    [router, pathname, searchParams],
+    [router, pathname, searchParams]
   )
 
   const resetFilters = useCallback(() => {
@@ -59,23 +59,23 @@ export function useBarangSearchParams() {
     page: Number(values.page),
     setSearch: useCallback(
       (value: string) => setParam("search", value),
-      [setParam],
+      [setParam]
     ),
     setCategory: useCallback(
       (value: string) => setParam("category", value),
-      [setParam],
+      [setParam]
     ),
     setStatus: useCallback(
       (value: string) => setParam("status", value),
-      [setParam],
+      [setParam]
     ),
     setSort: useCallback(
       (value: string) => setParam("sort", value),
-      [setParam],
+      [setParam]
     ),
     setPage: useCallback(
       (value: number) => setParam("page", String(value)),
-      [setParam],
+      [setParam]
     ),
     resetFilters,
   }

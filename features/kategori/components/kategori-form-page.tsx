@@ -3,7 +3,11 @@
 import * as React from "react"
 import { useRouter } from "next/navigation"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { Cancel01Icon, Delete02Icon, FloppyDiskIcon, TagsIcon } from "@hugeicons/core-free-icons"
+import {
+  Cancel01Icon,
+  FloppyDiskIcon,
+  TagsIcon,
+} from "@hugeicons/core-free-icons"
 import { toast } from "sonner"
 
 import {
@@ -20,7 +24,11 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Field } from "@/features/shared/components/form-field"
 import { PageShell } from "@/features/shared/components/page-shell"
-import { useCreateKategori, useDeleteKategori, useUpdateKategori } from "../hooks/use-kategori-actions"
+import {
+  useCreateKategori,
+  useDeleteKategori,
+  useUpdateKategori,
+} from "../hooks/use-kategori-actions"
 import type { KategoriItem } from "../types"
 
 type KategoriFormPageProps =
@@ -42,7 +50,8 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
   const updateMutation = useUpdateKategori()
   const deleteMutation = useDeleteKategori()
   const mutation = mode === "create" ? createMutation : updateMutation
-  const errors = mutation.data?.success === false ? (mutation.data.errors ?? null) : null
+  const errors =
+    mutation.data?.success === false ? (mutation.data.errors ?? null) : null
   const [deleteOpen, setDeleteOpen] = React.useState(false)
   const productCount = category?.productCount ?? 0
 
@@ -108,27 +117,28 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
       backHref="/admin/kategori"
       title={mode === "create" ? "Tambah Kategori" : "Edit Kategori"}
       subtitle={
-        mode === "create" ? "Tambahkan kategori baru untuk barang warung" : "Perbarui nama dan deskripsi kategori"
+        mode === "create"
+          ? "Tambahkan kategori baru untuk barang warung"
+          : "Perbarui nama dan deskripsi kategori"
       }
       actions={
         <>
-          {mode === "edit" && (
-            <Button
-              type="button"
-              variant="outline"
-              className="gap-2 border-destructive/30 text-destructive hover:bg-destructive/5 hover:text-destructive"
-              onClick={() => setDeleteOpen(true)}
-              disabled={productCount > 0}
-            >
-              <HugeiconsIcon icon={Delete02Icon} size={16} />
-              <span className="hidden sm:inline">Hapus Kategori</span>
-            </Button>
-          )}
-          <Button type="button" variant="outline" className="gap-2" onClick={() => router.push("/admin/kategori")}>
+          <Button
+            type="button"
+            variant="outline"
+            className="gap-2"
+            onClick={() => router.push("/admin/kategori")}
+          >
             <HugeiconsIcon icon={Cancel01Icon} size={14} />
             Batal
           </Button>
-          <Button type="submit" form="kategori-form" className="gap-2" loading={mutation.isPending} loadingText="Menyimpan...">
+          <Button
+            type="submit"
+            form="kategori-form"
+            className="gap-2"
+            loading={mutation.isPending}
+            loadingText="Menyimpan..."
+          >
             <HugeiconsIcon icon={FloppyDiskIcon} size={16} />
             {mode === "create" ? "Simpan Kategori" : "Simpan Perubahan"}
           </Button>
@@ -137,7 +147,7 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
       bottomBar={
         <Button
           type="button"
-          className="h-12 w-full rounded-2xl gap-2"
+          className="h-12 w-full gap-2 rounded-2xl"
           onClick={() => formRef.current?.requestSubmit()}
           loading={mutation.isPending}
           loadingText="Menyimpan..."
@@ -148,40 +158,48 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
       }
     >
       <form
-          id="kategori-form"
-          ref={formRef}
-          onSubmit={handleSubmit}
-          autoComplete="off"
-          className="flex min-w-0 flex-1 flex-col gap-6"
-        >
-          <div className="rounded-2xl border bg-card p-5 shadow-sm lg:rounded-xl">
-            <h2 className="mb-4 flex items-center gap-3 text-base font-semibold lg:gap-2 lg:text-sm">
-              <span className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 lg:size-7 lg:rounded-lg lg:bg-primary/10 lg:text-primary">
-                <HugeiconsIcon icon={TagsIcon} size={18} className="lg:size-3.5" />
-              </span>
-              Informasi Kategori
-            </h2>
+        id="kategori-form"
+        ref={formRef}
+        onSubmit={handleSubmit}
+        autoComplete="off"
+        className="flex min-w-0 flex-1 flex-col gap-6"
+      >
+        <div className="rounded-2xl border bg-card p-5 shadow-sm lg:rounded-xl">
+          <h2 className="mb-4 flex items-center gap-3 text-base font-semibold lg:gap-2 lg:text-sm">
+            <span className="flex size-10 items-center justify-center rounded-xl bg-amber-500/10 text-amber-600 lg:size-7 lg:rounded-lg lg:bg-primary/10 lg:text-primary">
+              <HugeiconsIcon
+                icon={TagsIcon}
+                size={18}
+                className="lg:size-3.5"
+              />
+            </span>
+            Informasi Kategori
+          </h2>
 
-            <div className="grid gap-4">
-              <Field label="Nama Kategori" required error={errors?.name}>
-                <Input
-                  name="name"
-                  required
-                  defaultValue={category?.name}
-                  placeholder="Nama kategori"
-                  className="h-14 rounded-xl bg-input/30 text-base lg:h-9 lg:rounded-md lg:text-sm"
-                />
-              </Field>
+          <div className="grid gap-4">
+            <Field label="Nama Kategori" required error={errors?.name}>
+              <Input
+                name="name"
+                required
+                defaultValue={category?.name}
+                placeholder="Nama kategori"
+                className="h-14 rounded-xl bg-input/30 text-base lg:h-9 lg:rounded-md lg:text-sm"
+              />
+            </Field>
 
-              {category && (
-                <div className="hidden lg:block">
-                <Field label="Slug">
-                  <Input value={category.slug} readOnly className="bg-muted/50 text-muted-foreground" />
-                </Field>
-                </div>
-              )}
-
+            {category && (
               <div className="hidden lg:block">
+                <Field label="Slug">
+                  <Input
+                    value={category.slug}
+                    readOnly
+                    className="bg-muted/50 text-muted-foreground"
+                  />
+                </Field>
+              </div>
+            )}
+
+            <div className="hidden lg:block">
               <Field label="Deskripsi (opsional)" error={errors?.description}>
                 <Textarea
                   name="description"
@@ -190,10 +208,14 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
                   placeholder="Catatan singkat untuk kategori ini..."
                 />
               </Field>
-              </div>
-              <input type="hidden" name="description" value={category?.description ?? ""} />
             </div>
+            <input
+              type="hidden"
+              name="description"
+              value={category?.description ?? ""}
+            />
           </div>
+        </div>
       </form>
 
       {mode === "edit" && category && (
@@ -203,7 +225,8 @@ export function KategoriFormPage(props: KategoriFormPageProps) {
               <AlertDialogTitle>Hapus Kategori?</AlertDialogTitle>
               <AlertDialogDescription>
                 Kategori &ldquo;{category.name}&rdquo; akan dihapus permanen.
-                {productCount > 0 && ` Kategori ini masih digunakan oleh ${productCount} barang.`}
+                {productCount > 0 &&
+                  ` Kategori ini masih digunakan oleh ${productCount} barang.`}
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

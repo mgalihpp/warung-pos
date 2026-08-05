@@ -52,11 +52,18 @@ export function PosCart({ onPayment, isProcessing }: PosCartProps) {
   }, [items.length])
 
   return (
-    <div data-pos-cart-target className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden bg-card xl:w-[400px] xl:rounded-xl xl:border xl:shadow-sm min-[1400px]:xl:w-[450px]">
+    <div
+      data-pos-cart-target
+      className="flex h-full min-h-0 w-full shrink-0 flex-col overflow-hidden bg-card xl:w-[400px] xl:rounded-xl xl:border xl:shadow-sm min-[1400px]:xl:w-[450px]"
+    >
       {/* Header (Desktop Only) */}
       <div className="hidden shrink-0 items-center justify-between border-b p-4 xl:flex">
         <div data-pos-cart-icon-target className="flex items-center gap-2">
-          <HugeiconsIcon icon={ShoppingCart01Icon} size={18} className="text-primary" />
+          <HugeiconsIcon
+            icon={ShoppingCart01Icon}
+            size={18}
+            className="text-primary"
+          />
           <h2 className="font-bold text-foreground">Keranjang</h2>
         </div>
         {itemCount > 0 && (

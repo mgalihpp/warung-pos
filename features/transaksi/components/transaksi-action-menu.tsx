@@ -60,8 +60,14 @@ export function TransaksiActionMenu({
           </button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-44">
-          <DropdownMenuItem onClick={() => router.push(`${basePath}/${transactionId}/edit`)}>
-            <HugeiconsIcon icon={Edit02Icon} size={16} className="text-muted-foreground" />
+          <DropdownMenuItem
+            onClick={() => router.push(`${basePath}/${transactionId}/edit`)}
+          >
+            <HugeiconsIcon
+              icon={Edit02Icon}
+              size={16}
+              className="text-muted-foreground"
+            />
             <span>Edit Transaksi</span>
           </DropdownMenuItem>
           <DropdownMenuSeparator />
@@ -91,7 +97,8 @@ export function TransaksiActionMenu({
               ? Tindakan ini permanen.
               {currentStatus === "Selesai" && (
                 <>
-                  <br /><br />
+                  <br />
+                  <br />
                   *Stok barang yang terkait akan otomatis dikembalikan.
                 </>
               )}

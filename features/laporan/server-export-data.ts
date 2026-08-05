@@ -1,7 +1,11 @@
 import "server-only"
 
 import { prisma } from "@/lib/prisma"
-import { resolveRange, mapPaymentLabel, type LaporanRange } from "@/lib/server/jakarta-time"
+import {
+  resolveRange,
+  mapPaymentLabel,
+  type LaporanRange,
+} from "@/lib/server/jakarta-time"
 
 export type RawExportRow = {
   transactionId: string
@@ -27,7 +31,9 @@ export type RawExportRow = {
   productUnit: string
 }
 
-export async function getRawExportData(range: LaporanRange): Promise<RawExportRow[]> {
+export async function getRawExportData(
+  range: LaporanRange
+): Promise<RawExportRow[]> {
   const now = new Date()
   const { start, end } = resolveRange(now, range)
 

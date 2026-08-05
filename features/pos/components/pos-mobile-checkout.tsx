@@ -33,11 +33,17 @@ export function PosMobileCheckout({ onProceed }: Props) {
       {/* Header Info */}
       <div className="flex shrink-0 items-center gap-3 px-4 pt-4 pb-3">
         <div className="flex size-10 items-center justify-center rounded-xl bg-muted">
-          <HugeiconsIcon icon={Invoice01Icon} size={18} className="text-muted-foreground" />
+          <HugeiconsIcon
+            icon={Invoice01Icon}
+            size={18}
+            className="text-muted-foreground"
+          />
         </div>
         <div>
           <p className="text-sm font-bold text-foreground">Item Pesanan</p>
-          <p className="text-xs text-muted-foreground">{itemCount} item dalam keranjang</p>
+          <p className="text-xs text-muted-foreground">
+            {itemCount} item dalam keranjang
+          </p>
         </div>
       </div>
 
@@ -73,7 +79,7 @@ export function PosMobileCheckout({ onProceed }: Props) {
 
                 {/* Item Info */}
                 <div className="min-w-0 flex-1">
-                  <p className="line-clamp-2 break-words text-sm font-semibold leading-5 text-foreground max-[340px]:leading-4">
+                  <p className="line-clamp-2 text-sm leading-5 font-semibold break-words text-foreground max-[340px]:leading-4">
                     {item.name}
                   </p>
                   <p className="mt-0.5 text-xs text-muted-foreground max-[340px]:text-[11px]">
@@ -92,14 +98,22 @@ export function PosMobileCheckout({ onProceed }: Props) {
                       onClick={() => removeItem(item.productId)}
                       className="flex size-7 items-center justify-center rounded-md bg-destructive/10 text-destructive max-[340px]:size-6"
                     >
-                      <HugeiconsIcon icon={Delete02Icon} size={13} className="max-[340px]:size-3" />
+                      <HugeiconsIcon
+                        icon={Delete02Icon}
+                        size={13}
+                        className="max-[340px]:size-3"
+                      />
                     </button>
                   ) : (
                     <button
                       onClick={() => decrementItem(item.productId)}
                       className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground max-[340px]:size-6"
                     >
-                      <HugeiconsIcon icon={MinusSignIcon} size={13} className="max-[340px]:size-3" />
+                      <HugeiconsIcon
+                        icon={MinusSignIcon}
+                        size={13}
+                        className="max-[340px]:size-3"
+                      />
                     </button>
                   )}
                   <span className="w-7 text-center text-sm font-bold text-foreground max-[340px]:w-6 max-[340px]:text-xs">
@@ -110,7 +124,11 @@ export function PosMobileCheckout({ onProceed }: Props) {
                     disabled={item.quantity >= item.maxStock}
                     className="flex size-7 items-center justify-center rounded-md bg-primary text-primary-foreground disabled:opacity-40 max-[340px]:size-6"
                   >
-                    <HugeiconsIcon icon={PlusSignIcon} size={13} className="max-[340px]:size-3" />
+                    <HugeiconsIcon
+                      icon={PlusSignIcon}
+                      size={13}
+                      className="max-[340px]:size-3"
+                    />
                   </button>
                 </div>
               </div>
@@ -131,7 +149,7 @@ export function PosMobileCheckout({ onProceed }: Props) {
               <p className="text-xs font-medium text-primary-foreground/80 max-[340px]:text-[11px]">
                 Total ({itemCount} item)
               </p>
-              <p className="mt-1 text-2xl font-extrabold leading-none tracking-tight text-primary-foreground max-[340px]:text-xl">
+              <p className="mt-1 text-2xl leading-none font-extrabold tracking-tight text-primary-foreground max-[340px]:text-xl">
                 {formatRupiah(subtotal)}
               </p>
             </div>

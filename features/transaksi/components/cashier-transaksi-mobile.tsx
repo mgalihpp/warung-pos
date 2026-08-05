@@ -14,7 +14,11 @@ import {
 } from "@hugeicons/core-free-icons"
 import { useSearchParam } from "@/hooks/use-search-param"
 import { formatRupiah } from "@/lib/format-currency"
-import type { TransactionItem, TransactionStats, PaymentMethod } from "../hooks/use-transaksi-queries"
+import type {
+  TransactionItem,
+  TransactionStats,
+  PaymentMethod,
+} from "../hooks/use-transaksi-queries"
 import { CashierTransaksiDetailMobile } from "./cashier-transaksi-detail-mobile"
 import {
   Drawer,
@@ -37,25 +41,33 @@ function getMetodeBadgeClass(metode: PaymentMethod) {
   }
 }
 
-type Period = 'today' | 'week' | 'month' | 'all'
+type Period = "today" | "week" | "month" | "all"
 
 function getPeriodLabel(period: Period) {
   switch (period) {
-    case 'today': return 'Hari Ini'
-    case 'week': return 'Minggu Ini'
-    case 'month': return 'Bulan Ini'
-    case 'all': return 'Semua Waktu'
+    case "today":
+      return "Hari Ini"
+    case "week":
+      return "Minggu Ini"
+    case "month":
+      return "Bulan Ini"
+    case "all":
+      return "Semua Waktu"
   }
 }
 
 function getPeriodDateRange(period: Period) {
   const now = new Date()
-  const fmt = new Intl.DateTimeFormat("id-ID", { day: "numeric", month: "short", year: "numeric" })
+  const fmt = new Intl.DateTimeFormat("id-ID", {
+    day: "numeric",
+    month: "short",
+    year: "numeric",
+  })
 
-  if (period === 'all') return 'Semua Transaksi'
-  if (period === 'today') return fmt.format(now)
+  if (period === "all") return "Semua Transaksi"
+  if (period === "today") return fmt.format(now)
 
-  if (period === 'week') {
+  if (period === "week") {
     // Start from Monday
     const day = now.getDay()
     const diff = now.getDate() - day + (day === 0 ? -6 : 1)
@@ -65,7 +77,7 @@ function getPeriodDateRange(period: Period) {
     return `${fmt.format(startOfWeek)} - ${fmt.format(endOfWeek)}`
   }
 
-  if (period === 'month') {
+  if (period === "month") {
     const startOfMonth = new Date(now.getFullYear(), now.getMonth(), 1)
     return `${fmt.format(startOfMonth)} - ${fmt.format(now)}`
   }
@@ -78,8 +90,14 @@ type Props = {
   detailBasePath?: string
 }
 
-export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }: Props) {
-  const [selectedTransactionId, setSelectedTransactionId] = React.useState<string | null>(null)
+export function TransaksiMobile({
+  transactions,
+  actionBasePath,
+  detailBasePath,
+}: Props) {
+  const [selectedTransactionId, setSelectedTransactionId] = React.useState<
+    string | null
+  >(null)
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
   const [periodParam, setPeriod] = useSearchParam("period", "month")
   const period = periodParam as Period
@@ -89,20 +107,23 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
     let filtered = transactions
 
     // Filter by period
-    if (period !== 'all') {
+    if (period !== "all") {
       const now = new Date()
       filtered = filtered.filter((t) => {
         const tDate = new Date(t.createdAt)
 
-        if (period === 'today') {
+        if (period === "today") {
           return tDate.toDateString() === now.toDateString()
         }
 
-        if (period === 'month') {
-          return tDate.getMonth() === now.getMonth() && tDate.getFullYear() === now.getFullYear()
+        if (period === "month") {
+          return (
+            tDate.getMonth() === now.getMonth() &&
+            tDate.getFullYear() === now.getFullYear()
+          )
         }
 
-        if (period === 'week') {
+        if (period === "week") {
           const day = now.getDay()
           const diff = now.getDate() - day + (day === 0 ? -6 : 1)
           const startOfWeek = new Date(new Date().setDate(diff))
@@ -117,9 +138,10 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
     // Filter by search query
     const query = searchQuery.toLowerCase()
     if (query) {
-      filtered = filtered.filter(t =>
-        t.transactionNumber.toLowerCase().includes(query) ||
-        t.item.toLowerCase().includes(query)
+      filtered = filtered.filter(
+        (t) =>
+          t.transactionNumber.toLowerCase().includes(query) ||
+          t.item.toLowerCase().includes(query)
       )
     }
 
@@ -150,22 +172,28 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
                   <HugeiconsIcon icon={Calendar02Icon} size={20} />
                 </div>
                 <div>
-                  <p className="text-[11px] font-medium opacity-80">Periode: {getPeriodLabel(period)}</p>
-                  <p className="text-sm font-bold">{getPeriodDateRange(period)}</p>
+                  <p className="text-[11px] font-medium opacity-80">
+                    Periode: {getPeriodLabel(period)}
+                  </p>
+                  <p className="text-sm font-bold">
+                    {getPeriodDateRange(period)}
+                  </p>
                 </div>
               </div>
               <div className="flex size-8 items-center justify-center rounded-full bg-primary-foreground/10">
-                 <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
+                <HugeiconsIcon icon={ArrowRight01Icon} size={18} />
               </div>
             </button>
           </DrawerTrigger>
           <DrawerContent>
             <div className="mx-auto w-full max-w-sm">
               <DrawerHeader className="text-left">
-                <DrawerTitle className="text-lg font-bold">Pilih Periode</DrawerTitle>
+                <DrawerTitle className="text-lg font-bold">
+                  Pilih Periode
+                </DrawerTitle>
               </DrawerHeader>
-              <div className="p-4 pb-8 flex flex-col gap-2">
-                {(['today', 'week', 'month', 'all'] as Period[]).map((p) => (
+              <div className="flex flex-col gap-2 p-4 pb-8">
+                {(["today", "week", "month", "all"] as Period[]).map((p) => (
                   <button
                     key={p}
                     onClick={() => {
@@ -180,12 +208,18 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
                   >
                     <div>
                       <p className="text-base">{getPeriodLabel(p)}</p>
-                      <p className={`text-xs ${period === p ? "text-primary/70" : "text-muted-foreground"}`}>
+                      <p
+                        className={`text-xs ${period === p ? "text-primary/70" : "text-muted-foreground"}`}
+                      >
                         {getPeriodDateRange(p)}
                       </p>
                     </div>
                     {period === p && (
-                      <HugeiconsIcon icon={TickDouble01Icon} size={20} className="text-primary" />
+                      <HugeiconsIcon
+                        icon={TickDouble01Icon}
+                        size={20}
+                        className="text-primary"
+                      />
                     )}
                   </button>
                 ))}
@@ -201,15 +235,19 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
               <HugeiconsIcon icon={InvoiceIcon} size={14} />
               <p className="text-[10px] font-medium">Total Transaksi</p>
             </div>
-            <p className="mt-1 text-2xl font-bold">{filteredTransactions.length}</p>
+            <p className="mt-1 text-2xl font-bold">
+              {filteredTransactions.length}
+            </p>
           </div>
           <div className="min-w-0 border-t border-primary-foreground/20 pt-3 min-[360px]:border-t-0 min-[360px]:border-l min-[360px]:pt-0 min-[360px]:pl-4">
             <div className="flex items-center gap-1.5 opacity-80">
               <HugeiconsIcon icon={MoneyReceiveSquareIcon} size={14} />
               <p className="text-[10px] font-medium">Total Penjualan</p>
             </div>
-            <p className="mt-1 break-words text-lg font-bold tracking-tight min-[360px]:text-xl min-[420px]:text-2xl">
-              {formatRupiah(filteredTransactions.reduce((sum, t) => sum + t.total, 0))}
+            <p className="mt-1 text-lg font-bold tracking-tight break-words min-[360px]:text-xl min-[420px]:text-2xl">
+              {formatRupiah(
+                filteredTransactions.reduce((sum, t) => sum + t.total, 0)
+              )}
             </p>
           </div>
         </div>
@@ -220,14 +258,14 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
         <HugeiconsIcon
           icon={SearchIcon}
           size={18}
-          className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground"
+          className="absolute top-1/2 left-3.5 -translate-y-1/2 text-muted-foreground"
         />
         <input
           type="text"
           placeholder="Cari nomor transaksi..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-12 w-full rounded-xl border border-border/60 bg-white pl-10 pr-4 text-sm shadow-sm outline-none transition-colors placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+          className="h-12 w-full rounded-xl border border-border/60 bg-white pr-4 pl-10 text-sm shadow-sm transition-colors outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
 
@@ -242,15 +280,21 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
             const cardContent = (
               <>
                 <div className="flex size-12 shrink-0 items-center justify-center rounded-xl bg-emerald-50">
-                  <HugeiconsIcon icon={MoneyReceiveFlowIcon} size={24} className="text-emerald-600" />
+                  <HugeiconsIcon
+                    icon={MoneyReceiveFlowIcon}
+                    size={24}
+                    className="text-emerald-600"
+                  />
                 </div>
 
                 <div className="min-w-0 flex-1 self-stretch py-0.5">
                   <div className="flex min-w-0 items-start justify-between gap-2">
-                    <p className="min-w-0 truncate text-base font-bold leading-tight text-slate-800">
+                    <p className="min-w-0 truncate text-base leading-tight font-bold text-slate-800">
                       {formatRupiah(trx.total)}
                     </p>
-                    <span className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] font-bold leading-none ${getMetodeBadgeClass(trx.metode)}`}>
+                    <span
+                      className={`shrink-0 rounded px-1.5 py-0.5 text-[10px] leading-none font-bold ${getMetodeBadgeClass(trx.metode)}`}
+                    >
                       {trx.metode}
                     </span>
                   </div>
@@ -260,8 +304,6 @@ export function TransaksiMobile({ transactions, actionBasePath, detailBasePath }
                     <p className="truncate"># ID: {trx.transactionNumber}</p>
                   </div>
                 </div>
-
-                <HugeiconsIcon icon={ArrowRight01Icon} size={18} className="shrink-0 text-slate-400" />
               </>
             )
 
