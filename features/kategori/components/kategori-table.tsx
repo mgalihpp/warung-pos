@@ -40,7 +40,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { useSearchParam } from "@/hooks/use-search-param"
+import { useSearchParamsState } from "@/hooks/use-search-param"
 import { useDeleteKategori } from "../hooks/use-kategori-actions"
 import type { KategoriItem } from "../types"
 
@@ -149,10 +149,14 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
 }
 
 export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
-  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
-  const [currentPageRaw, setCurrentPage] = useSearchParam("page", "1")
-  const [statusFilter, setStatusFilter] = useSearchParam("status", "all")
-  const currentPage = Number(currentPageRaw)
+  const { values, setParams } = useSearchParamsState({
+    search: "",
+    page: "1",
+    status: "all",
+  })
+  const searchQuery = values.search
+  const statusFilter = values.status
+  const currentPage = Number(values.page)
 
   const filteredCategories = React.useMemo(() => {
     const query = searchQuery.toLowerCase()
@@ -197,8 +201,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
             placeholder="Cari nama kategori..."
             value={searchQuery}
             onChange={(event) => {
-              setSearchQuery(event.target.value)
-              setCurrentPage("1")
+              setParams({ search: event.target.value, page: "1" })
             }}
             className="h-9 rounded-lg bg-background pr-3 pl-9 text-sm"
           />
@@ -207,8 +210,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
           <Select
             value={statusFilter}
             onValueChange={(value) => {
-              setStatusFilter(value)
-              setCurrentPage("1")
+              setParams({ status: value, page: "1" })
             }}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
@@ -356,7 +358,9 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
           <button
             type="button"
             disabled={safePage === 1}
-            onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
+            onClick={() =>
+              setParams({ page: String(Math.max(1, safePage - 1)) })
+            }
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
@@ -367,7 +371,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
               <button
                 type="button"
                 key={page}
-                onClick={() => setCurrentPage(String(page))}
+                onClick={() => setParams({ page: String(page) })}
                 className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${safePage === page ? "bg-primary text-primary-foreground" : "border text-muted-foreground hover:bg-muted"}`}
               >
                 {page}
@@ -376,9 +380,11 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
           <button
             type="button"
             disabled={safePage === totalPages}
-            onClick={() =>
-              setCurrentPage(String(Math.min(totalPages, safePage + 1)))
-            }
+              onClick={() =>
+                setParams({
+                  page: String(Math.min(totalPages, safePage + 1)),
+                })
+              }
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
           >
             <HugeiconsIcon icon={ArrowRight01Icon} size={14} />

@@ -10,7 +10,7 @@ import {
   ViewIcon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
-import { useSearchParam } from "@/hooks/use-search-param"
+import { useSearchParamsState } from "@/hooks/use-search-param"
 import { TransaksiDetailDialog } from "./transaksi-detail-dialog"
 import { TransaksiActionMenu } from "./transaksi-action-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
@@ -70,12 +70,18 @@ export function TransaksiTable({
   detailBasePath,
   actionBasePath,
 }: Props) {
-  const [searchQuery, setSearchQuery] = useSearchParam("search", "")
-  const [pageParam, setPageParam] = useSearchParam("page", "1")
-  const [statusFilter, setStatusFilter] = useSearchParam("status", "all")
-  const [methodFilter, setMethodFilter] = useSearchParam("method", "all")
-  const [cashierFilter, setCashierFilter] = useSearchParam("cashier", "all")
-  const currentPage = Number(pageParam)
+  const { values, setParams } = useSearchParamsState({
+    search: "",
+    page: "1",
+    status: "all",
+    method: "all",
+    cashier: "all",
+  })
+  const searchQuery = values.search
+  const currentPage = Number(values.page)
+  const statusFilter = values.status
+  const methodFilter = values.method
+  const cashierFilter = values.cashier
 
   const filteredTransactions = React.useMemo(() => {
     const query = searchQuery.toLowerCase()
@@ -140,8 +146,7 @@ export function TransaksiTable({
             placeholder="Cari no. transaksi, kasir, atau item..."
             value={searchQuery}
             onChange={(e) => {
-              setSearchQuery(e.target.value)
-              setPageParam("1")
+              setParams({ search: e.target.value, page: "1" })
             }}
             className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm ring-ring transition-colors outline-none placeholder:text-muted-foreground focus:ring-1"
           />
@@ -150,8 +155,7 @@ export function TransaksiTable({
           <Select
             value={statusFilter}
             onValueChange={(value) => {
-              setStatusFilter(value)
-              setPageParam("1")
+              setParams({ status: value, page: "1" })
             }}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
@@ -167,8 +171,7 @@ export function TransaksiTable({
           <Select
             value={methodFilter}
             onValueChange={(value) => {
-              setMethodFilter(value)
-              setPageParam("1")
+              setParams({ method: value, page: "1" })
             }}
           >
             <SelectTrigger className="w-full lg:w-[160px]">
@@ -184,8 +187,7 @@ export function TransaksiTable({
           <Select
             value={cashierFilter}
             onValueChange={(value) => {
-              setCashierFilter(value)
-              setPageParam("1")
+              setParams({ cashier: value, page: "1" })
             }}
           >
             <SelectTrigger className="w-full lg:w-[180px]">
@@ -429,7 +431,9 @@ export function TransaksiTable({
             <button
               type="button"
               disabled={safePage <= 1}
-              onClick={() => setPageParam(String(Math.max(1, safePage - 1)))}
+              onClick={() =>
+                setParams({ page: String(Math.max(1, safePage - 1)) })
+              }
               className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
               <HugeiconsIcon icon={ArrowLeft01Icon} size={14} />
@@ -446,7 +450,7 @@ export function TransaksiTable({
                 <button
                   type="button"
                   key={page}
-                  onClick={() => setPageParam(String(page))}
+                  onClick={() => setParams({ page: String(page) })}
                   className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
                     safePage === page
                       ? "bg-primary text-primary-foreground"
@@ -461,7 +465,9 @@ export function TransaksiTable({
               type="button"
               disabled={safePage >= totalPages}
               onClick={() =>
-                setPageParam(String(Math.min(totalPages, safePage + 1)))
+                setParams({
+                  page: String(Math.min(totalPages, safePage + 1)),
+                })
               }
               className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
             >
