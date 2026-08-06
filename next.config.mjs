@@ -12,6 +12,9 @@ const withPWA = withPWAInit({
 
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  experimental: {
+    authInterrupts: true,
+  },
   images: {
     remotePatterns: [{ protocol: "https", hostname: "utfs.io" }],
   },

@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { LaporanStokContent } from "@/features/laporan/components/laporan-stok-content"
 import { getLaporanStokData } from "@/features/laporan/server-stok-data"
@@ -13,7 +13,7 @@ export default async function LaporanStokPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getLaporanStokData()

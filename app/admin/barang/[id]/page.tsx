@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 
 import { BarangDetailPage } from "@/features/barang/components/barang-detail-page"
 import { getBarangDetailData } from "@/features/barang/server-data-detail"
@@ -16,7 +16,7 @@ export default async function BarangDetailRoute({
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const { id } = await params

@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 
 import { TransaksiEditPage } from "@/features/transaksi/components/transaksi-edit-page"
 import { getTransaksiDetailData } from "@/features/transaksi/server-data"
@@ -16,7 +16,7 @@ export default async function EditTransaksiPage({
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const { id } = await params

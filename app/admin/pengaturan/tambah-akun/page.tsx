@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { TambahAkunContent } from "@/features/pengaturan/components/tambah-akun-content"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -11,7 +11,7 @@ export default async function TambahAkunPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   return <TambahAkunContent />

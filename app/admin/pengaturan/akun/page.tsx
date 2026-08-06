@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { PengaturanPenggunaContent } from "@/features/pengaturan/components/pengaturan-content"
 import { prisma } from "@/lib/prisma"
@@ -46,7 +46,7 @@ export default async function PengaturanPenggunaPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const { currentUser, users } = await getUsersData({ userId: user?.id })

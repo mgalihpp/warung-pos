@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { TransaksiHeader } from "@/features/transaksi/components/transaksi-header"
 import { TransaksiTable } from "@/features/transaksi/components/transaksi-table"
@@ -15,7 +15,7 @@ export default async function TransaksiPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getTransaksiPageData()

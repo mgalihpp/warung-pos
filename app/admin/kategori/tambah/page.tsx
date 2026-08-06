@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { KategoriFormPage } from "@/features/kategori/components/kategori-form-page"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -11,7 +11,7 @@ export default async function TambahKategoriPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   return <KategoriFormPage mode="create" />

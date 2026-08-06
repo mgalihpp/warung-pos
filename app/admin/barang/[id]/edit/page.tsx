@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { getBarangPageData } from "@/features/barang/server-data"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -17,7 +17,7 @@ export default async function EditBarangPage({
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getBarangPageData()

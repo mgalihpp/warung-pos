@@ -37,7 +37,13 @@ function Field({
   )
 }
 
-export function TambahAkunContent() {
+export function TambahAkunContent({
+  onSuccess,
+  onCancel,
+}: {
+  onSuccess?: () => void
+  onCancel?: () => void
+} = {}) {
   const router = useRouter()
   const formRef = React.useRef<HTMLFormElement>(null)
   const [isPending, startTransition] = React.useTransition()
@@ -51,7 +57,8 @@ export function TambahAkunContent() {
       if (result.success) {
         toast.success(result.message)
         formRef.current?.reset()
-        router.push("/admin/pengaturan/akun")
+        if (onSuccess) onSuccess()
+        else router.push("/admin/pengaturan/akun")
       } else {
         toast.error(result.message)
       }
@@ -60,7 +67,7 @@ export function TambahAkunContent() {
 
   return (
     <div className="flex min-w-0 flex-col gap-4">
-      <div className="mx-auto flex w-full max-w-2xl min-w-0 flex-col gap-4">
+      <div className="mx-auto flex w-full min-w-0 flex-col gap-4">
         <form
           id="tambah-akun-form"
           ref={formRef}
@@ -132,7 +139,9 @@ export function TambahAkunContent() {
                 type="button"
                 variant="outline"
                 className="h-12 rounded-2xl"
-                onClick={() => router.push("/admin/pengaturan/akun")}
+                onClick={() =>
+                  onCancel?.() ?? router.push("/admin/pengaturan/akun")
+                }
               >
                 Batal
               </Button>

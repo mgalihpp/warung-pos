@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { TransaksiTable } from "@/features/transaksi/components/transaksi-table"
 import { CashierTransaksiMobile } from "@/features/transaksi/components/cashier-transaksi-mobile"
@@ -14,7 +14,7 @@ export default async function CashierTransaksiPage() {
   }
 
   if (user.role !== "cashier" && user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getTransaksiPageData()

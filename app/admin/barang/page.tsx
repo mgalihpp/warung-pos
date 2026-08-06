@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { BarangHeader } from "@/features/barang/components/barang-header"
 import { BarangTable } from "@/features/barang/components/barang-table"
@@ -23,7 +23,7 @@ export default async function BarangPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getBarangPageData()

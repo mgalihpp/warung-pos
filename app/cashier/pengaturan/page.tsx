@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { PengaturanContent } from "@/features/pengaturan/components/pengaturan-content"
 import { prisma } from "@/lib/prisma"
@@ -13,7 +13,7 @@ export default async function CashierPengaturanPage() {
   }
 
   if (user.role !== "cashier" && user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const currentUser = user.id

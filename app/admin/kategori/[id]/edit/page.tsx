@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { getKategoriPageData } from "@/features/kategori/server-data"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -17,7 +17,7 @@ export default async function EditKategoriPage({
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getKategoriPageData()

@@ -36,7 +36,7 @@ export async function proxy(request: NextRequest) {
   }
 
   if (!canAccessPath(pathname, session.user.role)) {
-    return NextResponse.redirect(new URL("/unauthorized", request.url))
+    return NextResponse.next()
   }
 
   return NextResponse.next()

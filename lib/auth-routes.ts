@@ -15,7 +15,7 @@ export function canAccessPath(pathname: string, role?: string | null) {
   }
 
   if (pathname.startsWith("/cashier")) {
-    return role === "admin" || role === "cashier"
+    return role === "cashier"
   }
 
   return true

@@ -77,6 +77,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
+import { TambahAkunContent } from "@/features/pengaturan/components/tambah-akun-content"
 
 const { useUploadThing } = generateReactHelpers<AppFileRouter>()
 
@@ -144,6 +145,7 @@ export function PengaturanPenggunaContent({
     null
   )
   const [deleteUser, setDeleteUser] = React.useState<SettingsUser | null>(null)
+  const [isAddAccountOpen, setIsAddAccountOpen] = React.useState(false)
   const [isDesktopSheet, setIsDesktopSheet] = React.useState(false)
   const [isDeletePending, startDeleteTransition] = useTransition()
   const router = useRouter()
@@ -162,6 +164,11 @@ export function PengaturanPenggunaContent({
     e.preventDefault()
     const formData = new FormData(e.currentTarget)
 
+    if (formData.get("userId") === currentUser?.id) {
+      toast.error("Akun sendiri tidak bisa diubah dari tab ini.")
+      return
+    }
+
     startAccessTransition(async () => {
       const result = await updateUserAccess(formData)
       if (result.success) {
@@ -176,6 +183,12 @@ export function PengaturanPenggunaContent({
 
   function handleDeleteUser() {
     if (!deleteUser) return
+
+    if (deleteUser.id === currentUser?.id) {
+      toast.error("Akun sendiri tidak bisa dihapus.")
+      setDeleteUser(null)
+      return
+    }
 
     const formData = new FormData()
     formData.set("userId", deleteUser.id)
@@ -209,11 +222,12 @@ export function PengaturanPenggunaContent({
           </p>
         </div>
 
-        <Button asChild className="hidden gap-2 lg:inline-flex">
-          <Link href="/admin/pengaturan/tambah-akun">
-            <HugeiconsIcon icon={PlusSignIcon} size={16} />
-            Tambah Akun
-          </Link>
+        <Button
+          className="hidden gap-2 lg:inline-flex"
+          onClick={() => setIsAddAccountOpen(true)}
+        >
+          <HugeiconsIcon icon={PlusSignIcon} size={16} />
+          Tambah Akun
         </Button>
       </div>
 
@@ -331,46 +345,47 @@ export function PengaturanPenggunaContent({
                     </div>
 
                     <div className="flex items-center justify-end">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <button
-                            type="button"
-                            className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground disabled:cursor-not-allowed disabled:opacity-40"
-                            aria-label="Aksi akun"
-                            disabled={isCurrentUser}
+                      {!isCurrentUser && (
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <button
+                              type="button"
+                              className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
+                              aria-label="Aksi akun"
+                            >
+                              <HugeiconsIcon
+                                icon={MoreVerticalCircle01Icon}
+                                size={15}
+                              />
+                            </button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent
+                            align="end"
+                            className="w-44 rounded-xl p-2"
                           >
-                            <HugeiconsIcon
-                              icon={MoreVerticalCircle01Icon}
-                              size={15}
-                            />
-                          </button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent
-                          align="end"
-                          className="w-44 rounded-xl p-2"
-                        >
-                          <DropdownMenuItem
-                            className="cursor-pointer gap-2 rounded-lg py-2"
-                            onSelect={() => setSelectedUser(user)}
-                          >
-                            <HugeiconsIcon
-                              icon={Edit02Icon}
-                              size={16}
-                              className="text-muted-foreground"
-                            />
-                            Edit Akun
-                          </DropdownMenuItem>
-                          <DropdownMenuSeparator className="my-1" />
-                          <DropdownMenuItem
-                            variant="destructive"
-                            className="cursor-pointer gap-2 rounded-lg py-2"
-                            onSelect={() => setDeleteUser(user)}
-                          >
-                            <HugeiconsIcon icon={Delete02Icon} size={16} />
-                            Hapus Akun
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                            <DropdownMenuItem
+                              className="cursor-pointer gap-2 rounded-lg py-2"
+                              onSelect={() => setSelectedUser(user)}
+                            >
+                              <HugeiconsIcon
+                                icon={Edit02Icon}
+                                size={16}
+                                className="text-muted-foreground"
+                              />
+                              Edit Akun
+                            </DropdownMenuItem>
+                            <DropdownMenuSeparator className="my-1" />
+                            <DropdownMenuItem
+                              variant="destructive"
+                              className="cursor-pointer gap-2 rounded-lg py-2"
+                              onSelect={() => setDeleteUser(user)}
+                            >
+                              <HugeiconsIcon icon={Delete02Icon} size={16} />
+                              Hapus Akun
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      )}
                     </div>
                   </div>
                 )
@@ -412,6 +427,26 @@ export function PengaturanPenggunaContent({
               onDelete={() => handleDeleteFromSheet(selectedUser)}
             />
           )}
+        </SheetContent>
+      </Sheet>
+
+      <Sheet open={isAddAccountOpen} onOpenChange={setIsAddAccountOpen}>
+        <SheetContent side="right" className="w-[420px] p-0 sm:max-w-md">
+          <SheetHeader className="border-b px-5 py-4 text-left">
+            <SheetTitle>Tambah Akun</SheetTitle>
+            <SheetDescription>
+              Buat akun admin atau kasir baru.
+            </SheetDescription>
+          </SheetHeader>
+          <div className="overflow-y-auto p-4">
+            <TambahAkunContent
+              onSuccess={() => {
+                setIsAddAccountOpen(false)
+                router.refresh()
+              }}
+              onCancel={() => setIsAddAccountOpen(false)}
+            />
+          </div>
         </SheetContent>
       </Sheet>
 

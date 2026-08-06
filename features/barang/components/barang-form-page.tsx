@@ -73,7 +73,8 @@ export function BarangFormPage(props: BarangFormPageProps) {
   const deleteMutation = useDeleteProduct()
   const adjustStockMutation = useAdjustStock()
   const mutation = mode === "create" ? createMutation : updateMutation
-  const backHref = mode === "edit" && product ? `/admin/barang/${product.id}` : "/admin/barang"
+  const backHref =
+    mode === "edit" && product ? `/admin/barang/${product.id}` : "/admin/barang"
   const errors =
     mutation.data?.success === false ? (mutation.data.errors ?? null) : null
   const isPending = mutation.isPending || adjustStockMutation.isPending

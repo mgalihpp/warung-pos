@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { PengaturanTemaContent } from "@/features/pengaturan/components/pengaturan-content"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -11,7 +11,7 @@ export default async function CashierPengaturanTemaPage() {
   }
 
   if (user.role !== "cashier" && user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   return <PengaturanTemaContent />

@@ -1,8 +1,10 @@
+import { forbidden, redirect } from "next/navigation"
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar"
 import { TooltipProvider } from "@/components/ui/tooltip"
 import { AppSidebar } from "@/features/dashboard/components/app-sidebar"
 import { DashboardHeader } from "@/features/dashboard/components/dashboard-header"
 import { AdminLayoutClient } from "@/features/dashboard/components/admin-layout-client"
+import { getSessionUser } from "@/lib/server/auth-guards"
 import { cookies } from "next/headers"
 
 export default async function AdminLayout({
@@ -10,6 +12,16 @@ export default async function AdminLayout({
 }: {
   children: React.ReactNode
 }) {
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  if (user.role !== "admin") {
+    forbidden()
+  }
+
   const cookieStore = await cookies()
   const sidebarState = cookieStore.get("sidebar_state")?.value
   const defaultOpen =

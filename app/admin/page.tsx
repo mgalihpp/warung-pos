@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { AdminDashboardContent } from "@/features/dashboard/components/admin-dashboard-content"
 import { getDashboardData } from "@/features/dashboard/server-data"
@@ -13,7 +13,7 @@ export default async function AdminDashboardPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getDashboardData("week")

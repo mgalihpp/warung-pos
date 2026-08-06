@@ -1,4 +1,4 @@
-import { notFound, redirect } from "next/navigation"
+import { forbidden, notFound, redirect } from "next/navigation"
 
 import { getTransaksiDetailData } from "@/features/transaksi/server-data"
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -17,7 +17,7 @@ export default async function AdminTransaksiDetailPage({
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const { id } = await params

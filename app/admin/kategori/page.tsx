@@ -1,5 +1,5 @@
 import { Suspense } from "react"
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 
 import { KategoriHeader } from "@/features/kategori/components/kategori-header"
 import { KategoriMobileList } from "@/features/kategori/components/kategori-mobile-list"
@@ -15,7 +15,7 @@ export default async function KategoriPage() {
   }
 
   if (user.role !== "admin") {
-    redirect("/unauthorized")
+    forbidden()
   }
 
   const data = await getKategoriPageData()

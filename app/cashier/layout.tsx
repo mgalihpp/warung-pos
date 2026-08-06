@@ -1,4 +1,4 @@
-import { redirect } from "next/navigation"
+import { forbidden, redirect } from "next/navigation"
 import { cookies } from "next/headers"
 
 import { getSessionUser } from "@/lib/server/auth-guards"
@@ -18,8 +18,8 @@ export default async function CashierLayout({
     redirect("/login")
   }
 
-  if (user.role !== "cashier" && user.role !== "admin") {
-    redirect("/unauthorized")
+  if (user.role !== "cashier") {
+    forbidden()
   }
 
   const cookieStore = await cookies()
