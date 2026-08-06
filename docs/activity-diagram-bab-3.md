@@ -238,13 +238,15 @@ title Activity Diagram Dashboard
 
 start
 :Admin membuka dashboard;
-:Sistem mengambil data penjualan, transaksi, dan stok;
-:Sistem menampilkan statistik dan grafik;
+:Sistem mengambil data penjualan, laba, transaksi, stok, kategori, dan metode pembayaran;
+:Sistem menampilkan kartu performa (total penjualan, keuntungan, margin keuntungan) dan stok menipis;
+:Sistem menampilkan grafik penjualan dan laba;
 
-if (Ada stok menipis?) then (Ya)
-  :Sistem menampilkan notifikasi stok;
+if (Admin memilih rentang periode?) then (Ya)
+  :Sistem mengambil data sesuai rentang (hari ini, minggu, bulan, tahun);
+  :Sistem memperbarui kartu performa dan grafik;
 else (Tidak)
-  :Dashboard tampil normal;
+  :Dashboard tampil dengan rentang default;
 endif
 
 :Admin melihat informasi dashboard;
@@ -257,14 +259,15 @@ stop
 ```mermaid
 flowchart TD
   A([Mulai]) --> B[Admin membuka dashboard]
-  B --> C[Sistem mengambil data penjualan, transaksi, dan stok]
-  C --> D[Sistem menampilkan statistik dan grafik]
-  D --> E{Ada stok menipis?}
-  E -- Ya --> F[Sistem menampilkan notifikasi stok]
-  E -- Tidak --> G[Dashboard tampil normal]
-  F --> H[Admin melihat informasi dashboard]
-  G --> H
-  H --> I([Selesai])
+  B --> C[Sistem mengambil data penjualan, laba, transaksi, stok, kategori, dan metode pembayaran]
+  C --> D[Sistem menampilkan kartu performa dan stok menipis]
+  D --> E[Sistem menampilkan grafik penjualan dan laba]
+  E --> F{Admin memilih rentang periode?}
+  F -- Ya --> G[Sistem mengambil data sesuai rentang]
+  G --> H[Sistem memperbarui kartu performa dan grafik]
+  H --> I[Admin melihat informasi dashboard]
+  F -- Tidak --> I
+  I --> J([Selesai])
 ```
 
 ## 7. Activity Diagram Laporan

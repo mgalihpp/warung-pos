@@ -221,17 +221,19 @@ stop
 start
 :Buka menu Dashboard;
 |Sistem|
-:Minta data ringkasan;
+:Minta data performa (rentang hari ini/minggu/bulan/tahun);
 |Database|
 fork
-  :Ambil data penjualan & jumlah transaksi;
+  :Ambil total penjualan & laba sesuai rentang;
 fork again
-  :Ambil daftar stok menipis;
+  :Ambil jumlah transaksi & stok menipis;
 fork again
   :Ambil transaksi terbaru & barang terlaris;
+fork again
+  :Ambil penjualan per kategori & metode pembayaran;
 end fork
 |Sistem|
-:Olah & tampilkan grafik/statistik;
+:Olah & tampilkan kartu performa (penjualan, laba, margin) dan grafik;
 |Admin|
 :Lihat dashboard;
 stop

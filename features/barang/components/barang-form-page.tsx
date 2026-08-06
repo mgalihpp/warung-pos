@@ -73,6 +73,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
   const deleteMutation = useDeleteProduct()
   const adjustStockMutation = useAdjustStock()
   const mutation = mode === "create" ? createMutation : updateMutation
+  const backHref = mode === "edit" && product ? `/admin/barang/${product.id}` : "/admin/barang"
   const errors =
     mutation.data?.success === false ? (mutation.data.errors ?? null) : null
   const isPending = mutation.isPending || adjustStockMutation.isPending
@@ -191,7 +192,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
   return (
     <PageShell
       width="wide"
-      backHref="/admin/barang"
+      backHref={backHref}
       title={mode === "create" ? "Tambah Barang" : "Edit Barang"}
       subtitle={
         mode === "create"
@@ -204,7 +205,7 @@ export function BarangFormPage(props: BarangFormPageProps) {
             type="button"
             variant="outline"
             className="gap-2"
-            onClick={() => router.push("/admin/barang")}
+            onClick={() => router.push(backHref)}
           >
             <HugeiconsIcon icon={Cancel01Icon} size={14} />
             Batal
