@@ -4,7 +4,7 @@ import { prisma } from "@/lib/prisma"
 
 // ── Types ──
 
-type Range = "7d" | "30d" | "ytd"
+type Range = "today" | "week" | "month" | "year"
 
 // ── Helpers ──
 
@@ -118,11 +118,13 @@ const CATEGORY_PALETTE = [
 // ── Handler ──
 
 export function parseDashboardRange(value: string | null): Range {
-  const rangeParam = (value ?? "7d") as Range
-  return ["7d", "30d", "ytd"].includes(rangeParam) ? rangeParam : "7d"
+  const rangeParam = (value ?? "week") as Range
+  return ["today", "week", "month", "year"].includes(rangeParam)
+    ? rangeParam
+    : "week"
 }
 
-export async function getDashboardData(range: Range = "7d") {
+export async function getDashboardData(range: Range = "week") {
   const now = new Date()
   const startToday = startOfDayJakarta(now)
   const startTomorrow = addDays(startToday, 1)
@@ -132,6 +134,18 @@ export async function getDashboardData(range: Range = "7d") {
   const startNextMonth = addMonths(startMonth, 1)
   const start7d = addDays(startToday, -6) // inclusive of today = 7 days
   const startYear = startOfYearJakarta(now)
+  const rangeStart =
+    range === "today"
+      ? startToday
+      : range === "week"
+        ? start7d
+        : range === "month"
+          ? addDays(startToday, -29)
+          : startYear
+  const rangeEnd = startTomorrow
+  const rangeLength =
+    range === "today" ? 1 : range === "week" ? 7 : range === "month" ? 30 : 365
+  const previousRangeStart = addDays(rangeStart, -rangeLength)
 
   // --- Parallel queries ---
   const [
@@ -271,11 +285,13 @@ export async function getDashboardData(range: Range = "7d") {
         status: "COMPLETED",
         createdAt: {
           gte:
-            range === "7d"
-              ? start7d
-              : range === "30d"
-                ? addDays(startToday, -29)
-                : startYear,
+            range === "today"
+              ? startToday
+              : range === "week"
+                ? start7d
+                : range === "month"
+                  ? addDays(startToday, -29)
+                  : startYear,
           lt: startTomorrow,
         },
       },
@@ -286,6 +302,39 @@ export async function getDashboardData(range: Range = "7d") {
       },
     }),
   ])
+
+  const [currentRangeRows, previousRangeRows] = await Promise.all([
+    prisma.transaction.findMany({
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: rangeStart, lt: rangeEnd },
+      },
+      select: { total: true, items: { select: { grossProfit: true } } },
+    }),
+    prisma.transaction.findMany({
+      where: {
+        status: "COMPLETED",
+        createdAt: { gte: previousRangeStart, lt: rangeStart },
+      },
+      select: { total: true, items: { select: { grossProfit: true } } },
+    }),
+  ])
+
+  const rangeTotal = currentRangeRows.reduce((sum, row) => sum + row.total, 0)
+  const previousRangeTotal = previousRangeRows.reduce(
+    (sum, row) => sum + row.total,
+    0
+  )
+  const rangeProfit = currentRangeRows.reduce(
+    (sum, row) =>
+      sum + row.items.reduce((itemSum, item) => itemSum + item.grossProfit, 0),
+    0
+  )
+  const previousRangeProfit = previousRangeRows.reduce(
+    (sum, row) =>
+      sum + row.items.reduce((itemSum, item) => itemSum + item.grossProfit, 0),
+    0
+  )
 
   // --- Stats: today's sales sparkline + spark sums ---
   const dayTotals = new Map<string, number>()
@@ -356,9 +405,14 @@ export async function getDashboardData(range: Range = "7d") {
   // --- Sales chart series ---
   type SeriesPoint = { date: string; penjualan: number; laba: number }
   let salesChart: SeriesPoint[] = []
-  if (range === "7d" || range === "30d") {
-    const days = range === "7d" ? 7 : 30
-    const start = range === "7d" ? start7d : addDays(startToday, -29)
+  if (range !== "year") {
+    const days = range === "today" ? 1 : range === "week" ? 7 : 30
+    const start =
+      range === "today"
+        ? startToday
+        : range === "week"
+          ? start7d
+          : addDays(startToday, -29)
     const buckets = new Map<string, number>()
     const profitBuckets = new Map<string, number>()
     for (let i = 0; i < days; i++) {
@@ -547,6 +601,10 @@ export async function getDashboardData(range: Range = "7d") {
   return {
     range,
     stats,
+    performanceChanges: {
+      sales: pctChange(rangeTotal, previousRangeTotal),
+      profit: pctChange(rangeProfit, previousRangeProfit),
+    },
     salesChart,
     categoryChart,
     paymentMethods,

@@ -4,7 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 
 // ── Types ──
 
-export type SalesRange = "7d" | "30d" | "ytd"
+export type SalesRange = "today" | "week" | "month" | "year"
 
 export type StatBlock = {
   value: number
@@ -64,6 +64,7 @@ export type BestSellerItem = {
 export type DashboardData = {
   range: SalesRange
   stats: DashboardStats
+  performanceChanges: { sales: number | null; profit: number | null }
   salesChart: SalesChartPoint[]
   categoryChart: CategoryChartItem[]
   paymentMethods: PaymentMethodItem[]
@@ -85,7 +86,7 @@ async function fetchDashboard(range: SalesRange): Promise<DashboardData> {
 // ── Hook ──
 
 export function useDashboard(
-  range: SalesRange = "7d",
+  range: SalesRange = "week",
   initialData?: DashboardData
 ) {
   return useQuery({

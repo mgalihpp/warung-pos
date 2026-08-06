@@ -4,21 +4,15 @@ import { PengaturanPenggunaContent } from "@/features/pengaturan/components/peng
 import { prisma } from "@/lib/prisma"
 import { getSessionUser } from "@/lib/server/auth-guards"
 
-export default async function PengaturanPenggunaPage() {
-  const user = await getSessionUser()
+interface FetchUsersParams {
+  userId?: string | null
+}
 
-  if (!user) {
-    redirect("/login")
-  }
-
-  if (user.role !== "admin") {
-    redirect("/unauthorized")
-  }
-
+async function getUsersData({ userId }: FetchUsersParams = {}) {
   const [currentUser, users] = await Promise.all([
-    user.id
+    userId
       ? prisma.user.findUnique({
-          where: { id: user.id },
+          where: { id: userId },
           select: {
             id: true,
             name: true,
@@ -40,6 +34,22 @@ export default async function PengaturanPenggunaPage() {
       },
     }),
   ])
+
+  return { currentUser, users }
+}
+
+export default async function PengaturanPenggunaPage() {
+  const user = await getSessionUser()
+
+  if (!user) {
+    redirect("/login")
+  }
+
+  if (user.role !== "admin") {
+    redirect("/unauthorized")
+  }
+
+  const { currentUser, users } = await getUsersData({ userId: user?.id })
 
   return <PengaturanPenggunaContent currentUser={currentUser} users={users} />
 }

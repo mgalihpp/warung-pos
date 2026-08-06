@@ -1,7 +1,6 @@
 import { Suspense } from "react"
 import { redirect } from "next/navigation"
 
-import { TransaksiStatCards } from "@/features/transaksi/components/transaksi-stat-cards"
 import { TransaksiTable } from "@/features/transaksi/components/transaksi-table"
 import { CashierTransaksiMobile } from "@/features/transaksi/components/cashier-transaksi-mobile"
 import { getTransaksiPageData } from "@/features/transaksi/server-data"
@@ -21,7 +20,7 @@ export default async function CashierTransaksiPage() {
   const data = await getTransaksiPageData()
 
   return (
-    <div className="flex h-full min-h-0 min-w-0 flex-col gap-3 overflow-hidden bg-slate-50 p-4 lg:min-h-screen lg:gap-6 lg:overflow-visible lg:bg-transparent lg:p-6">
+    <div className="flex h-full min-h-0 min-w-0 flex-col gap-3 overflow-hidden bg-background p-4 lg:min-h-screen lg:gap-6 lg:overflow-visible lg:bg-transparent lg:p-6">
       <div className="hidden lg:block">
         <h1 className="text-xl font-bold tracking-tight lg:text-2xl">
           Riwayat Transaksi
@@ -32,7 +31,6 @@ export default async function CashierTransaksiPage() {
       </div>
 
       <div className="hidden lg:flex lg:flex-col lg:gap-6">
-        <TransaksiStatCards stats={data.stats} />
         <Suspense>
           <TransaksiTable
             transactions={data.transactions}

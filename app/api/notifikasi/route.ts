@@ -23,26 +23,30 @@ export async function GET() {
     return NextResponse.json({ error: "Tidak memiliki akses" }, { status: 403 })
   }
 
-  const lowStockProducts = await prisma.product.findMany({
-    where: {
-      isActive: true,
-      OR: [
-        { stock: { lte: 0 } },
-        { stock: { lte: prisma.product.fields.minStock } },
-      ],
-    },
-    orderBy: [{ stock: "asc" }, { name: "asc" }],
-    take: 6,
-    select: {
-      id: true,
-      name: true,
-      image: true,
-      unit: true,
-      stock: true,
-      minStock: true,
-      updatedAt: true,
-    },
-  })
+  const stockWhere = {
+    isActive: true,
+    OR: [
+      { stock: { lte: 0 } },
+      { stock: { lte: prisma.product.fields.minStock } },
+    ],
+  }
+  const [lowStockProducts, totalCount] = await Promise.all([
+    prisma.product.findMany({
+      where: stockWhere,
+      orderBy: [{ stock: "asc" }, { name: "asc" }],
+      take: 6,
+      select: {
+        id: true,
+        name: true,
+        image: true,
+        unit: true,
+        stock: true,
+        minStock: true,
+        updatedAt: true,
+      },
+    }),
+    prisma.product.count({ where: stockWhere }),
+  ])
 
   const stockNotifications = lowStockProducts.map((product) => ({
     id: `stock-${product.id}`,
@@ -60,13 +64,11 @@ export async function GET() {
     createdAt: product.updatedAt.toISOString(),
   }))
 
-  const items = stockNotifications
-    .sort(
-      (a, b) =>
-        a.priority - b.priority ||
-        Date.parse(b.createdAt) - Date.parse(a.createdAt)
-    )
-    .slice(0, 6)
+  const items = stockNotifications.sort(
+    (a, b) =>
+      a.priority - b.priority ||
+      Date.parse(b.createdAt) - Date.parse(a.createdAt)
+  )
 
-  return NextResponse.json({ count: items.length, items })
+  return NextResponse.json({ count: totalCount, items })
 }

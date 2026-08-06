@@ -1,0 +1,31 @@
+@startuml Riwayat Transaksi Kasir
+|Kasir|
+start
+:Buka /cashier/transaksi;
+
+|Sistem|
+:Ambil session user (cashierId);
+:Fetch riwayat transaksi kasir;
+
+|Database|
+:Query transaksi WHERE cashierId = current user;
+:Urutkan berdasarkan waktu terbaru;
+:Include jumlah item & total;
+
+|Kasir|
+:Lihat daftar transaksi sendiri;
+:Filter/cari transaksi tertentu;
+
+if (Lihat detail?) then (Ya)
+  :Klik transaksi;
+  |Sistem|
+  :Fetch /api/transaksi/[id];
+  |Database|
+  :Query detail transaksi + items;
+  |Admin|
+  :Lihat detail (read-only);
+else (Tidak)
+endif
+
+stop
+@enduml

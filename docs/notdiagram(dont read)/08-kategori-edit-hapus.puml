@@ -1,0 +1,48 @@
+@startuml Edit Hapus Kategori
+|Admin|
+start
+:Buka /admin/kategori;
+
+if (Aksi?) then (Edit)
+  :Klik "Edit" pada kategori;
+  :Ubah nama/deskripsi;
+
+  |Sistem|
+  :Validasi input;
+  :Kirim PUT /api/kategori/[id];
+
+  |Database|
+  :Update data kategori;
+  :Return success;
+
+  |Sistem|
+  :Invalidate cache "kategori" & "barang";
+  :Refresh halaman;
+
+elseif (Hapus) then
+  :Klik "Hapus" pada kategori;
+  :Konfirmasi dialog;
+
+  |Sistem|
+  :Kirim DELETE /api/kategori/[id];
+
+  |Database|
+  :Cek apakah kategori punya barang;
+
+  if (Punya barang?) then (Ya)
+    :Return error "Kategori masih digunakan";
+    |Admin|
+    :Tampilkan pesan error;
+    stop
+  else (Tidak)
+    :Hapus kategori permanen;
+    :Return success;
+  endif
+
+  |Sistem|
+  :Invalidate cache "kategori" & "barang";
+  :Refresh halaman;
+endif
+
+stop
+@enduml

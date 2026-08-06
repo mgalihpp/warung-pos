@@ -8,7 +8,6 @@ import {
   ChartAverageIcon,
   ArrowUp01Icon,
   ArrowDown01Icon,
-  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons"
 import { formatRupiah } from "@/lib/format-currency"
 import type { TransactionStats } from "../hooks/use-transaksi-queries"
@@ -98,11 +97,6 @@ export function TransaksiStatCards({ stats }: { stats: TransactionStats }) {
               </p>
               <p className="text-xl font-bold tracking-tight">{stat.value}</p>
             </div>
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              size={14}
-              className="ml-auto shrink-0 text-muted-foreground"
-            />
           </div>
         ))}
       </div>
@@ -142,11 +136,6 @@ export function TransaksiStatCards({ stats }: { stats: TransactionStats }) {
                 {stat.description}
               </p>
             </div>
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              size={16}
-              className="shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
-            />
             <div className="pointer-events-none absolute inset-0 bg-gradient-to-br from-primary/[0.02] to-transparent opacity-0 transition-opacity group-hover:opacity-100" />
           </div>
         ))}

@@ -139,7 +139,7 @@ export function TransaksiEditPage({ data, basePath }: TransaksiEditPageProps) {
   return (
     <PageShell
       width="wide"
-      className="h-full overflow-y-auto bg-slate-50 lg:bg-transparent"
+      className="h-full overflow-y-auto bg-background lg:bg-transparent"
       backHref={`${basePath}/${data.id}`}
       title="Edit Transaksi"
       subtitle={`${data.transactionNumber} — Ubah item, metode bayar, atau catatan`}

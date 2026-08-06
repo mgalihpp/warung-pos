@@ -2,15 +2,21 @@ import Image from "next/image"
 import { Badge } from "@/components/ui/badge"
 import type { LowStockItem } from "@/features/dashboard/hooks/use-dashboard-queries"
 
-export function LowStockPanel({ items }: { items: LowStockItem[] }) {
-  const lowStockItems = items
+export function LowStockPanel({
+  items,
+  total,
+}: {
+  items: LowStockItem[]
+  total: number
+}) {
+  const lowStockItems = items.slice(0, 5)
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-3 flex items-center justify-between">
         <div className="flex items-center gap-2">
           <h3 className="text-sm font-semibold">Stok Perlu Restok</h3>
           <Badge className="bg-destructive/10 text-destructive hover:bg-destructive/20">
-            {lowStockItems.length}
+            {total}
           </Badge>
         </div>
       </div>
@@ -74,6 +80,14 @@ export function LowStockPanel({ items }: { items: LowStockItem[] }) {
             </div>
           )
         })}
+        {total > lowStockItems.length && (
+          <a
+            href="/admin/barang/daftar"
+            className="block pt-1 text-center text-xs font-semibold text-primary hover:underline"
+          >
+            Lihat semua
+          </a>
+        )}
       </div>
     </div>
   )

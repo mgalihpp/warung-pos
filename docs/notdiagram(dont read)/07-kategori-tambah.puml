@@ -1,0 +1,37 @@
+@startuml Tambah Kategori
+|Admin|
+start
+:Buka /admin/kategori/tambah;
+:Masukkan nama kategori;
+:Masukkan deskripsi (opsional);
+
+|Sistem|
+:Validasi input (Zod schema);
+:Auto-generate slug dari nama;
+
+if (Slug sudah ada?) then (Ya)
+  :Tambah suffix angka unik;
+else (Tidak)
+endif
+
+:Kirim POST /api/kategori;
+
+|Database|
+:Cek duplikasi nama;
+:Insert kategori baru;
+
+if (Berhasil?) then (Ya)
+  :Return response success;
+else (Tidak)
+  :Return error duplikasi;
+  stop
+endif
+
+|Sistem|
+:Invalidate cache "kategori" & "barang";
+:Redirect ke /admin/kategori;
+
+|Admin|
+:Lihat kategori baru di daftar;
+stop
+@enduml

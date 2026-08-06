@@ -1,0 +1,30 @@
+@startuml Hapus Barang
+|Admin|
+start
+:Buka daftar barang;
+:Klik tombol "Hapus" pada produk;
+:Konfirmasi dialog hapus;
+
+|Sistem|
+:Kirim DELETE /api/barang/[id];
+
+|Database|
+:Cek apakah produk punya riwayat transaksi atau penyesuaian stok;
+
+if (Punya riwayat?) then (Ya)
+  :Soft delete (isActive = false);
+  :Produk tidak tampil tapi data tersimpan;
+else (Tidak)
+  :Hard delete (hapus permanen);
+endif
+
+:Return response success;
+
+|Sistem|
+:Invalidate cache "barang";
+:Refresh halaman;
+
+|Admin|
+:Lihat produk hilang dari daftar;
+stop
+@enduml

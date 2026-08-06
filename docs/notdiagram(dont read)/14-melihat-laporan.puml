@@ -1,0 +1,71 @@
+@startuml Melihat Laporan
+|Admin|
+start
+:Buka /admin/laporan;
+
+|Sistem|
+:Tab navigation (Penjualan / Stok / Kas / Kasir);
+
+if (Tab?) then (Penjualan)
+  :Klik tab "Penjualan";
+  |Sistem|
+  :Fetch /api/laporan/penjualan?range=...;
+  |Database|
+  fork
+    :Query total penjualan & laba kotor;
+  fork again
+    :Query data trend per hari/bulan;
+  fork again
+    :Query breakdown per kategori;
+  fork again
+    :Query metode pembayaran;
+  fork again
+    :Query produk terlaris (top 5);
+  fork again
+    :Query kasir terlaris (top 5);
+  end fork
+  |Admin|
+  :Lihat grafik trend penjualan;
+  :Lihat pie chart kategori;
+  :Lihat tabel ringkasan;
+  :Ganti range (7d/30d/tahun);
+
+elseif (Stok) then
+  :Klik tab "Stok";
+  |Sistem|
+  :Fetch /api/laporan/stok;
+  |Database|
+  :Query semua produk aktif;
+  :Hitung status stok (OK/LOW/OUT);
+  :Hitung total nilai inventori;
+  |Admin|
+  :Lihat statistik stok;
+  :Filter produk menipis/habis;
+  :Lihat nilai inventori;
+
+elseif (Kas) then
+  :Klik tab "Kas";
+  |Sistem|
+  :Fetch /api/laporan/kas?date=...;
+  |Database|
+  :Query transaksi per tanggal;
+  :Breakdown per metode bayar;
+  :Riwayat 30 hari terakhir;
+  |Admin|
+  :Lihat laporan kas harian;
+  :Lihat riwayat kas;
+
+elseif (Kasir) then
+  :Klik tab "Kasir";
+  |Sistem|
+  :Fetch /api/laporan/kasir?range=...;
+  |Database|
+  :Query performa per kasir;
+  :Hitung revenue, jumlah transaksi, profit;
+  |Admin|
+  :Lihat perbandingan kasir;
+  :Lihat trend performa kasir;
+endif
+
+stop
+@enduml

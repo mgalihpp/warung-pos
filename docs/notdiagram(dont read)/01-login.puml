@@ -1,0 +1,49 @@
+@startuml Login
+|Admin/Kasir|
+start
+:Buka halaman /login;
+:Masukkan Email;
+:Masukkan Password;
+
+|Sistem|
+:Terima data login;
+:Validasi format input;
+
+if (Input valid?) then (Tidak)
+  :Tampilkan pesan error;
+  |Admin/Kasir|
+  :Koreksi input;
+  stop
+else (Ya)
+endif
+
+:Kirim request ke Better Auth API;
+:Autentikasi kredensial;
+
+if (Autentikasi berhasil?) then (Tidak)
+  :Kirim response error 401;
+  |Admin/Kasir|
+  :Tampilkan "Email/Password salah";
+  stop
+else (Ya)
+endif
+
+|Database|
+:Query session & user role;
+
+|Sistem|
+:Generate session token;
+:Set cookie sesi;
+
+if (Role user?) then (Admin)
+  |Admin/Kasir|
+  :Redirect ke /admin;
+elseif (Cashier) then
+  |Admin/Kasir|
+  :Redirect ke /cashier;
+else
+  :Redirect ke /unauthorized;
+endif
+
+stop
+@enduml

@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Struktur Navigasi — Warung Sembako POS</title>
+    <script src="https://cdn.jsdelivr.net/npm/svg-pan-zoom@3.6.1/dist/svg-pan-zoom.min.js"></script>
+    <script type="module">
+        import mermaid from 'https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.esm.min.mjs';
+        mermaid.initialize({
+            startOnLoad: false,
+            securityLevel: 'loose',
+            theme: 'base',
+            themeVariables: {
+                primaryColor: '#1e293b',
+                primaryTextColor: '#f8fafc',
+                primaryBorderColor: '#334155',
+                lineColor: '#64748b',
+                secondaryColor: '#0f172a',
+                tertiaryColor: '#1e293b',
+                fontSize: '14px'
+            },
+            flowchart: {
+                useMaxWidth: true,
+                htmlLabels: true,
+                curve: 'basis'
+            }
+        });
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            await mermaid.run({ querySelector: '.mermaid' });
+
+            document.querySelectorAll('.mermaid svg').forEach((svg, i) => {
+                svg.style.cursor = 'grab';
+                const panZoom = svgPanZoom(svg, {
+                    zoomEnabled: true,
+                    controlIconsEnabled: true,
+                    fit: true,
+                    center: true,
+                    minZoom: 0.3,
+                    maxZoom: 10,
+                    controlIcons: { zoomIn: true, zoomOut: true, reset: true }
+                });
+
+                svg.addEventListener('mousedown', () => svg.style.cursor = 'grabbing');
+                svg.addEventListener('mouseup', () => svg.style.cursor = 'grab');
+
+                const hint = document.createElement('div');
+                hint.className = 'zoom-hint';
+                hint.textContent = 'Scroll to zoom · Drag to pan';
+                svg.closest('.mermaid').after(hint);
+            });
+        });
+    </script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            padding: 2rem;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            color: #f8fafc;
+        }
+        .subtitle {
+            color: #94a3b8;
+            margin-bottom: 2rem;
+            font-size: 1rem;
+        }
+        .card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+        .card h2 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #f8fafc;
+            margin-bottom: 0.75rem;
+        }
+        .card .badge {
+            display: inline-block;
+            background: #3b82f6;
+            color: white;
+            padding: 0.2rem 0.6rem;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            margin-left: 0.5rem;
+            vertical-align: middle;
+        }
+        .card p {
+            color: #94a3b8;
+            font-size: 0.875rem;
+            line-height: 1.6;
+            margin-bottom: 1.5rem;
+        }
+        .zoom-hint {
+            text-align: center;
+            color: #64748b;
+            font-size: 0.75rem;
+            margin-top: 0.5rem;
+            user-select: none;
+        }
+        .mermaid {
+            background: #0f172a;
+            padding: 1.5rem;
+            border-radius: 8px;
+            overflow: hidden;
+            position: relative;
+        }
+        .mermaid svg {
+            max-width: none;
+            display: block;
+            margin: 0 auto;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 1rem;
+        }
+        th, td {
+            text-align: left;
+            padding: 0.75rem 1rem;
+            border-bottom: 1px solid #334155;
+            font-size: 0.875rem;
+        }
+        th {
+            color: #94a3b8;
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.75rem;
+            letter-spacing: 0.05em;
+        }
+        td {
+            color: #e2e8f0;
+        }
+        .footer {
+            text-align: center;
+            color: #475569;
+            font-size: 0.8rem;
+            margin-top: 2rem;
+            padding: 1rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Struktur Navigasi</h1>
+        <p class="subtitle">Warung Sembako POS — Diagram Struktur Navigasi untuk Penelitian Ilmiah</p>
+
+        <div class="card">
+            <h2>1. Linear Navigation <span class="badge">Sequential</span></h2>
+            <p>Pengguna mengikuti alur langkah demi langkah secara berurutan. Tidak ada cabang atau loncatan ke halaman lain. Contoh: proses checkout POS dan alur autentikasi.</p>
+            <div class="mermaid">
+                graph LR
+                    A[Login] --> B[Register]
+                    B --> C[Dashboard]
+
+                    D[POS - Pilih Barang] --> E[Keranjang]
+                    E --> F[Pembayaran]
+                    F --> G[Selesai / Nota]
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>2. Non-Linear Navigation <span class="badge">Network</span></h2>
+            <p>Setiap halaman dapat diakses dari halaman mana pun tanpa urutan tetap. Pengguna memiliki kebebasan penuh menjelajah. Contoh: tujuh menu utama Admin.</p>
+            <div class="mermaid">
+                graph TD
+                    D[Dashboard] --- K[Kasir / POS]
+                    D --- B[Barang]
+                    D --- KT[Kategori]
+                    D --- T[Transaksi]
+                    D --- L[Laporan]
+                    D --- P[Pengaturan]
+                    K --- B
+                    K --- T
+                    B --- KT
+                    T --- L
+                    L --- P
+                    P --- K
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>3. Hierarchical Navigation <span class="badge">Tree</span></h2>
+            <p>Struktur pohon dengan hubungan parent-child. Navigasi dilakukan dengan turun ke sub-level atau naik ke level di atasnya. Contoh: tab Laporan, Pengaturan, dan Barang.</p>
+            <div class="mermaid">
+                graph TD
+                    Admin[Admin Panel] --> D[Dashboard]
+                    Admin --> K[Kasir / POS]
+                    Admin --> B[Barang]
+                    Admin --> KT[Kategori]
+                    Admin --> T[Transaksi]
+                    Admin --> L[Laporan]
+                    Admin --> P[Pengaturan]
+                    Admin --> PG[Pengguna - Rencana]
+
+                    K ==> K1[Pilih Barang]
+                    K1 ==> K2[Keranjang]
+                    K2 ==> K3[Pembayaran]
+                    K3 ==> K4[Selesai]
+
+                    B --> BD[Daftar Barang]
+                    B --> BT[Tambah Barang]
+                    B --> BE[Detail Barang]
+                    BE --> BEE[Edit Barang]
+
+                    KT --> KTT[Tambah Kategori]
+                    KT --> KTE[Edit Kategori]
+
+                    T --> TD[Detail Transaksi]
+                    TD --> TDE[Edit Transaksi]
+
+                    L --> LP[Penjualan]
+                    L --> LS[Lap. Stok]
+                    L --> LK[Lap. Kas - Rencana]
+                    L --> LKR[Lap. Kasir - Rencana]
+
+                    P --> PP[Profile]
+                    P --> PM[Manajemen Akun]
+                    P --> PTA[Tambah Akun]
+                    P --> PT[Tema]
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>4. Hybrid / Campuran <span class="badge">Combined</span></h2>
+            <p>Menggabungkan elemen linear, non-linear, dan hierarkis dalam satu arsitektur. Ini adalah struktur <strong>aktual</strong> dari Warung Sembako POS.</p>
+            <div class="mermaid">
+                graph TD
+                    L[Login] --> R{Role}
+                    R -->|Admin| A[Admin Panel]
+                    R -->|Cashier| C[Cashier Panel]
+
+                    A --> S[Sidebar Navigation]
+                    S --> D[Dashboard]
+                    S --> K[Kasir / POS]
+                    S --> B[Barang]
+                    S --> KT[Kategori]
+                    S --> T[Transaksi]
+                    S --> L[Laporan]
+                    S --> P[Pengaturan]
+                    S --> PU[Pengguna - Rencana]
+
+                    K ==> K1[Pilih Barang]
+                    K1 ==> K2[Keranjang]
+                    K2 ==> K3[Pembayaran]
+                    K3 ==> K4[Selesai]
+
+                    B --> BD[Daftar Barang]
+                    B --> BT[Tambah Barang]
+                    B --> BE[Detail Barang]
+                    BE --> BEE[Edit Barang]
+
+                    KT --> KTT[Tambah Kategori]
+                    KT --> KTE[Edit Kategori]
+
+                    T --> TD[Detail Transaksi]
+                    TD --> TDE[Edit Transaksi]
+
+                    L --> LP[Penjualan]
+                    L --> LS[Lap. Stok]
+                    L --> LK[Lap. Kas - Rencana]
+                    L --> LKR[Lap. Kasir - Rencana]
+
+                    P --> PP[Profile]
+                    P --> PM[Manajemen Akun]
+                    P --> PTA[Tambah Akun]
+                    P --> PT[Tema]
+
+                    C --> CK[Kasir / POS]
+                    C --> CR[Riwayat Transaksi]
+                    CR --> CRD[Detail Transaksi]
+                    C --> CP[Pengaturan]
+                    CP --> CPT[Tema]
+            </div>
+        </div>
+
+        <div class="card">
+            <h2>Ringkasan</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>Tipe Struktur</th>
+                        <th>Karakteristik</th>
+                        <th>Ada di Aplikasi</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Linear</strong></td>
+                        <td>Berurutan, satu arah</td>
+                        <td>Checkout POS, autentikasi</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Non-Linear</strong></td>
+                        <td>Bebas, semua terhubung</td>
+                        <td>Menu utama Admin & Cashier</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hierarkis</strong></td>
+                        <td>Pohon, parent-child</td>
+                        <td>Laporan, Pengaturan, Barang</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Hybrid / Campuran</strong></td>
+                        <td>Gabungan ketiganya</td>
+                        <td><strong>Keseluruhan aplikasi</strong></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="footer">
+            Warung Sembako POS &mdash; Diagram Struktur Navigasi untuk Penelitian Ilmiah
+        </div>
+    </div>
+</body>
+</html>

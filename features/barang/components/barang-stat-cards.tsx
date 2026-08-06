@@ -6,7 +6,6 @@ import {
   Layers01Icon,
   Alert02Icon,
   Cancel01Icon,
-  ArrowRight01Icon,
 } from "@hugeicons/core-free-icons"
 import type { BarangStats } from "../types"
 
@@ -74,11 +73,6 @@ export function BarangStatCards({ stats }: BarangStatCardsProps) {
               </p>
               <p className="text-xl font-bold tracking-tight">{stat.value}</p>
             </div>
-            <HugeiconsIcon
-              icon={ArrowRight01Icon}
-              size={14}
-              className="ml-auto shrink-0 text-muted-foreground"
-            />
           </div>
         ))}
       </div>

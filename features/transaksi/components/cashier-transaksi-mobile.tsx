@@ -203,7 +203,7 @@ export function TransaksiMobile({
                     className={`flex items-center justify-between rounded-xl border p-4 text-left transition-colors ${
                       period === p
                         ? "border-primary bg-primary/5 font-semibold text-primary"
-                        : "border-border/50 bg-white hover:bg-slate-50"
+                        : "border-border/50 bg-card hover:bg-muted/50"
                     }`}
                   >
                     <div>
@@ -265,14 +265,14 @@ export function TransaksiMobile({
           placeholder="Cari nomor transaksi..."
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
-          className="h-12 w-full rounded-xl border border-border/60 bg-white pr-4 pl-10 text-sm shadow-sm transition-colors outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
+          className="h-12 w-full rounded-xl border border-border/60 bg-background pr-4 pl-10 text-sm shadow-sm transition-colors outline-none placeholder:text-muted-foreground focus:border-primary focus:ring-1 focus:ring-primary"
         />
       </div>
 
       {/* ── Transaction Card List ── */}
       <div className="flex min-h-0 flex-1 flex-col gap-3 overflow-y-auto pb-6">
         {filteredTransactions.length === 0 ? (
-          <div className="rounded-xl border border-dashed bg-white p-10 text-center text-sm text-muted-foreground">
+          <div className="rounded-xl border border-dashed bg-card p-10 text-center text-sm text-muted-foreground">
             Tidak ada transaksi yang ditemukan.
           </div>
         ) : (
@@ -289,7 +289,7 @@ export function TransaksiMobile({
 
                 <div className="min-w-0 flex-1 self-stretch py-0.5">
                   <div className="flex min-w-0 items-start justify-between gap-2">
-                    <p className="min-w-0 truncate text-base leading-tight font-bold text-slate-800">
+                    <p className="min-w-0 truncate text-base leading-tight font-bold">
                       {formatRupiah(trx.total)}
                     </p>
                     <span
@@ -304,6 +304,11 @@ export function TransaksiMobile({
                     <p className="truncate"># ID: {trx.transactionNumber}</p>
                   </div>
                 </div>
+                <HugeiconsIcon
+                  icon={ArrowRight01Icon}
+                  size={18}
+                  className="shrink-0 text-muted-foreground"
+                />
               </>
             )
 
@@ -312,7 +317,7 @@ export function TransaksiMobile({
                 <Link
                   key={trx.id}
                   href={`${detailBasePath}/${trx.id}`}
-                  className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
+                  className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-card p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-muted/50"
                 >
                   {cardContent}
                 </Link>
@@ -324,7 +329,7 @@ export function TransaksiMobile({
                 key={trx.id}
                 type="button"
                 onClick={() => setSelectedTransactionId(trx.id)}
-                className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-white p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-slate-50"
+                className="flex min-h-[84px] w-full items-center gap-3.5 overflow-visible rounded-xl border border-border/50 bg-card p-4 text-left shadow-sm transition-all active:scale-[0.98] active:bg-muted/50"
               >
                 {cardContent}
               </button>

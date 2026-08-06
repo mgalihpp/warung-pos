@@ -1,0 +1,58 @@
+@startuml Dashboard
+|Admin|
+start
+:Buka /admin;
+
+|Sistem|
+:Terima request;
+:Ambil session dari cookie;
+
+|Database|
+:Validasi session user;
+:Query role = admin;
+
+if (Session valid & role admin?) then (Tidak)
+  :Redirect ke /login;
+  stop
+else (Ya)
+endif
+
+|Sistem|
+:Jalankan getDashboardData("7d");
+
+|Database|
+fork
+  :Query total penjualan 7 hari;
+fork again
+  :Query total produk;
+fork again
+  :Query transaksi hari ini;
+fork again
+  :Query produk stok menipis;
+fork again
+  :Query data chart penjualan per hari;
+fork again
+  :Query transaksi terbaru;
+fork again
+  :Query produk terlaris;
+fork again
+  :Query kategori dengan jumlah barang;
+end fork
+
+|Sistem|
+:Gabungkan semua data dashboard;
+:Render Server Component AdminDashboard;
+:Kirim HTML ke client;
+
+|Admin|
+:Lihat statistik (total penjualan, produk, transaksi);
+:Ganti range chart (7d/30d/tahun);
+
+|Sistem|
+:Fetch /api/dashboard?range=...;
+:Query data sesuai range;
+
+|Admin|
+:Tampilkan chart & data terbaru;
+stop
+@enduml

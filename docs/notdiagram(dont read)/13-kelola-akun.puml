@@ -1,0 +1,80 @@
+@startuml Kelola Akun
+|Admin|
+start
+:Buka /admin/pengaturan/akun;
+
+|Sistem|
+:Fetch daftar pengguna;
+
+|Database|
+:Query semua user (name, email, role, banned, avatar);
+
+|Admin|
+:Lihat daftar akun;
+
+if (Aksi?) then (Tambah Akun)
+  :Buka /admin/pengaturan/tambah-akun;
+  :Isi nama, email, password, role;
+  :Klik "Buat Akun";
+
+  |Sistem|
+  :Validasi input;
+  :Server Action createUserAccount();
+  :Kirim ke Better Auth API (createUser);
+
+  |Database|
+  :Insert user baru + hash password;
+
+  |Sistem|
+  :Return success;
+  :Invalidate cache;
+  :Refresh halaman;
+
+elseif (Edit Akun) then
+  :Klik "Edit" pada akun;
+  :Ubah email, role, status (aktif/ banned);
+  :Atau isi password baru (opsional);
+  :Klik "Simpan";
+
+  |Sistem|
+  :Validasi input;
+  :Server Action updateUserAccess();
+
+  |Database|
+  :Guard: cek bukan last admin;
+  :Update user (email, role, banned);
+  if (Password baru diisi?) then (Ya)
+    :auth.api.setUserPassword();
+  endif
+
+  |Sistem|
+  :Return success;
+  :Refresh halaman;
+
+elseif (Hapus Akun) then
+  :Klik "Hapus" pada akun;
+  :Konfirmasi dialog;
+
+  |Sistem|
+  :Server Action deleteUserAccount();
+
+  |Database|
+  :Guard: tidak bisa hapus diri sendiri;
+  :Guard: tidak bisa hapus admin terakhir;
+  :Guard: cek riwayat transaksi/stock adjustment;
+
+  if (Punya riwayat?) then (Ya)
+    :Return error "Akun punya riwayat";
+    |Admin|
+    :Tampilkan pesan error;
+    stop
+  else (Tidak)
+    :Hapus user;
+  endif
+
+  |Sistem|
+  :Refresh halaman;
+endif
+
+stop
+@enduml

@@ -63,6 +63,7 @@ export function DashboardHeader() {
   const [notifications, setNotifications] = React.useState<NotificationItem[]>(
     []
   )
+  const [notificationTotal, setNotificationTotal] = React.useState(0)
   const [isLoadingNotifications, setIsLoadingNotifications] =
     React.useState(true)
   const isHydrated = React.useSyncExternalStore(
@@ -118,11 +119,16 @@ export function DashboardHeader() {
           return
         }
 
-        const data = (await response.json()) as { items?: NotificationItem[] }
+        const data = (await response.json()) as {
+          count?: number
+          items?: NotificationItem[]
+        }
         setNotifications(data.items ?? [])
+        setNotificationTotal(data.count ?? data.items?.length ?? 0)
       } catch {
         if (!controller.signal.aborted) {
           setNotifications([])
+          setNotificationTotal(0)
         }
       } finally {
         if (!controller.signal.aborted) {
@@ -135,7 +141,7 @@ export function DashboardHeader() {
     return () => controller.abort()
   }, [])
 
-  const notificationCount = notifications.length
+  const notificationCount = notificationTotal
 
   return (
     <header className="sticky top-0 z-30 flex h-14 items-center gap-3 border-b bg-background/95 px-4 backdrop-blur supports-[backdrop-filter]:bg-background/60">
@@ -151,7 +157,7 @@ export function DashboardHeader() {
           >
             <HugeiconsIcon icon={SearchIcon} size={16} className="shrink-0" />
             <span className="hidden flex-1 truncate text-left sm:block">
-              Cari barang, transaksi, pelanggan...
+              Cari barang, transaksi...
             </span>
             <span className="flex-1 truncate text-left sm:hidden">Cari...</span>
             <Kbd className="hidden md:inline-flex">Ctrl + K</Kbd>
@@ -276,7 +282,7 @@ export function DashboardHeader() {
               </DropdownMenuItem>
             )}
             {!isLoadingNotifications &&
-              notifications.map((notification) => (
+              notifications.slice(0, 6).map((notification) => (
                 <DropdownMenuItem key={notification.id} asChild>
                   <Link
                     href={notification.href}
@@ -311,6 +317,14 @@ export function DashboardHeader() {
                   </Link>
                 </DropdownMenuItem>
               ))}
+            {!isLoadingNotifications && notificationCount > 6 && (
+              <DropdownMenuItem
+                asChild
+                className="justify-center text-xs font-semibold text-primary"
+              >
+                <Link href="/admin/barang/daftar">Lihat semua</Link>
+              </DropdownMenuItem>
+            )}
           </DropdownMenuGroup>
         </DropdownMenuContent>
       </DropdownMenu>

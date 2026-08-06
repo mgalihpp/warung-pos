@@ -1,0 +1,47 @@
+@startuml Detail Barang
+|Admin|
+start
+:Buka /admin/barang/[id];
+
+|Sistem|
+:Fetch detail produk + data pendukung;
+
+|Database|
+fork
+  :Query data produk;
+fork again
+  :Query riwayat penyesuaian stok;
+fork again
+  :Query trend penjualan produk;
+end fork
+
+|Admin|
+:Lihat detail produk;
+:Lihat grafik penjualan;
+:Lihat riwayat stok;
+
+if (Perlu penyesuaian stok?) then (Ya)
+  :Klik "Sesuaikan Stok";
+  :Pilih mode (IN / KOREKSI);
+  :Masukkan jumlah & alasan;
+
+  |Sistem|
+  :Kirim PATCH /api/barang/[id];
+
+  |Database|
+  :Mulai transaksi DB;
+  :Hitung stok baru;
+  :Update field stock;
+  :Buat record StockAdjustment;
+  :Commit transaksi;
+
+  |Sistem|
+  :Return success;
+
+  |Admin|
+  :Lihat stok terbaru;
+else (Tidak)
+endif
+
+stop
+@enduml

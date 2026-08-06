@@ -348,6 +348,7 @@ function ProductActionMenu({ product }: { product: BarangItem }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            type="button"
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Aksi lainnya"
           >
@@ -633,10 +634,6 @@ export function BarangTable({ products, categories }: BarangTableProps) {
 
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Daftar Barang</h3>
-      </div>
-
       <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
         <div className="relative flex-1 p-[3px]">
           <HugeiconsIcon
@@ -952,6 +949,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
         </p>
         <div className="flex items-center gap-1">
           <button
+            type="button"
             disabled={safePage === 1}
             onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
@@ -962,6 +960,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
             .slice(0, 5)
             .map((page) => (
               <button
+                type="button"
                 key={page}
                 onClick={() => setCurrentPage(String(page))}
                 className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${safePage === page ? "bg-primary text-primary-foreground" : "border text-muted-foreground hover:bg-muted"}`}
@@ -970,6 +969,7 @@ export function BarangTable({ products, categories }: BarangTableProps) {
               </button>
             ))}
           <button
+            type="button"
             disabled={safePage === totalPages}
             onClick={() =>
               setCurrentPage(String(Math.min(totalPages, safePage + 1)))

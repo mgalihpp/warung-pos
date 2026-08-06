@@ -25,6 +25,8 @@ import {
   CartesianGrid,
   Cell,
   LabelList,
+  Pie,
+  PieChart,
   XAxis,
   YAxis,
 } from "recharts"
@@ -35,7 +37,7 @@ import {
   ChartTooltipContent,
   type ChartConfig,
 } from "@/components/ui/chart"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import { Skeleton } from "@/components/ui/skeleton"
 import {
   Drawer,
   DrawerContent,
@@ -43,16 +45,16 @@ import {
   DrawerTitle,
   DrawerTrigger,
 } from "@/components/ui/drawer"
-import { Skeleton } from "@/components/ui/skeleton"
 import { useSearchParam } from "@/hooks/use-search-param"
 import { downloadCSV } from "@/lib/export-csv"
 import { formatRupiah, formatNumber } from "@/lib/format-currency"
-import { BestSellersPanel } from "@/features/dashboard/components/best-sellers-panel"
 import type { RawExportRow } from "@/features/laporan/server-export-data"
 import {
   useLaporanPenjualan,
   type LaporanRange,
   type PenjualanData,
+  type TopCashierItem,
+  type TopProductItem,
 } from "@/features/laporan/hooks/use-laporan-queries"
 
 const RANGE_OPTIONS: { value: LaporanRange; label: string }[] = [
@@ -272,7 +274,10 @@ function PenjualanDashboard({
       <div className="grid min-w-0 grid-cols-1 gap-4 2xl:grid-cols-[minmax(0,1fr)_380px]">
         <div className="flex min-w-0 flex-col gap-4">
           <div className="grid min-w-0 grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1.5fr)_minmax(340px,0.9fr)]">
-            <SalesTrendCard data={data.salesTrend} />
+            <div className="flex min-w-0 flex-col gap-4">
+              <SalesTrendCard data={data.salesTrend} />
+              <TopProductsChartCard items={data.topProducts} />
+            </div>
             <div className="flex min-w-0 flex-col gap-4">
               <CategoryCard data={data.categoryBreakdown} />
               <PaymentMethodCard data={data.paymentMethods} />
@@ -282,12 +287,7 @@ function PenjualanDashboard({
         </div>
 
         <div className="flex w-full min-w-0 flex-col gap-4 lg:grid lg:grid-cols-2 2xl:flex 2xl:w-[380px] 2xl:shrink-0">
-          <BestSellersPanel
-            items={data.topProducts.map((item, index) => ({
-              ...item,
-              rank: index + 1,
-            }))}
-          />
+          <DailyTransactionsCard rows={data.dailySummary} />
           <TopCashiersCard items={data.topCashiers} />
           <QuickInsightCard data={data} />
         </div>
@@ -502,7 +502,7 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
       ) : (
         <ChartContainer
           config={salesChartConfig}
-          className="h-[220px] w-full sm:h-[260px]"
+          className="h-[260px] w-full sm:h-[300px]"
         >
           <AreaChart
             data={data}
@@ -648,17 +648,85 @@ function CategoryCard({ data }: { data: PenjualanData["categoryBreakdown"] }) {
   )
 }
 
+function DailyTransactionsCard({
+  rows,
+}: {
+  rows: PenjualanData["dailySummary"]
+}) {
+  const total = rows.reduce((sum, row) => sum + row.transaksi, 0)
+  const config: ChartConfig = {
+    transaksi: { label: "Transaksi", color: "#0f766e" },
+  }
+
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <div className="mb-3 flex items-start justify-between gap-3">
+        <div>
+          <h2 className="text-sm font-semibold">Transaksi Harian</h2>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Jumlah transaksi per hari
+          </p>
+        </div>
+        <div className="rounded-lg border bg-background px-2.5 py-1.5 text-right text-xs shadow-sm">
+          <p className="text-muted-foreground">Total</p>
+          <p className="font-bold">{formatNumber(total)}</p>
+        </div>
+      </div>
+      {rows.length === 0 ? (
+        <EmptyState message="Belum ada transaksi pada periode ini" small />
+      ) : (
+        <ChartContainer config={config} className="h-[190px] w-full">
+          <BarChart
+            data={rows}
+            margin={{ left: 0, right: 4, top: 8, bottom: 0 }}
+          >
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="date"
+              tickLine={false}
+              axisLine={false}
+              fontSize={10}
+              tickMargin={8}
+              interval="preserveStartEnd"
+            />
+            <YAxis
+              allowDecimals={false}
+              tickLine={false}
+              axisLine={false}
+              fontSize={10}
+              width={24}
+            />
+            <ChartTooltip content={<ChartTooltipContent />} />
+            <Bar
+              dataKey="transaksi"
+              fill="#0f766e"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={20}
+            />
+          </BarChart>
+        </ChartContainer>
+      )}
+    </div>
+  )
+}
+
 function PaymentMethodCard({
   data,
 }: {
   data: PenjualanData["paymentMethods"]
 }) {
-  const colorMap: Record<string, string> = {
-    Tunai: "bg-emerald-600",
-    QRIS: "bg-blue-600",
-    Transfer: "bg-violet-600",
+  const colors: Record<string, string> = {
+    Tunai: "#10b981",
+    QRIS: "#3b82f6",
+    Transfer: "#8b5cf6",
   }
   const total = data.reduce((s, d) => s + d.amount, 0)
+  const config: ChartConfig = {
+    amount: { label: "Total", color: "var(--color-chart-4)" },
+    Tunai: { label: "Tunai", color: colors.Tunai },
+    QRIS: { label: "QRIS", color: colors.QRIS },
+    Transfer: { label: "Transfer", color: colors.Transfer },
+  }
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-4 text-sm font-semibold">Metode Pembayaran</h2>
@@ -666,17 +734,44 @@ function PaymentMethodCard({
         <EmptyState message="Belum ada pembayaran tercatat" />
       ) : (
         <>
-          <div className="mb-4 flex h-3 overflow-hidden rounded-full bg-muted">
-            {data.map((p) => (
-              <div
-                key={p.name}
-                className={colorMap[p.name]}
-                style={{ width: `${p.percentage}%` }}
-                title={`${p.name} ${p.percentage}%`}
-              />
-            ))}
+          <div className="relative mx-auto h-44 w-full max-w-56">
+            <ChartContainer config={config} className="h-full w-full">
+              <PieChart>
+                <ChartTooltip
+                  content={
+                    <ChartTooltipContent
+                      formatter={(value) => (
+                        <span className="font-mono font-medium text-foreground tabular-nums">
+                          {formatRupiah(Number(value))}
+                        </span>
+                      )}
+                    />
+                  }
+                />
+                <Pie
+                  data={data}
+                  dataKey="amount"
+                  nameKey="name"
+                  innerRadius={48}
+                  outerRadius={72}
+                  paddingAngle={3}
+                  cornerRadius={4}
+                  strokeWidth={2}
+                >
+                  {data.map((p) => (
+                    <Cell key={p.name} fill={colors[p.name]} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ChartContainer>
+            <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
+              <span className="text-[10px] text-muted-foreground">Total</span>
+              <span className="px-1 text-center text-xs font-bold">
+                {formatRupiah(total)}
+              </span>
+            </div>
           </div>
-          <div className="space-y-3">
+          <div className="mt-4 space-y-3">
             {data.map((p) => (
               <div
                 key={p.name}
@@ -684,7 +779,8 @@ function PaymentMethodCard({
               >
                 <div className="flex items-center gap-2 font-semibold">
                   <span
-                    className={`size-2.5 rounded-full ${colorMap[p.name]}`}
+                    className="size-2.5 rounded-full"
+                    style={{ backgroundColor: colors[p.name] }}
                   />
                   <span>{p.name}</span>
                 </div>
@@ -1443,54 +1539,155 @@ function formatPnLFull(value: number) {
   return `${sign}${formatRupiah(Math.abs(value))}`
 }
 
+function TopProductsChartCard({
+  items,
+}: {
+  items: PenjualanData["topProducts"]
+}) {
+  const sorted = [...items].sort((a, b) => b.sold - a.sold)
+  const config: ChartConfig = {
+    sold: { label: "Terjual", color: "var(--color-chart-4)" },
+  }
+  return (
+    <div className="rounded-xl border bg-card p-4 shadow-sm">
+      <h2 className="mb-3 text-sm font-semibold">Barang Terlaris</h2>
+      {sorted.length === 0 ? (
+        <EmptyState message="Belum ada penjualan pada periode ini" small />
+      ) : (
+        <ChartContainer
+          config={config}
+          className="h-[220px] w-full sm:h-[240px]"
+        >
+          <BarChart
+            data={sorted}
+            margin={{ top: 16, right: 8, left: 2, bottom: 0 }}
+            barCategoryGap={10}
+          >
+            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <XAxis
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              fontSize={11}
+              tickMargin={8}
+              interval={0}
+              tickFormatter={(v: string) =>
+                v.length > 12 ? `${v.slice(0, 12)}…` : v
+              }
+            />
+            <YAxis
+              tickLine={false}
+              axisLine={false}
+              fontSize={11}
+              allowDecimals={false}
+            />
+            <ChartTooltip
+              cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+              content={
+                <ChartTooltipContent
+                  labelKey="name"
+                  formatter={(value, _name, item) => (
+                    <span className="font-mono font-medium text-foreground tabular-nums">
+                      {value} unit ·{" "}
+                      {formatRupiah(
+                        (item as { payload?: TopProductItem })?.payload
+                          ?.revenue ?? 0
+                      )}
+                    </span>
+                  )}
+                />
+              }
+            />
+            <Bar dataKey="sold" radius={[4, 4, 0, 0]} maxBarSize={36}>
+              {sorted.map((entry) => (
+                <Cell key={entry.id} fill="var(--color-chart-4)" />
+              ))}
+              <LabelList
+                dataKey="sold"
+                position="top"
+                className="fill-muted-foreground"
+                fontSize={11}
+              />
+            </Bar>
+          </BarChart>
+        </ChartContainer>
+      )}
+    </div>
+  )
+}
+
 function TopCashiersCard({ items }: { items: PenjualanData["topCashiers"] }) {
+  const sorted = [...items].sort((a, b) => a.revenue - b.revenue)
+  const config: ChartConfig = {
+    revenue: { label: "Pendapatan", color: "var(--color-chart-2)" },
+  }
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <h2 className="mb-3 text-sm font-semibold">Performa Kasir</h2>
-      {items.length === 0 ? (
+      {sorted.length === 0 ? (
         <EmptyState message="Belum ada aktivitas kasir" small />
       ) : (
-        <div className="space-y-3">
-          {items.map((item, index) => (
-            <div
-              key={item.id}
-              className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5 transition-colors hover:bg-muted/40"
-            >
-              <span
-                className={`flex size-7 shrink-0 items-center justify-center rounded-full text-xs font-bold ${
-                  index === 0
-                    ? "bg-primary text-primary-foreground"
-                    : index === 1
-                      ? "bg-primary/70 text-primary-foreground"
-                      : index === 2
-                        ? "bg-primary/50 text-primary-foreground"
-                        : "bg-muted text-muted-foreground"
-                }`}
-              >
-                {index + 1}
-              </span>
-              <Avatar className="size-9 shrink-0 rounded-lg">
-                {item.image ? (
-                  <AvatarImage src={item.image} alt={item.name} />
-                ) : null}
-                <AvatarFallback className="rounded-lg bg-primary/10 text-[10px] font-semibold text-primary">
-                  {item.initials}
-                </AvatarFallback>
-              </Avatar>
-              <div className="min-w-0 flex-1 space-y-0.5">
-                <p className="text-xs font-medium break-words">{item.name}</p>
-                <div className="flex min-w-0 flex-wrap items-center justify-between gap-x-2 gap-y-0.5">
-                  <p className="text-[11px] break-words text-muted-foreground">
-                    {item.count} transaksi
-                  </p>
-                  <p className="text-xs font-semibold break-words text-primary">
-                    {formatRupiah(item.revenue)}
-                  </p>
-                </div>
-              </div>
-            </div>
-          ))}
-        </div>
+        <ChartContainer
+          config={config}
+          className="w-full"
+          style={{ height: `${Math.max(sorted.length * 46, 130)}px` }}
+        >
+          <BarChart
+            data={sorted}
+            layout="vertical"
+            margin={{ left: 4, right: 30, top: 4, bottom: 0 }}
+            barCategoryGap={10}
+          >
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" />
+            <XAxis type="number" hide />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tickLine={false}
+              axisLine={false}
+              width={100}
+              tickMargin={6}
+              fontSize={11}
+              interval={0}
+            />
+            <ChartTooltip
+              cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
+              content={
+                <ChartTooltipContent
+                  formatter={(value, _name, item) => (
+                    <span className="font-mono font-medium text-foreground tabular-nums">
+                      {formatRupiah(Number(value))}
+                      <span className="ml-1.5 font-normal text-muted-foreground">
+                        {(item as { payload?: TopCashierItem })?.payload
+                          ?.count ?? 0}{" "}
+                        transaksi
+                      </span>
+                    </span>
+                  )}
+                />
+              }
+            />
+            <Bar dataKey="revenue" radius={[0, 4, 4, 0]} maxBarSize={20}>
+              {sorted.map((entry) => (
+                <Cell key={entry.id} fill="var(--color-chart-2)" />
+              ))}
+              <LabelList
+                dataKey="revenue"
+                position="right"
+                className="fill-muted-foreground"
+                fontSize={11}
+                formatter={(v: unknown) => {
+                  const n = Number(v)
+                  return n >= 1_000_000
+                    ? `${(n / 1_000_000).toFixed(1).replace(/\.0$/, "")}jt`
+                    : n >= 1_000
+                      ? `${Math.round(n / 1000)}rb`
+                      : `${n}`
+                }}
+              />
+            </Bar>
+          </BarChart>
+        </ChartContainer>
       )}
     </div>
   )

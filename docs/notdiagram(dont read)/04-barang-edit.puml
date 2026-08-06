@@ -1,0 +1,44 @@
+@startuml Edit Barang
+|Admin|
+start
+:Buka /admin/barang/[id]/edit;
+
+|Sistem|
+:Fetch data produk dari server;
+
+|Database|
+:Query produk berdasarkan ID;
+
+|Admin|
+:Ubah field yang diperlukan;
+:Klik "Simpan";
+
+|Sistem|
+:Validasi input (Zod schema);
+
+if (Input valid?) then (Tidak)
+  :Tampilkan error validasi;
+  stop
+else (Ya)
+endif
+
+:Upload gambar baru (jika ada);
+
+|Database|
+:Upload file & dapatkan URL baru;
+
+|Sistem|
+:Kirim PUT /api/barang/[id];
+
+|Database|
+:Update data produk;
+:Return response success;
+
+|Sistem|
+:Invalidate cache "barang";
+:Refresh halaman;
+
+|Admin|
+:Lihat perubahan di daftar;
+stop
+@enduml

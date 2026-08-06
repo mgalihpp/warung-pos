@@ -14,28 +14,12 @@ export default function KategoriPageLoading() {
           <Skeleton className="h-10 w-40 rounded-lg" />
         </div>
 
-        <div className="grid grid-cols-4 gap-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div key={i} className="rounded-xl border bg-card p-4 shadow-sm">
-              <div className="flex items-start justify-between gap-3">
-                <div className="min-w-0 flex-1">
-                  <Skeleton className="h-4 w-24 rounded-full" />
-                  <Skeleton className="mt-2 h-8 w-14 rounded-lg" />
-                  <Skeleton className="mt-2 h-3 w-32 rounded-full" />
-                </div>
-                <Skeleton className="size-9 shrink-0 rounded-lg" />
-              </div>
-            </div>
-          ))}
-        </div>
-
         <div className="flex flex-col gap-4">
-          <div className="flex items-center justify-between">
-            <Skeleton className="h-5 w-32 rounded-full" />
-          </div>
-
-          <div className="relative flex-1 p-[3px]">
-            <Skeleton className="h-9 w-full rounded-lg" />
+          <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+            <Skeleton className="h-9 w-full rounded-lg lg:flex-1" />
+            <div className="hidden flex-wrap items-center gap-2 lg:flex">
+              <Skeleton className="h-9 w-[180px] rounded-lg" />
+            </div>
           </div>
 
           <div className="overflow-x-auto rounded-xl border bg-card shadow-sm">

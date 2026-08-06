@@ -368,6 +368,120 @@ const products: ProductSeed[] = [
   },
 ]
 
+const MOCK_TRANSACTION_COUNT = 100
+
+function randomInt(min: number, max: number) {
+  return Math.floor(Math.random() * (max - min + 1)) + min
+}
+
+function pickRandom<T>(items: T[]) {
+  return items[randomInt(0, items.length - 1)]
+}
+
+async function seedMockTransactions() {
+  const [cashier, availableProducts] = await Promise.all([
+    prisma.user.findFirst({
+      where: { role: { in: ["admin", "cashier"] } },
+      orderBy: { createdAt: "asc" },
+    }),
+    prisma.product.findMany({
+      where: { isActive: true, stock: { gt: 0 } },
+      orderBy: { name: "asc" },
+    }),
+  ])
+
+  if (!cashier) {
+    throw new Error("Tidak ada user admin atau cashier untuk transaksi mock")
+  }
+
+  if (availableProducts.length === 0) {
+    throw new Error("Tidak ada barang aktif dengan stok untuk transaksi mock")
+  }
+
+  for (let index = 0; index < MOCK_TRANSACTION_COUNT; index++) {
+    const productsWithStock = availableProducts.filter(
+      (product) => product.stock > 0
+    )
+    if (productsWithStock.length === 0) {
+      throw new Error(
+        `Stok habis sebelum ${MOCK_TRANSACTION_COUNT} transaksi selesai`
+      )
+    }
+    const productsForTransaction = [...productsWithStock]
+      .sort(() => Math.random() - 0.5)
+      .slice(0, randomInt(1, Math.min(4, productsWithStock.length)))
+    const items = productsForTransaction.map((product) => {
+      const quantity = Math.min(randomInt(1, 3), product.stock)
+      return {
+        productId: product.id,
+        productName: product.name,
+        unitPrice: product.sellPrice,
+        costPrice: product.buyPrice,
+        quantity,
+        subtotal: product.sellPrice * quantity,
+        grossProfit: (product.sellPrice - product.buyPrice) * quantity,
+      }
+    })
+    const subtotal = items.reduce((sum, item) => sum + item.subtotal, 0)
+    const paymentMethod = pickRandom([
+      "CASH",
+      "QRIS_MANUAL",
+      "MANUAL_TRANSFER",
+    ] as const)
+    const amountPaid =
+      paymentMethod === "CASH" ? Math.ceil(subtotal / 10000) * 10000 : subtotal
+    const createdAt = new Date()
+    createdAt.setDate(createdAt.getDate() - randomInt(0, 30))
+    createdAt.setHours(randomInt(7, 21), randomInt(0, 59), 0, 0)
+
+    await prisma.$transaction(async (tx) => {
+      const transaction = await tx.transaction.create({
+        data: {
+          transactionNumber: `TRX-${createdAt.toISOString().slice(0, 10).replaceAll("-", "")}-${Date.now()}-${index}`,
+          cashierId: cashier.id,
+          cashierName: cashier.name,
+          paymentMethod,
+          status: "COMPLETED",
+          subtotal,
+          total: subtotal,
+          amountPaid,
+          change: amountPaid - subtotal,
+          createdAt,
+          items: { create: items },
+        },
+      })
+
+      for (const item of items) {
+        const product = await tx.product.update({
+          where: { id: item.productId },
+          data: { stock: { decrement: item.quantity } },
+        })
+
+        await tx.stockAdjustment.create({
+          data: {
+            productId: item.productId,
+            userId: cashier.id,
+            type: "OUT",
+            quantity: item.quantity,
+            stockBefore: product.stock + item.quantity,
+            stockAfter: product.stock,
+            reason: "Penjualan mock",
+            referenceId: transaction.id,
+            createdAt,
+          },
+        })
+
+        const availableProduct = availableProducts.find(
+          (candidate) => candidate.id === item.productId
+        )
+        if (availableProduct) availableProduct.stock = product.stock
+      }
+    })
+  }
+
+  console.log(`   ✓ ${MOCK_TRANSACTION_COUNT} transaksi mock ditambahkan`)
+}
+
 // ============================================================================
 // Seed Execution
 // ============================================================================
@@ -376,66 +490,71 @@ async function main() {
   console.log("🌱 Mulai seeding database...\n")
 
   // 1. Upsert Kategori
-  console.log("📁 Seeding kategori...")
-  const categoryMap = new Map<string, string>()
+  // console.log("📁 Seeding kategori...")
+  // const categoryMap = new Map<string, string>()
 
-  for (const cat of categories) {
-    const created = await prisma.category.upsert({
-      where: { slug: cat.slug },
-      update: { name: cat.name, description: cat.description },
-      create: cat,
-    })
-    categoryMap.set(cat.slug, created.id)
-    console.log(`   ✓ ${created.name}`)
-  }
+  // for (const cat of categories) {
+  //   const created = await prisma.category.upsert({
+  //     where: { slug: cat.slug },
+  //     update: { name: cat.name, description: cat.description },
+  //     create: cat,
+  //   })
+  //   categoryMap.set(cat.slug, created.id)
+  //   console.log(`   ✓ ${created.name}`)
+  // }
 
-  // 2. Upsert Barang
-  console.log("\n📦 Seeding barang...")
-  for (const prod of products) {
-    const categoryId = categoryMap.get(prod.categorySlug)
-    if (!categoryId) {
-      console.log(
-        `   ✗ Kategori "${prod.categorySlug}" tidak ditemukan, skip ${prod.name}`
-      )
-      continue
-    }
+  // // 2. Upsert Barang
+  // console.log("\n📦 Seeding barang...")
+  // for (const prod of products) {
+  //   const categoryId = categoryMap.get(prod.categorySlug)
+  //   if (!categoryId) {
+  //     console.log(
+  //       `   ✗ Kategori "${prod.categorySlug}" tidak ditemukan, skip ${prod.name}`
+  //     )
+  //     continue
+  //   }
 
-    // Use upsert by checking name + categoryId combo
-    const existing = await prisma.product.findFirst({
-      where: { name: prod.name, categoryId },
-    })
+  //   // Use upsert by checking name + categoryId combo
+  //   const existing = await prisma.product.findFirst({
+  //     where: { name: prod.name, categoryId },
+  //   })
 
-    if (existing) {
-      await prisma.product.update({
-        where: { id: existing.id },
-        data: {
-          unit: prod.unit,
-          stock: prod.stock,
-          minStock: prod.minStock,
-          buyPrice: prod.buyPrice,
-          sellPrice: prod.sellPrice,
-        },
-      })
-      console.log(`   ↻ ${prod.name} (updated)`)
-    } else {
-      await prisma.product.create({
-        data: {
-          name: prod.name,
-          categoryId,
-          unit: prod.unit,
-          stock: prod.stock,
-          minStock: prod.minStock,
-          buyPrice: prod.buyPrice,
-          sellPrice: prod.sellPrice,
-        },
-      })
-      console.log(`   ✓ ${prod.name}`)
-    }
-  }
+  //   if (existing) {
+  //     await prisma.product.update({
+  //       where: { id: existing.id },
+  //       data: {
+  //         unit: prod.unit,
+  //         stock: prod.stock,
+  //         minStock: prod.minStock,
+  //         buyPrice: prod.buyPrice,
+  //         sellPrice: prod.sellPrice,
+  //       },
+  //     })
+  //     console.log(`   ↻ ${prod.name} (updated)`)
+  //   } else {
+  //     await prisma.product.create({
+  //       data: {
+  //         name: prod.name,
+  //         categoryId,
+  //         unit: prod.unit,
+  //         stock: prod.stock,
+  //         minStock: prod.minStock,
+  //         buyPrice: prod.buyPrice,
+  //         sellPrice: prod.sellPrice,
+  //       },
+  //     })
+  //     console.log(`   ✓ ${prod.name}`)
+  //   }
+  // }
+
+  // 3. Tambah transaksi mock tanpa menghapus transaksi lama
+  console.log("\n🧾 Seeding transaksi mock...")
+  await seedMockTransactions()
 
   console.log("\n✅ Seeding selesai!")
   console.log(`   → ${categories.length} kategori`)
   console.log(`   → ${products.length} barang`)
+  console.log(`   → ${MOCK_TRANSACTION_COUNT} transaksi mock ditambahkan`)
 }
 
 main()

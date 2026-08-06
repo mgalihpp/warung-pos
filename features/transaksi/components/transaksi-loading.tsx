@@ -21,35 +21,15 @@ export default function TransaksiLoading() {
           </div>
         </div>
 
-        {/* Stat cards skeleton - desktop */}
-        <div className="hidden lg:grid lg:grid-cols-2 lg:gap-4 2xl:grid-cols-4">
-          {Array.from({ length: 4 }).map((_, i) => (
-            <div
-              key={i}
-              className="flex items-center gap-4 rounded-xl border bg-card p-4 shadow-sm"
-            >
-              <div className="size-12 shrink-0 animate-pulse rounded-xl bg-muted" />
-              <div className="flex-1 space-y-2">
-                <div className="h-3 w-24 animate-pulse rounded bg-muted" />
-                <div className="h-6 w-16 animate-pulse rounded bg-muted" />
-                <div className="h-2.5 w-28 animate-pulse rounded bg-muted" />
-              </div>
-            </div>
-          ))}
-        </div>
-
-        {/* Section title skeleton */}
-        <div className="h-4 w-28 animate-pulse rounded bg-muted" />
-
         {/* Search + filter skeleton */}
         <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
-          <div className="h-9 flex-1 animate-pulse rounded-lg bg-muted" />
+          <div className="h-9 w-full flex-1 animate-pulse rounded-lg bg-muted" />
           <div className="hidden items-center gap-2 lg:flex">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div key={i} className="space-y-1">
-                <div className="h-2.5 w-12 animate-pulse rounded bg-muted" />
-                <div className="h-9 w-28 animate-pulse rounded-lg bg-muted" />
-              </div>
+            {Array.from({ length: 3 }).map((_, i) => (
+              <div
+                key={i}
+                className={`h-9 animate-pulse rounded-lg bg-muted ${i === 2 ? "w-[170px]" : "w-[150px]"}`}
+              />
             ))}
           </div>
         </div>
@@ -83,26 +63,6 @@ export default function TransaksiLoading() {
               <div className="h-4 w-12 animate-pulse rounded bg-muted" />
             </div>
           ))}
-        </div>
-
-        {/* Activity skeleton */}
-        <div className="rounded-xl border bg-card p-4 shadow-sm">
-          <div className="mb-3 h-4 w-40 animate-pulse rounded bg-muted" />
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 xl:grid-cols-4">
-            {Array.from({ length: 4 }).map((_, i) => (
-              <div
-                key={i}
-                className="flex items-center gap-3 rounded-lg border border-border/50 bg-muted/20 px-3 py-2.5"
-              >
-                <div className="size-8 shrink-0 animate-pulse rounded-full bg-muted" />
-                <div className="min-w-0 flex-1 space-y-1.5">
-                  <div className="h-2.5 w-20 animate-pulse rounded bg-muted" />
-                  <div className="h-3 w-28 animate-pulse rounded bg-muted" />
-                </div>
-                <div className="h-2.5 w-8 shrink-0 animate-pulse rounded bg-muted" />
-              </div>
-            ))}
-          </div>
         </div>
       </div>
     </>

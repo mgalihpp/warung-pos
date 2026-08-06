@@ -1,0 +1,25 @@
+@startuml Logout
+|Admin/Kasir|
+start
+:Klik tombol "Logout";
+
+|Sistem|
+:Konfirmasi logout;
+
+|Admin/Kasir|
+:Konfirmasi "Ya";
+
+|Sistem|
+:Panggil signOut() via Better Auth client;
+:Hapus session cookie;
+
+|Database|
+:Hapus/invalidate session;
+
+|Sistem|
+:Redirect ke /login;
+
+|Admin/Kasir|
+:Halaman /login ditampilkan;
+stop
+@enduml

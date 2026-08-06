@@ -1,0 +1,43 @@
+@startuml Tambah Barang
+|Admin|
+start
+:Buka /admin/barang/tambah;
+:Isi form (nama, kategori, satuan, stok, harga beli, harga jual, deskripsi, gambar);
+
+|Sistem|
+:Validasi input (Zod schema);
+
+if (Input valid?) then (Tidak)
+  :Tampilkan error validasi;
+  |Admin|
+  :Koreksi input;
+  stop
+else (Ya)
+endif
+
+:Upload gambar via UploadThing;
+
+|Database|
+:Upload file & dapatkan URL;
+
+|Sistem|
+:Kirim POST /api/barang;
+
+|Database|
+:Cek apakah kategori sudah ada;
+
+if (Kategori baru?) then (Ya)
+  :Buat kategori baru (auto-slug);
+endif
+
+:Insert data produk baru;
+:Return response success;
+
+|Sistem|
+:Invalidate cache query "barang";
+:Refresh halaman;
+
+|Admin|
+:Lihat produk baru di daftar;
+stop
+@enduml

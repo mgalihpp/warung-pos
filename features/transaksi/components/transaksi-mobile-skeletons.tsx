@@ -29,7 +29,7 @@ export function TransaksiMobileListSkeleton() {
         {Array.from({ length: 5 }).map((_, i) => (
           <div
             key={i}
-            className="flex items-center gap-3.5 rounded-xl border bg-white p-4 shadow-sm"
+            className="flex items-center gap-3.5 rounded-xl border bg-card p-4 shadow-sm"
           >
             <Skeleton className="size-12 shrink-0 rounded-xl" />
             <div className="min-w-0 flex-1 space-y-2">
@@ -48,7 +48,7 @@ export function TransaksiMobileListSkeleton() {
 export function TransaksiMobileDetailSkeleton() {
   return (
     <div className="space-y-4 p-4 pb-6 lg:hidden">
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <Skeleton className="size-8 rounded-lg" />
           <Skeleton className="h-4 w-36 rounded-full" />
@@ -63,7 +63,7 @@ export function TransaksiMobileDetailSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <Skeleton className="size-8 rounded-lg" />
           <Skeleton className="h-4 w-36 rounded-full" />
@@ -78,7 +78,7 @@ export function TransaksiMobileDetailSkeleton() {
         </div>
       </div>
 
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <Skeleton className="size-8 rounded-lg" />
           <Skeleton className="h-4 w-28 rounded-full" />
@@ -87,7 +87,7 @@ export function TransaksiMobileDetailSkeleton() {
           {Array.from({ length: 3 }).map((_, i) => (
             <div
               key={i}
-              className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-2.5"
+              className="flex items-center gap-3 rounded-xl bg-muted/50 p-2.5"
             >
               <Skeleton className="size-12 shrink-0 rounded-xl" />
               <div className="min-w-0 flex-1 space-y-1.5">

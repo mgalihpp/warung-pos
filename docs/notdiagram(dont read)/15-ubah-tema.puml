@@ -1,0 +1,23 @@
+@startuml Ubah Tema
+|Admin/Kasir|
+start
+:Buka /pengaturan/tema;
+
+|Sistem|
+:Render pilihan tema (Light / Dark / System);
+
+|Admin/Kasir|
+:Pilih tema baru;
+
+|Sistem|
+:Update state tema (client-side);
+:Terapkan class ke root document;
+:Simpan preferensi ke localStorage;
+
+|Database|
+(opt) :Simpan preferensi tema ke user settings;
+
+|Admin/Kasir|
+:Perubahan tema langsung terlihat;
+stop
+@enduml

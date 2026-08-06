@@ -1,0 +1,88 @@
+@startuml Transaksi Penjualan
+|Kasir|
+start
+:Buka /cashier/pos;
+
+|Sistem|
+:Fetch data POS;
+
+|Database|
+fork
+  :Query produk aktif + harga;
+fork again
+  :Query daftar kategori;
+fork again
+  :Query produk stok menipis;
+fork again
+  :Query transaksi terakhir;
+end fork
+
+|Kasir|
+:Grid produk ditampilkan;
+:Cari produk (nama/kategori);
+
+if (Produk ditemukan?) then (Ya)
+  :Klik produk / klik "+";
+  :Produk masuk keranjang (Zustand store);
+
+  note right
+    Keranjang dikelola di client-side
+    dengan Zustand (useCartStore)
+  end note
+
+  :Ulangi pilih produk lain;
+
+  :Klik "Bayar";
+  :Pilih metode bayar (Tunai/QRIS/Transfer);
+  :Masukkan jumlah bayar;
+
+  |Sistem|
+  :Validasi jumlah bayar >= total;
+
+  if (Bayar cukup?) then (Tidak)
+    :Tampilkan sisa kurang;
+    |Kasir|
+    :Koreksi jumlah bayar;
+    stop
+  else (Ya)
+  endif
+
+  :Kirim POST /api/kasir/transaksi;
+
+  |Database|
+  :Mulai transaksi DB;
+  :Validasi stok semua item mencukupi;
+
+  if (Stok cukup?) then (Tidak)
+    :Rollback transaksi;
+    :Return error stok tidak cukup;
+    |Kasir|
+    :Tampilkan error;
+    stop
+  else (Ya)
+  endif
+
+  :Hitung subtotal per item;
+  :Hitung total, kembalian;
+  :Insert record Transaction (status: COMPLETED);
+  :Insert record TransactionItem;
+  :Kurangi stok produk;
+  :Buat StockAdjustment (type: OUT);
+  :Commit transaksi;
+  :Return data transaksi;
+
+  |Sistem|
+  :Tampilkan struk (ReceiptDialog);
+  :Kosongkan keranjang;
+  :Invalidate cache;
+
+  |Kasir|
+  :Lihat struk;
+  :Klik "Selesai";
+
+else (Tidak)
+  :Tidak ada produk ditemukan;
+endif
+
+stop
+@enduml

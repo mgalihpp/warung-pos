@@ -1,0 +1,80 @@
+@startuml Kelola Transaksi Admin
+|Admin|
+start
+:Buka /admin/transaksi;
+
+|Sistem|
+:Fetch data transaksi;
+
+|Database|
+fork
+  :Query total transaksi;
+fork again
+  :Query total pendapatan;
+fork again
+  :Query transaksi per status;
+fork again
+  :Query daftar transaksi terbaru;
+end fork
+
+|Admin|
+:Lihat statistik & daftar transaksi;
+
+if (Aksi?) then (Detail)
+  :Klik transaksi;
+  |Sistem|
+  :Fetch detail /api/transaksi/[id];
+  |Database|
+  :Query transaksi + items + produk;
+  |Admin|
+  :Lihat detail transaksi;
+
+elseif (Ubah Status) then
+  :Ubah status transaksi;
+  |Sistem|
+  :Kirim PATCH /api/transaksi/[id];
+  |Database|
+  :Mulai transaksi DB;
+  if (Status lama = COMPLETED?) then (Ya)
+    :Kembalikan stok semua item;
+  endif
+  :Update status transaksi;
+  if (Status baru = COMPLETED?) then (Ya)
+    :Kurangi stok semua item;
+  endif
+  :Commit transaksi;
+
+elseif (Edit) then
+  :Edit items/pembayaran/catatan;
+  |Sistem|
+  :Kirim PUT /api/transaksi/[id];
+  :Validasi data baru;
+  |Database|
+  :Mulai transaksi DB;
+  :Reverse stok lama jika COMPLETED;
+  :Hapus item lama;
+  :Buat item baru dengan harga terkini;
+  :Hitung ulang total;
+  :Apply stok baru jika COMPLETED;
+  :Commit transaksi;
+
+elseif (Hapus) then
+  :Konfirmasi hapus;
+  |Sistem|
+  :Kirim DELETE /api/transaksi/[id];
+  |Database|
+  :Mulai transaksi DB;
+  if (Status = COMPLETED?) then (Ya)
+    :Kembalikan stok semua item;
+  endif
+  :Hapus StockAdjustment terkait;
+  :Hapus transaksi;
+  :Commit transaksi;
+endif
+
+|Sistem|
+:Invalidate cache "transaksi";
+:Refresh halaman;
+
+stop
+@enduml

@@ -16,7 +16,7 @@ export default async function AdminDashboardPage() {
     redirect("/unauthorized")
   }
 
-  const data = await getDashboardData("7d")
+  const data = await getDashboardData("week")
 
   return (
     <Suspense>

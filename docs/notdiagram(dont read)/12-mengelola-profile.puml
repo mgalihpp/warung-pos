@@ -1,0 +1,72 @@
+@startuml Mengelola Profile
+|Admin/Kasir|
+start
+:Buka /pengaturan;
+
+|Sistem|
+:Fetch data user dari session;
+
+|Admin/Kasir|
+:Edit nama / email;
+:Klik "Simpan Profil";
+
+|Sistem|
+:Validasi input;
+:Kirim Server Action updateProfile();
+
+|Database|
+:Update user.name & user.email;
+:Revalidate path;
+
+|Sistem|
+:Return success;
+:Refresh halaman;
+
+|Admin/Kasir|
+:Lihat profil terbaru;
+
+|Admin/Kasir|
+if (Ganti avatar?) then (Ya)
+  :Klik avatar;
+  :Upload gambar via UploadThing;
+
+  |Database|
+  :Upload file, dapatkan URL;
+
+  |Sistem|
+  :Server Action updateAvatar();
+  :Update user.image;
+  :Refetch session;
+  :Refresh halaman;
+
+else (Tidak)
+endif
+
+if (Ganti password?) then (Ya)
+  :Isi password lama;
+  :Isi password baru;
+  :Konfirmasi password baru;
+  :Klik "Ubah Password";
+
+  |Sistem|
+  :Server Action changePassword();
+  :Kirim ke Better Auth API;
+
+  |Database|
+  :Validasi password lama;
+  :Hash password baru;
+  :Update password;
+
+  if (Berhasil?) then (Ya)
+    :Return success;
+    |Admin/Kasir|
+    :Password berhasil diubah;
+  else (Tidak)
+    :Return error "Password lama salah";
+  endif
+
+else (Tidak)
+endif
+
+stop
+@enduml

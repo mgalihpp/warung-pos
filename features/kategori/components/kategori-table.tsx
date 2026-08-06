@@ -33,6 +33,13 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu"
 import { Input } from "@/components/ui/input"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useSearchParam } from "@/hooks/use-search-param"
 import { useDeleteKategori } from "../hooks/use-kategori-actions"
 import type { KategoriItem } from "../types"
@@ -62,6 +69,7 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button
+            type="button"
             className="rounded-md p-1.5 text-muted-foreground transition-colors hover:bg-muted hover:text-foreground"
             aria-label="Aksi kategori"
           >
@@ -143,17 +151,24 @@ function CategoryActionMenu({ category }: { category: KategoriItem }) {
 export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
   const [currentPageRaw, setCurrentPage] = useSearchParam("page", "1")
+  const [statusFilter, setStatusFilter] = useSearchParam("status", "all")
   const currentPage = Number(currentPageRaw)
 
   const filteredCategories = React.useMemo(() => {
     const query = searchQuery.toLowerCase()
-    return categories.filter(
-      (category) =>
+    return categories.filter((category) => {
+      const matchesStatus =
+        statusFilter === "all" ||
+        (statusFilter === "used" && category.productCount > 0) ||
+        (statusFilter === "empty" && category.productCount === 0)
+      const matchesQuery =
         category.name.toLowerCase().includes(query) ||
         category.slug.toLowerCase().includes(query) ||
         (category.description ?? "").toLowerCase().includes(query)
-    )
-  }, [categories, searchQuery])
+
+      return matchesStatus && matchesQuery
+    })
+  }, [categories, searchQuery, statusFilter])
 
   const totalPages = Math.max(
     1,
@@ -170,26 +185,42 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
 
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
-      <div className="flex items-center justify-between">
-        <h3 className="text-sm font-semibold">Daftar Kategori</h3>
-      </div>
-
-      <div className="relative flex-1 p-[3px]">
-        <HugeiconsIcon
-          icon={SearchIcon}
-          size={16}
-          className="absolute top-1/2 left-[15px] -translate-y-1/2 text-muted-foreground"
-        />
-        <Input
-          type="text"
-          placeholder="Cari nama kategori..."
-          value={searchQuery}
-          onChange={(event) => {
-            setSearchQuery(event.target.value)
-            setCurrentPage("1")
-          }}
-          className="h-9 rounded-lg bg-background pr-3 pl-9 text-sm"
-        />
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+        <div className="relative flex-1 p-[3px]">
+          <HugeiconsIcon
+            icon={SearchIcon}
+            size={16}
+            className="absolute top-1/2 left-[15px] -translate-y-1/2 text-muted-foreground"
+          />
+          <Input
+            type="text"
+            placeholder="Cari nama kategori..."
+            value={searchQuery}
+            onChange={(event) => {
+              setSearchQuery(event.target.value)
+              setCurrentPage("1")
+            }}
+            className="h-9 rounded-lg bg-background pr-3 pl-9 text-sm"
+          />
+        </div>
+        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value)
+              setCurrentPage("1")
+            }}
+          >
+            <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua kategori</SelectItem>
+              <SelectItem value="used">Ada barang</SelectItem>
+              <SelectItem value="empty">Kosong</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
       </div>
 
       <div className="hidden overflow-x-auto rounded-xl border bg-card shadow-sm lg:block">
@@ -323,6 +354,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
         </p>
         <div className="flex items-center gap-1">
           <button
+            type="button"
             disabled={safePage === 1}
             onClick={() => setCurrentPage(String(Math.max(1, safePage - 1)))}
             className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:opacity-50"
@@ -333,6 +365,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
             .slice(0, 5)
             .map((page) => (
               <button
+                type="button"
                 key={page}
                 onClick={() => setCurrentPage(String(page))}
                 className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${safePage === page ? "bg-primary text-primary-foreground" : "border text-muted-foreground hover:bg-muted"}`}
@@ -341,6 +374,7 @@ export function KategoriTable({ categories }: { categories: KategoriItem[] }) {
               </button>
             ))}
           <button
+            type="button"
             disabled={safePage === totalPages}
             onClick={() =>
               setCurrentPage(String(Math.min(totalPages, safePage + 1)))

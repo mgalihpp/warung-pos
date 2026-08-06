@@ -14,6 +14,13 @@ import { useSearchParam } from "@/hooks/use-search-param"
 import { TransaksiDetailDialog } from "./transaksi-detail-dialog"
 import { TransaksiActionMenu } from "./transaksi-action-menu"
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import type {
   TransactionItem,
   TransactionStatus,
@@ -59,23 +66,30 @@ type Props = {
 
 export function TransaksiTable({
   transactions,
+  cashierList,
   detailBasePath,
   actionBasePath,
 }: Props) {
   const [searchQuery, setSearchQuery] = useSearchParam("search", "")
   const [pageParam, setPageParam] = useSearchParam("page", "1")
+  const [statusFilter, setStatusFilter] = useSearchParam("status", "all")
+  const [methodFilter, setMethodFilter] = useSearchParam("method", "all")
+  const [cashierFilter, setCashierFilter] = useSearchParam("cashier", "all")
   const currentPage = Number(pageParam)
 
   const filteredTransactions = React.useMemo(() => {
     const query = searchQuery.toLowerCase()
-    if (!query) return transactions
     return transactions.filter(
       (t) =>
-        t.transactionNumber.toLowerCase().includes(query) ||
-        t.kasir.toLowerCase().includes(query) ||
-        t.item.toLowerCase().includes(query)
+        (statusFilter === "all" || t.status === statusFilter) &&
+        (methodFilter === "all" || t.metode === methodFilter) &&
+        (cashierFilter === "all" || t.kasir === cashierFilter) &&
+        (!query ||
+          t.transactionNumber.toLowerCase().includes(query) ||
+          t.kasir.toLowerCase().includes(query) ||
+          t.item.toLowerCase().includes(query))
     )
-  }, [transactions, searchQuery])
+  }, [transactions, searchQuery, statusFilter, methodFilter, cashierFilter])
 
   const totalPages = Math.max(
     1,
@@ -114,8 +128,8 @@ export function TransaksiTable({
   return (
     <div className="flex flex-col gap-3 lg:gap-4">
       {/* Search */}
-      <div className="flex items-center gap-3">
-        <div className="relative flex-1 lg:max-w-sm">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-end">
+        <div className="relative flex-1">
           <HugeiconsIcon
             icon={SearchIcon}
             size={16}
@@ -131,6 +145,61 @@ export function TransaksiTable({
             }}
             className="h-9 w-full rounded-lg border bg-background pr-3 pl-9 text-sm ring-ring transition-colors outline-none placeholder:text-muted-foreground focus:ring-1"
           />
+        </div>
+        <div className="hidden flex-wrap items-center gap-2 lg:flex">
+          <Select
+            value={statusFilter}
+            onValueChange={(value) => {
+              setStatusFilter(value)
+              setPageParam("1")
+            }}
+          >
+            <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua status</SelectItem>
+              <SelectItem value="Selesai">Selesai</SelectItem>
+              <SelectItem value="Pending">Pending</SelectItem>
+              <SelectItem value="Dibatalkan">Dibatalkan</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={methodFilter}
+            onValueChange={(value) => {
+              setMethodFilter(value)
+              setPageParam("1")
+            }}
+          >
+            <SelectTrigger className="w-full lg:w-[160px]">
+              <SelectValue placeholder="Metode" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua metode</SelectItem>
+              <SelectItem value="Tunai">Tunai</SelectItem>
+              <SelectItem value="QRIS">QRIS</SelectItem>
+              <SelectItem value="Transfer">Transfer</SelectItem>
+            </SelectContent>
+          </Select>
+          <Select
+            value={cashierFilter}
+            onValueChange={(value) => {
+              setCashierFilter(value)
+              setPageParam("1")
+            }}
+          >
+            <SelectTrigger className="w-full lg:w-[180px]">
+              <SelectValue placeholder="Kasir" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">Semua kasir</SelectItem>
+              {cashierList.map((cashier) => (
+                <SelectItem key={cashier} value={cashier}>
+                  {cashier}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
@@ -358,6 +427,7 @@ export function TransaksiTable({
         {totalPages > 1 && (
           <div className="flex items-center gap-1">
             <button
+              type="button"
               disabled={safePage <= 1}
               onClick={() => setPageParam(String(Math.max(1, safePage - 1)))}
               className="flex size-8 items-center justify-center rounded-lg border text-muted-foreground transition-colors hover:bg-muted disabled:pointer-events-none disabled:opacity-40"
@@ -374,6 +444,7 @@ export function TransaksiTable({
                 </span>
               ) : (
                 <button
+                  type="button"
                   key={page}
                   onClick={() => setPageParam(String(page))}
                   className={`flex size-8 items-center justify-center rounded-lg text-xs font-medium transition-colors ${
@@ -387,6 +458,7 @@ export function TransaksiTable({
               )
             )}
             <button
+              type="button"
               disabled={safePage >= totalPages}
               onClick={() =>
                 setPageParam(String(Math.min(totalPages, safePage + 1)))

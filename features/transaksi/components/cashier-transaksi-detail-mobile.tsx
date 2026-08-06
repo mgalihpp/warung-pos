@@ -51,16 +51,16 @@ function DetailSkeleton() {
   return (
     <div className="space-y-4">
       {[1, 2, 3].map((i) => (
-        <div key={i} className="animate-pulse rounded-xl border bg-white p-4">
-          <div className="mb-3 h-4 w-32 rounded bg-slate-200" />
+        <div key={i} className="animate-pulse rounded-xl border bg-card p-4">
+          <div className="mb-3 h-4 w-32 rounded bg-muted" />
           <div className="space-y-2.5">
             <div className="flex justify-between">
-              <div className="h-3.5 w-24 rounded bg-slate-200" />
-              <div className="h-3.5 w-28 rounded bg-slate-200" />
+              <div className="h-3.5 w-24 rounded bg-muted" />
+              <div className="h-3.5 w-28 rounded bg-muted" />
             </div>
             <div className="flex justify-between">
-              <div className="h-3.5 w-20 rounded bg-slate-200" />
-              <div className="h-3.5 w-24 rounded bg-slate-200" />
+              <div className="h-3.5 w-20 rounded bg-muted" />
+              <div className="h-3.5 w-24 rounded bg-muted" />
             </div>
           </div>
         </div>
@@ -136,14 +136,12 @@ export function CashierTransaksiDetailMobile({
       className={canManage ? "space-y-4 pb-28" : "space-y-4 pb-6"}
     >
       {/* ── Informasi Transaksi ── */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <HugeiconsIcon icon={InformationCircleIcon} size={18} />
           </div>
-          <h2 className="text-sm font-bold text-slate-700">
-            Informasi Transaksi
-          </h2>
+          <h2 className="text-sm font-bold">Informasi Transaksi</h2>
         </div>
 
         <div className="space-y-3.5 text-sm">
@@ -176,14 +174,12 @@ export function CashierTransaksiDetailMobile({
       </div>
 
       {/* ── Rincian Pembayaran ── */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <HugeiconsIcon icon={Wallet02Icon} size={18} />
           </div>
-          <h2 className="text-sm font-bold text-slate-700">
-            Rincian Pembayaran
-          </h2>
+          <h2 className="text-sm font-bold">Rincian Pembayaran</h2>
         </div>
 
         <div className="space-y-3 text-sm">
@@ -210,21 +206,21 @@ export function CashierTransaksiDetailMobile({
       </div>
 
       {/* ── Detail Pesanan ── */}
-      <div className="rounded-xl border bg-white p-4 shadow-sm">
+      <div className="rounded-xl border bg-card p-4 shadow-sm">
         <div className="mb-4 flex items-center gap-2.5">
           <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
             <HugeiconsIcon icon={ShoppingBag02Icon} size={18} />
           </div>
-          <h2 className="text-sm font-bold text-slate-700">Detail Pesanan</h2>
+          <h2 className="text-sm font-bold">Detail Pesanan</h2>
         </div>
 
         <div className="space-y-2.5">
           {data.items.map((item) => (
             <div
               key={item.id}
-              className="flex items-center gap-3 rounded-xl bg-slate-50/70 p-2.5"
+              className="flex items-center gap-3 rounded-xl bg-muted/50 p-2.5"
             >
-              <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-white ring-1 ring-slate-200">
+              <div className="relative size-12 shrink-0 overflow-hidden rounded-xl bg-card ring-1 ring-border">
                 {item.productImage ? (
                   <Image
                     src={item.productImage}
@@ -234,7 +230,7 @@ export function CashierTransaksiDetailMobile({
                     className="object-cover"
                   />
                 ) : (
-                  <div className="flex size-full items-center justify-center text-slate-400">
+                  <div className="flex size-full items-center justify-center text-muted-foreground">
                     <HugeiconsIcon icon={PackageIcon} size={20} />
                   </div>
                 )}
