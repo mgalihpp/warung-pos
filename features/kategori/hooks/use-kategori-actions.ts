@@ -21,7 +21,10 @@ export function useCreateKategori() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-      return res.json()
+      const result = (await res.json()) as MutationResult
+      return res.ok
+        ? result
+        : { success: false, error: result.error ?? "Kategori gagal ditambahkan" }
     },
     onSuccess: (data) => {
       if (data.success) {
@@ -51,7 +54,10 @@ export function useUpdateKategori() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
       })
-      return res.json()
+      const result = (await res.json()) as MutationResult
+      return res.ok
+        ? result
+        : { success: false, error: result.error ?? "Kategori gagal diperbarui" }
     },
     onSuccess: (data) => {
       if (data.success) {

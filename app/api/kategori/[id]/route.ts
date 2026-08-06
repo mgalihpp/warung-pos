@@ -30,6 +30,15 @@ async function uniqueCategorySlug(name: string, ignoreId?: string) {
   }
 }
 
+function isUniqueConstraintError(error: unknown) {
+  return (
+    typeof error === "object" &&
+    error !== null &&
+    "code" in error &&
+    error.code === "P2002"
+  )
+}
+
 type RouteContext = { params: Promise<{ id: string }> }
 
 export async function PUT(request: Request, context: RouteContext) {
@@ -67,14 +76,35 @@ export async function PUT(request: Request, context: RouteContext) {
     )
   }
 
-  await prisma.category.update({
-    where: { id },
-    data: {
-      name: result.data.name,
-      slug: await uniqueCategorySlug(result.data.name, id),
-      description: result.data.description ?? null,
-    },
+  const existing = await prisma.category.findUnique({
+    where: { name: result.data.name },
+    select: { id: true },
   })
+  if (existing && existing.id !== id) {
+    return NextResponse.json(
+      { success: false, error: "Nama kategori sudah terdaftar" },
+      { status: 409 }
+    )
+  }
+
+  try {
+    await prisma.category.update({
+      where: { id },
+      data: {
+        name: result.data.name,
+        slug: await uniqueCategorySlug(result.data.name, id),
+        description: result.data.description ?? null,
+      },
+    })
+  } catch (error) {
+    if (isUniqueConstraintError(error)) {
+      return NextResponse.json(
+        { success: false, error: "Nama kategori sudah terdaftar" },
+        { status: 409 }
+      )
+    }
+    throw error
+  }
 
   return NextResponse.json({ success: true })
 }
