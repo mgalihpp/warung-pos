@@ -7,6 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import {
   Edit02Icon,
   InformationCircleIcon,
+  NoteIcon,
   PackageIcon,
   Wallet02Icon,
   ShoppingBag02Icon,
@@ -257,6 +258,21 @@ export function CashierTransaksiDetailMobile({
           ))}
         </div>
       </div>
+
+      {/* ── Catatan ── */}
+      {data.notes && (
+        <div className="rounded-xl border bg-card p-4 shadow-sm">
+          <div className="mb-3 flex items-center gap-2.5">
+            <div className="flex size-8 items-center justify-center rounded-lg bg-primary/10 text-primary">
+              <HugeiconsIcon icon={NoteIcon} size={18} />
+            </div>
+            <h2 className="text-sm font-bold">Catatan</h2>
+          </div>
+          <p className="text-sm leading-relaxed text-foreground/80">
+            {data.notes}
+          </p>
+        </div>
+      )}
 
       {canManage ? (
         <div className="fixed inset-x-0 bottom-0 z-30 border-t bg-background/95 px-4 py-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))] shadow-[0_-12px_30px_rgba(15,23,42,0.12)] backdrop-blur lg:hidden">
