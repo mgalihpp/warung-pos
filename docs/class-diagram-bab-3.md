@@ -54,6 +54,7 @@ classDiagram
     +Float amountPaid
     +Float change
     +DateTime createdAt
+    +DateTime updatedAt
     +createTransaction()
     +calculateTotal()
     +calculateChange()
@@ -126,19 +127,19 @@ Class utama pada aplikasi terdiri dari enam entity utama, yaitu `User`, `Categor
 
 Class `User` digunakan untuk menyimpan data pengguna aplikasi. Pengguna memiliki role yang membedakan akses antara admin dan kasir.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key pengguna. |
-| name | String | Nama pengguna. |
-| email | String | Email pengguna dan bersifat unik. |
-| emailVerified | Boolean | Status verifikasi email. |
-| image | String? | Foto profil pengguna. |
-| role | String? | Role pengguna, yaitu admin atau cashier. |
-| banned | Boolean? | Status banned pengguna. |
-| banReason | String? | Alasan pengguna dibanned. |
-| banExpires | DateTime? | Batas waktu banned pengguna. |
-| createdAt | DateTime | Waktu data pengguna dibuat. |
-| updatedAt | DateTime | Waktu data pengguna terakhir diperbarui. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(32) | Primary key pengguna. |
+| name | varchar(100) | Nama pengguna. |
+| email | varchar(255) | Email pengguna dan bersifat unik. |
+| emailVerified | boolean | Status verifikasi email. |
+| image | varchar(500) | Foto profil pengguna. |
+| role | varchar(20) | Role pengguna, yaitu admin atau cashier. |
+| banned | boolean | Status banned pengguna. |
+| banReason | varchar(255) | Alasan pengguna dibanned. |
+| banExpires | timestamp | Batas waktu banned pengguna. |
+| createdAt | timestamp | Waktu data pengguna dibuat. |
+| updatedAt | timestamp | Waktu data pengguna terakhir diperbarui. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
@@ -160,14 +161,14 @@ Class `User` digunakan untuk menyimpan data pengguna aplikasi. Pengguna memiliki
 
 Class `Category` digunakan untuk mengelompokkan barang berdasarkan jenisnya, misalnya sembako, minuman, makanan ringan, dan kebutuhan rumah tangga.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key kategori. |
-| name | String | Nama kategori dan bersifat unik. |
-| slug | String | Format URL dari nama kategori dan bersifat unik. |
-| description | String? | Deskripsi kategori. |
-| createdAt | DateTime | Waktu kategori dibuat. |
-| updatedAt | DateTime | Waktu kategori terakhir diperbarui. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(30) | Primary key kategori. |
+| name | varchar(100) | Nama kategori dan bersifat unik. |
+| slug | varchar(120) | Format URL dari nama kategori dan bersifat unik. |
+| description | varchar(500) | Deskripsi kategori. |
+| createdAt | timestamp | Waktu kategori dibuat. |
+| updatedAt | timestamp | Waktu kategori terakhir diperbarui. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
@@ -188,21 +189,21 @@ Class `Category` digunakan untuk mengelompokkan barang berdasarkan jenisnya, mis
 
 Class `Product` digunakan untuk menyimpan informasi barang yang dijual pada aplikasi POS.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key produk. |
-| name | String | Nama produk. |
-| categoryId | String | Foreign key ke class Category. |
-| image | String? | URL gambar produk. |
-| unit | String | Satuan produk, seperti pcs, bungkus, botol, atau kg. |
-| stock | Int | Jumlah stok saat ini. |
-| minStock | Int | Batas minimal stok. |
-| buyPrice | Float | Harga beli/modal produk. |
-| sellPrice | Float | Harga jual produk. |
-| description | String? | Deskripsi produk. |
-| isActive | Boolean | Status aktif produk. |
-| createdAt | DateTime | Waktu produk dibuat. |
-| updatedAt | DateTime | Waktu produk terakhir diperbarui. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(30) | Primary key produk. |
+| name | varchar(200) | Nama produk. |
+| categoryId | varchar(30) | Foreign key ke class Category. |
+| image | varchar(500) | URL gambar produk. |
+| unit | varchar(50) | Satuan produk, seperti pcs, bungkus, botol, atau kg. |
+| stock | integer | Jumlah stok saat ini. |
+| minStock | integer | Batas minimal stok. |
+| buyPrice | double precision | Harga beli/modal produk. |
+| sellPrice | double precision | Harga jual produk. |
+| description | varchar(1000) | Deskripsi produk. |
+| isActive | boolean | Status aktif produk. |
+| createdAt | timestamp | Waktu produk dibuat. |
+| updatedAt | timestamp | Waktu produk terakhir diperbarui. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
@@ -227,20 +228,21 @@ Class `Product` digunakan untuk menyimpan informasi barang yang dijual pada apli
 
 Class `Transaction` digunakan untuk menyimpan data transaksi penjualan yang dilakukan oleh kasir.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key transaksi. |
-| transactionNumber | String | Nomor transaksi unik. |
-| cashierId | String | Foreign key ke class User. |
-| cashierName | String | Nama kasir yang melakukan transaksi. |
-| paymentMethod | PaymentMethod | Metode pembayaran: CASH, QRIS_MANUAL, atau MANUAL_TRANSFER. |
-| status | TransactionStatus | Status transaksi: COMPLETED, PENDING, atau CANCELLED. |
-| subtotal | Float | Total awal sebelum perhitungan akhir. |
-| total | Float | Total akhir transaksi. |
-| amountPaid | Float | Jumlah uang yang dibayarkan pelanggan. |
-| change | Float | Jumlah kembalian. |
-| notes | String? | Catatan transaksi. |
-| createdAt | DateTime | Waktu transaksi dibuat. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(30) | Primary key transaksi. |
+| transactionNumber | varchar(30) | Nomor transaksi unik. |
+| cashierId | varchar(32) | Foreign key ke class User. |
+| cashierName | varchar(100) | Nama kasir yang melakukan transaksi. |
+| paymentMethod | enum | Metode pembayaran: CASH, QRIS_MANUAL, atau MANUAL_TRANSFER. |
+| status | enum | Status transaksi: COMPLETED, PENDING, atau CANCELLED. |
+| subtotal | double precision | Total awal sebelum perhitungan akhir. |
+| total | double precision | Total akhir transaksi. |
+| amountPaid | double precision | Jumlah uang yang dibayarkan pelanggan. |
+| change | double precision | Jumlah kembalian. |
+| notes | varchar(500) | Catatan transaksi. |
+| createdAt | timestamp | Waktu transaksi dibuat. |
+| updatedAt | timestamp | Waktu transaksi terakhir diperbarui. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
@@ -264,18 +266,18 @@ Class `Transaction` digunakan untuk menyimpan data transaksi penjualan yang dila
 
 Class `TransactionItem` digunakan untuk menyimpan detail barang yang dibeli dalam satu transaksi.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key detail transaksi. |
-| transactionId | String | Foreign key ke class Transaction. |
-| productId | String | Foreign key ke class Product. |
-| productName | String | Nama produk saat transaksi terjadi. |
-| unitPrice | Float | Harga jual produk saat transaksi terjadi. |
-| costPrice | Float | Harga modal produk saat transaksi terjadi. |
-| quantity | Int | Jumlah produk yang dibeli. |
-| subtotal | Float | Subtotal item transaksi. |
-| grossProfit | Float | Keuntungan kotor dari item transaksi. |
-| createdAt | DateTime | Waktu detail transaksi dibuat. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(30) | Primary key detail transaksi. |
+| transactionId | varchar(30) | Foreign key ke class Transaction. |
+| productId | varchar(30) | Foreign key ke class Product. |
+| productName | varchar(200) | Nama produk saat transaksi terjadi. |
+| unitPrice | double precision | Harga jual produk saat transaksi terjadi. |
+| costPrice | double precision | Harga modal produk saat transaksi terjadi. |
+| quantity | integer | Jumlah produk yang dibeli. |
+| subtotal | double precision | Subtotal item transaksi. |
+| grossProfit | double precision | Keuntungan kotor dari item transaksi. |
+| createdAt | timestamp | Waktu detail transaksi dibuat. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
@@ -295,18 +297,18 @@ Class `TransactionItem` digunakan untuk menyimpan detail barang yang dibeli dala
 
 Class `StockAdjustment` digunakan untuk mencatat setiap perubahan stok barang, baik karena transaksi penjualan, penambahan stok, pengurangan stok, maupun koreksi stok.
 
-| Atribut | Tipe Data | Keterangan |
-|---------|-----------|------------|
-| id | String | Primary key penyesuaian stok. |
-| productId | String | Foreign key ke class Product. |
-| userId | String | Foreign key ke class User. |
-| type | String | Jenis perubahan stok: IN, OUT, atau CORRECTION. |
-| quantity | Int | Jumlah perubahan stok. |
-| stockBefore | Int | Stok sebelum perubahan. |
-| stockAfter | Int | Stok setelah perubahan. |
-| reason | String? | Alasan perubahan stok. |
-| referenceId | String? | Referensi, misalnya ID transaksi. |
-| createdAt | DateTime | Waktu perubahan stok dicatat. |
+| Nama | Tipe Data | Keterangan |
+|------|-----------|------------|
+| id | varchar(30) | Primary key penyesuaian stok. |
+| productId | varchar(30) | Foreign key ke class Product. |
+| userId | varchar(32) | Foreign key ke class User. |
+| type | varchar(20) | Jenis perubahan stok: IN, OUT, atau CORRECTION. |
+| quantity | integer | Jumlah perubahan stok. |
+| stockBefore | integer | Stok sebelum perubahan. |
+| stockAfter | integer | Stok setelah perubahan. |
+| reason | varchar(500) | Alasan perubahan stok. |
+| referenceId | varchar(30) | Referensi, misalnya ID transaksi. |
+| createdAt | timestamp | Waktu perubahan stok dicatat. |
 
 | Method/Operasi | Keterangan |
 |---------------|------------|
