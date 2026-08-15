@@ -22,7 +22,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import { formatRupiah } from "@/lib/format-currency"
+import { formatCompact, formatRupiah } from "@/lib/format-currency"
 import type {
   SalesChartPoint,
   SalesRange,
@@ -80,6 +80,8 @@ function ChartPanel({
   dataKey: "penjualan" | "laba"
   type: "line" | "bar"
 }) {
+  const max = Math.max(0, ...data.map((d) => d[dataKey]))
+  const tickFormatter = (v: number) => formatCompact(v, max)
   return (
     <div className="flex h-full min-w-0 flex-col overflow-hidden rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-4 flex items-center justify-between">
@@ -115,9 +117,7 @@ function ChartPanel({
                 axisLine={false}
                 fontSize={11}
                 tickMargin={4}
-                tickFormatter={(v) =>
-                  `${(v / 1000000).toFixed(1).replace(".", ",")} jt`
-                }
+                tickFormatter={tickFormatter}
               />
               <ChartTooltip
                 content={
@@ -150,9 +150,7 @@ function ChartPanel({
                 axisLine={false}
                 fontSize={11}
                 tickMargin={4}
-                tickFormatter={(v) =>
-                  `${(v / 1000000).toFixed(1).replace(".", ",")} jt`
-                }
+                tickFormatter={tickFormatter}
               />
               <ChartTooltip
                 content={

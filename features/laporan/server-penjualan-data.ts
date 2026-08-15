@@ -226,14 +226,35 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     month: "short",
   })
 
-  const salesTrend = dayKeys.map((k) => ({
+  const makePoint = (k: string) => ({
     date:
       range === "ytd"
         ? labelMonthFmt.format(new Date(`${k}T00:00:00+07:00`))
         : labelDayFmt.format(new Date(`${k}T00:00:00+07:00`)),
     penjualan: penjualanByDay.get(k) ?? 0,
     laba: labaByDay.get(k) ?? 0,
-  }))
+  })
+
+  const salesTrend =
+    range === "30d"
+      ? Array.from(
+          { length: Math.ceil(dayKeys.length / 7) },
+          (_, i) => dayKeys.slice(i * 7, i * 7 + 7)
+        ).map((chunk) => {
+          const first = new Date(`${chunk[0]}T00:00:00+07:00`)
+          const last = new Date(
+            `${chunk[chunk.length - 1]}T00:00:00+07:00`
+          )
+          return {
+            date: `${labelDayFmt.format(first)} – ${labelDayFmt.format(last)}`,
+            penjualan: chunk.reduce(
+              (s, k) => s + (penjualanByDay.get(k) ?? 0),
+              0
+            ),
+            laba: chunk.reduce((s, k) => s + (labaByDay.get(k) ?? 0), 0),
+          }
+        })
+      : dayKeys.map(makePoint)
 
   // Daily summary table — last up to 30 days descending
   const dailySummary = [...dayKeys]

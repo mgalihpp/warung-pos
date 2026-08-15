@@ -18,13 +18,13 @@ import {
   Wallet03Icon,
 } from "@hugeicons/core-free-icons"
 import {
-  Area,
-  AreaChart,
   Bar,
   BarChart,
   CartesianGrid,
   Cell,
+  ComposedChart,
   LabelList,
+  Line,
   Pie,
   PieChart,
   XAxis,
@@ -47,7 +47,7 @@ import {
 } from "@/components/ui/drawer"
 import { useSearchParam } from "@/hooks/use-search-param"
 import { downloadCSV } from "@/lib/export-csv"
-import { formatRupiah, formatNumber } from "@/lib/format-currency"
+import { formatCompact, formatRupiah, formatNumber } from "@/lib/format-currency"
 import type { RawExportRow } from "@/features/laporan/server-export-data"
 import {
   useLaporanPenjualan,
@@ -478,11 +478,16 @@ function StatCard({
 
 const salesChartConfig = {
   penjualan: { label: "Penjualan", color: "var(--color-chart-4)" },
-  laba: { label: "Laba", color: "var(--color-chart-2)" },
+  laba: { label: "Laba", color: "#eab308" },
 } satisfies ChartConfig
 
 function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
   const total = data.reduce((s, d) => s + d.penjualan, 0)
+  const max = Math.max(
+    0,
+    ...data.flatMap((d) => [d.penjualan, d.laba])
+  )
+  const tickFormatter = (v: number) => formatCompact(v, max)
   return (
     <div className="rounded-xl border bg-card p-4 shadow-sm">
       <div className="mb-4 flex items-start justify-between gap-3">
@@ -504,42 +509,10 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
           config={salesChartConfig}
           className="h-[260px] w-full sm:h-[300px]"
         >
-          <AreaChart
+          <ComposedChart
             data={data}
             margin={{ left: 2, right: 8, top: 8, bottom: 0 }}
           >
-            <defs>
-              <linearGradient
-                id="penjualanGradient"
-                x1="0"
-                y1="0"
-                x2="0"
-                y2="1"
-              >
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-chart-4)"
-                  stopOpacity={0.28}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-chart-4)"
-                  stopOpacity={0.02}
-                />
-              </linearGradient>
-              <linearGradient id="labaGradient" x1="0" y1="0" x2="0" y2="1">
-                <stop
-                  offset="5%"
-                  stopColor="var(--color-chart-2)"
-                  stopOpacity={0.28}
-                />
-                <stop
-                  offset="95%"
-                  stopColor="var(--color-chart-2)"
-                  stopOpacity={0.02}
-                />
-              </linearGradient>
-            </defs>
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
             <XAxis
               dataKey="date"
@@ -553,30 +526,24 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
               tickLine={false}
               axisLine={false}
               fontSize={11}
-              tickFormatter={(v) =>
-                Number(v) >= 1_000_000
-                  ? `${(Number(v) / 1_000_000).toFixed(1)}M`
-                  : `${Math.round(Number(v) / 1000)}k`
-              }
+              tickFormatter={tickFormatter}
             />
             <ChartTooltip content={<ChartTooltipContent />} />
-            <Area
-              type="monotone"
+            <Bar
               dataKey="penjualan"
-              stroke="var(--color-chart-4)"
-              strokeWidth={3}
-              fill="url(#penjualanGradient)"
-              activeDot={{ r: 4 }}
+              fill="var(--color-chart-4)"
+              radius={[6, 6, 0, 0]}
+              maxBarSize={36}
             />
-            <Area
+            <Line
               type="monotone"
               dataKey="laba"
-              stroke="var(--color-chart-2)"
-              strokeWidth={2}
-              fill="url(#labaGradient)"
-              activeDot={{ r: 3 }}
+              stroke="#eab308"
+              strokeWidth={2.5}
+              dot={{ r: 3 }}
+              isAnimationActive={false}
             />
-          </AreaChart>
+          </ComposedChart>
         </ChartContainer>
       )}
     </div>
@@ -1556,11 +1523,11 @@ function TopProductsChartCard({
       ) : (
         <ChartContainer
           config={config}
-          className="h-[220px] w-full sm:h-[240px]"
+          className="h-[240px] w-full sm:h-[280px]"
         >
           <BarChart
             data={sorted}
-            margin={{ top: 16, right: 8, left: 2, bottom: 0 }}
+            margin={{ top: 16, right: 8, left: 2, bottom: 8 }}
             barCategoryGap={10}
           >
             <CartesianGrid vertical={false} strokeDasharray="3 3" />
@@ -1571,9 +1538,9 @@ function TopProductsChartCard({
               fontSize={11}
               tickMargin={8}
               interval={0}
-              tickFormatter={(v: string) =>
-                v.length > 12 ? `${v.slice(0, 12)}…` : v
-              }
+              angle={-45}
+              textAnchor="end"
+              height={72}
             />
             <YAxis
               tickLine={false}
