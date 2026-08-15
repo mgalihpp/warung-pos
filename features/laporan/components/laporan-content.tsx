@@ -1525,55 +1525,63 @@ function TopProductsChartCard({
       ) : (
         <ChartContainer
           config={config}
-          className="h-[240px] w-full sm:h-[280px]"
+          className="h-[280px] w-full sm:h-[320px]"
         >
           <BarChart
             data={sorted}
-            margin={{ top: 16, right: 8, left: 2, bottom: 8 }}
+            layout="vertical"
+            margin={{ left: 4, right: 36, top: 4, bottom: 0 }}
             barCategoryGap={10}
           >
-            <CartesianGrid vertical={false} strokeDasharray="3 3" />
+            <CartesianGrid horizontal={false} strokeDasharray="3 3" />
             <XAxis
+              type="number"
+              hide
+            />
+            <YAxis
+              type="category"
               dataKey="name"
               tickLine={false}
               axisLine={false}
+              width={140}
+              tickMargin={6}
               fontSize={11}
-              tickMargin={8}
               interval={0}
-              angle={-45}
-              textAnchor="end"
-              height={72}
-            />
-            <YAxis
-              tickLine={false}
-              axisLine={false}
-              fontSize={11}
-              allowDecimals={false}
+              tickFormatter={(value) => {
+                const label = String(value)
+                return label.length > 22
+                  ? `${label.slice(0, 21).trimEnd()}…`
+                  : label
+              }}
             />
             <ChartTooltip
               cursor={{ fill: "var(--color-muted)", opacity: 0.4 }}
               content={
                 <ChartTooltipContent
                   labelKey="name"
-                  formatter={(value, _name, item) => (
-                    <span className="font-mono font-medium text-foreground tabular-nums">
-                      {value} unit ·{" "}
-                      {formatRupiah(
-                        (item as { payload?: TopProductItem })?.payload
-                          ?.revenue ?? 0
-                      )}
-                    </span>
-                  )}
+                  formatter={(value, _name, item) => {
+                    const product = (
+                      item as { payload?: TopProductItem }
+                    )?.payload
+                    return (
+                      <span className="font-mono font-medium text-foreground tabular-nums">
+                        <span className="mr-1.5 font-sans font-medium">
+                          {product?.name}
+                        </span>
+                        {value} unit · {formatRupiah(product?.revenue ?? 0)}
+                      </span>
+                    )
+                  }}
                 />
               }
             />
-            <Bar dataKey="sold" radius={[4, 4, 0, 0]} maxBarSize={36}>
+            <Bar dataKey="sold" radius={[0, 4, 4, 0]} maxBarSize={22}>
               {sorted.map((entry) => (
                 <Cell key={entry.id} fill="var(--color-chart-4)" />
               ))}
               <LabelList
                 dataKey="sold"
-                position="top"
+                position="right"
                 className="fill-muted-foreground"
                 fontSize={11}
               />

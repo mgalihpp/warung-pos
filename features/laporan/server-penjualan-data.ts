@@ -96,7 +96,7 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
       },
       _sum: { quantity: true, subtotal: true },
       orderBy: { _sum: { quantity: "desc" } },
-      take: 5,
+      take: 8,
     }),
     prisma.product.findMany({
       select: { id: true, name: true, unit: true, image: true },
