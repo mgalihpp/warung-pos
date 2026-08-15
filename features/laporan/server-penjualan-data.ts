@@ -225,6 +225,11 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
     timeZone: TZ,
     month: "short",
   })
+  const labelWeekFmt = new Intl.DateTimeFormat("id-ID", {
+    timeZone: TZ,
+    day: "numeric",
+    month: "short",
+  })
 
   const makePoint = (k: string) => ({
     date:
@@ -245,8 +250,17 @@ export async function getLaporanPenjualanData(range: LaporanRange = "30d") {
           const last = new Date(
             `${chunk[chunk.length - 1]}T00:00:00+07:00`
           )
+          const firstParts = labelWeekFmt.formatToParts(first)
+          const lastParts = labelWeekFmt.formatToParts(last)
+          const day = (parts: Intl.DateTimeFormatPart[]) =>
+            parts.find((p) => p.type === "day")?.value ?? ""
+          const month = (parts: Intl.DateTimeFormatPart[]) =>
+            parts.find((p) => p.type === "month")?.value ?? ""
+          const sameMonth = month(firstParts) === month(lastParts)
           return {
-            date: `${labelDayFmt.format(first)} – ${labelDayFmt.format(last)}`,
+            date: sameMonth
+              ? `${day(firstParts)}–${day(lastParts)} ${month(firstParts)}`
+              : `${day(firstParts)} ${month(firstParts)} – ${day(lastParts)} ${month(lastParts)}`,
             penjualan: chunk.reduce(
               (s, k) => s + (penjualanByDay.get(k) ?? 0),
               0

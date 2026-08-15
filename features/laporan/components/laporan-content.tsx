@@ -520,7 +520,7 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
               axisLine={false}
               fontSize={11}
               tickMargin={10}
-              interval="preserveStartEnd"
+              interval={0}
             />
             <YAxis
               tickLine={false}
@@ -528,7 +528,9 @@ function SalesTrendCard({ data }: { data: PenjualanData["salesTrend"] }) {
               fontSize={11}
               tickFormatter={tickFormatter}
             />
-            <ChartTooltip content={<ChartTooltipContent />} />
+            <ChartTooltip
+              content={<ChartTooltipContent className="min-w-[200px]" />}
+            />
             <Bar
               dataKey="penjualan"
               fill="var(--color-chart-4)"
